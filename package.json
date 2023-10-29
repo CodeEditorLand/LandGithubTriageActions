@@ -1,25 +1,30 @@
 {
   "name": "vscode-github-triage-actions",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "GitHub Actions used by VS Code for triaging issues",
   "scripts": {
     "test": "mocha -r ts-node/register **/*.test.ts",
     "build": "tsc",
     "compile": "tsc",
     "lint": "eslint -c .eslintrc --fix --ext .ts .",
-    "watch": "tsc --watch"
+    "watch": "tsc --watch",
+    "prepublishOnly": "TypeScriptESBuild Source/**/*.ts"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/microsoft/vscode-github-triage-actions.git"
+    "url": "git+https://github.com/CodeEditorLand/CodeEditorLand.git"
   },
   "keywords": [],
-  "author": "",
+  "author": {
+    "name": "Nikola Hristov",
+    "email": "nikola@nikolahristov.tech",
+    "url": "https://nikolahristov.tech"
+  },
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/microsoft/vscode-github-triage-actions/issues"
+    "url": "https://github.com/CodeEditorLand/CodeEditorLand/issues"
   },
-  "homepage": "https://github.com/microsoft/vscode-github-triage-actions#readme",
+  "homepage": "https://github.com/CodeEditorLand/CodeEditorLand#readme",
   "dependencies": {
     "@actions/core": "1.10.1",
     "@actions/github": "6.0.0",
@@ -48,6 +53,12 @@
     "prettier": "3.0.3",
     "ts-node": "10.9.1",
     "typescript": "5.2.2",
-    "yargs": "17.7.2"
+    "yargs": "17.7.2",
+    "typescript-esbuild": "0.3.1"
+  },
+  "type": "module",
+  "private": "false",
+  "publishConfig": {
+    "access": "public"
   }
 }
