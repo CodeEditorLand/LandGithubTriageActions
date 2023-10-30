@@ -3,12 +3,12 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { Octokit } from '@octokit/rest';
-import { WebClient } from '@slack/web-api';
-import { GitHubIssue } from '../api/api';
-import { OctoKitIssue } from '../api/octokit';
-import { safeLog } from '../common/utils';
-import { VSCodeToolsAPIManager } from '../api/vscodeTools';
+import { Octokit } from "@octokit/rest";
+import { WebClient } from "@slack/web-api";
+import { GitHubIssue } from "../api/api";
+import { OctoKitIssue } from "../api/octokit";
+import { safeLog } from "../common/utils";
+import { VSCodeToolsAPIManager } from "../api/vscodeTools";
 
 interface PR {
 	number: number;
@@ -38,9 +38,9 @@ interface SlackReaction {
 }
 
 interface SlackMessage {
-	type: 'message';
+	type: "message";
 	// Tombstone if deleted, channel_join if it's a join message.
-	subtype: 'tombstone' | 'channel_join' | undefined;
+	subtype: "tombstone" | "channel_join" | undefined;
 	text: string;
 	reply_count?: number;
 	ts: string;
@@ -62,29 +62,33 @@ export interface Options {
 export function createPRObject(pullRequestFromApi: any): PR {
 	const pr = {
 		number: pullRequestFromApi.number,
-		body: pullRequestFromApi.body || '',
+		body: pullRequestFromApi.body || "",
 		additions: pullRequestFromApi.additions,
 		deletions: pullRequestFromApi.deletions,
 		changed_files: pullRequestFromApi.changed_files,
-		url: pullRequestFromApi.html_url || '',
+		url: pullRequestFromApi.html_url || "",
 		owner: pullRequestFromApi.user.login,
 		draft: pullRequestFromApi.draft || false,
-		baseBranchName: pullRequestFromApi.base.ref ?? '',
-		headBranchName: pullRequestFromApi.head.ref ?? '',
+		baseBranchName: pullRequestFromApi.base.ref ?? "",
+		headBranchName: pullRequestFromApi.head.ref ?? "",
 		title: pullRequestFromApi.title,
 	};
 	return pr;
 }
 
 class Chatter {
-	constructor(protected slackToken: string, protected notificationChannel: string) {}
+	constructor(
+		protected slackToken: string,
+		protected notificationChannel: string
+	) {}
 
 	async getChat(): Promise<{ client: WebClient; channel: string }> {
 		const web = new WebClient(this.slackToken);
 		const memberships = await listAllMemberships(web);
 
 		const codereviewChannel =
-			this.notificationChannel && memberships.find((m) => m.name === this.notificationChannel);
+			this.notificationChannel &&
+			memberships.find((m) => m.name === this.notificationChannel);
 
 		if (!codereviewChannel) {
 			throw Error(`Slack channel not found: ${this.notificationChannel}`);
@@ -99,10 +103,12 @@ export class CodeReviewChatDeleter extends Chatter {
 		slackToken: string,
 		slackElevatedUserToken: string | undefined,
 		notificationChannel: string,
-		private prUrl: string,
+		private prUrl: string
 	) {
 		super(slackToken, notificationChannel);
-		this.elevatedClient = slackElevatedUserToken ? new WebClient(slackElevatedUserToken) : undefined;
+		this.elevatedClient = slackElevatedUserToken
+			? new WebClient(slackElevatedUserToken)
+			: undefined;
 	}
 
 	async run() {
@@ -113,7 +119,7 @@ export class CodeReviewChatDeleter extends Chatter {
 			limit: 20,
 		});
 		if (!response.ok || !response.messages) {
-			throw Error('Error getting channel history');
+			throw Error("Error getting channel history");
 		}
 		const messages = response.messages as SlackMessage[];
 
@@ -124,16 +130,23 @@ export class CodeReviewChatDeleter extends Chatter {
 				return true;
 			}
 			const hasWhiteCheckMark = message.reactions?.some(
-				(reaction) => reaction.name === 'white_check_mark',
+				(reaction) => reaction.name === "white_check_mark"
 			);
 			// Extract PR URL from the chat message. It is in the form https://https://github.com/{repo}/pull/{number}
-			const prUrl = message.text.match(/https:\/\/github.com\/.*\/pull\/\d+/)?.[0] ?? '';
+			const prUrl =
+				message.text.match(
+					/https:\/\/github.com\/.*\/pull\/\d+/
+				)?.[0] ?? "";
 			if (isCodeReviewMessage) {
-				safeLog(`${prUrl} was closed or met review threshold. Deleting the message.`);
+				safeLog(
+					`${prUrl} was closed or met review threshold. Deleting the message.`
+				);
 			}
 			if (this.elevatedClient && message.reactions) {
 				if (hasWhiteCheckMark) {
-					safeLog(`Message ${prUrl} has a check mark reaction, deleting it.`);
+					safeLog(
+						`Message ${prUrl} has a check mark reaction, deleting it.`
+					);
 				}
 				// If we have an elevated client we can delete the message as long it has a "white_check_mark" reaction
 				return isCodeReviewMessage || hasWhiteCheckMark;
@@ -151,17 +164,19 @@ export class CodeReviewChatDeleter extends Chatter {
 					ts: message.ts,
 				});
 				if (!replyThread.ok || !replyThread.messages) {
-					safeLog('Error getting messages replies');
+					safeLog("Error getting messages replies");
 				} else {
 					// Pushback everything but the first reply since the first reply is the original message
-					replies.push(...(replyThread.messages as SlackMessage[]).slice(1));
+					replies.push(
+						...(replyThread.messages as SlackMessage[]).slice(1)
+					);
 				}
 			}
 		}
 		messagesToDelete.push(...replies);
 
 		if (messagesToDelete.length === 0) {
-			safeLog('no message found, exiting');
+			safeLog("no message found, exiting");
 			return;
 		}
 		try {
@@ -169,7 +184,7 @@ export class CodeReviewChatDeleter extends Chatter {
 			for (const message of messagesToDelete) {
 				// Can't delete already deleted messages.
 				// The reason they're in the array is so we can get their replies
-				if (message.subtype === 'tombstone') {
+				if (message.subtype === "tombstone") {
 					continue;
 				}
 				if (this.elevatedClient) {
@@ -198,7 +213,7 @@ export class CodeReviewChat extends Chatter {
 		private issue: GitHubIssue,
 		private options: Options,
 		private readonly pullRequestNumber: number,
-		private readonly _externalContributorPR?: boolean,
+		private readonly _externalContributorPR?: boolean
 	) {
 		super(options.slackToken, options.codereviewChannel);
 	}
@@ -214,14 +229,19 @@ export class CodeReviewChat extends Chatter {
 	}
 
 	private async postExternalPRMessage(pr: PR) {
-		const requestedReviewersAPIResponse = await this.octokit.pulls.listRequestedReviewers({
-			owner: this.options.payload.owner,
-			repo: this.options.payload.repo,
-			pull_number: this.options.payload.pr.number,
-		});
-		const requestedReviewers = requestedReviewersAPIResponse.data.users.map((user) => user.login);
+		const requestedReviewersAPIResponse =
+			await this.octokit.pulls.listRequestedReviewers({
+				owner: this.options.payload.owner,
+				repo: this.options.payload.repo,
+				pull_number: this.options.payload.pr.number,
+			});
+		const requestedReviewers = requestedReviewersAPIResponse.data.users.map(
+			(user) => user.login
+		);
 		if (requestedReviewers.length !== 0) {
-			safeLog('A secondary reviewer has been requested for this PR, skipping');
+			safeLog(
+				"A secondary reviewer has been requested for this PR, skipping"
+			);
 			return;
 		}
 		const message = this.getSlackMessage(pr);
@@ -229,19 +249,27 @@ export class CodeReviewChat extends Chatter {
 	}
 
 	private getSlackMessage(pr: PR) {
-		const cleanTitle = pr.title.replace(/`/g, '').replace('https://github.com/', '');
-		const changedFilesMessage = `${pr.changed_files} file` + (pr.changed_files > 1 ? 's' : '');
+		const cleanTitle = pr.title
+			.replace(/`/g, "")
+			.replace("https://github.com/", "");
+		const changedFilesMessage =
+			`${pr.changed_files} file` + (pr.changed_files > 1 ? "s" : "");
 		const diffMessage = `+${pr.additions.toLocaleString()} -${pr.deletions.toLocaleString()}, ${changedFilesMessage}`;
 		// The message that states which repo the PR is in, only populated for non microsoft/vscode PRs
 		const repoMessage =
-			this.options.payload.repo_full_name === 'microsoft/vscode'
-				? ':'
+			this.options.payload.repo_full_name === "microsoft/vscode"
+				? ":"
 				: ` (in ${this.options.payload.repo_full_name}):`;
 
 		const githubUrl = pr.url;
-		const vscodeDevUrl = pr.url.replace('https://', 'https://insiders.vscode.dev/');
+		const vscodeDevUrl = pr.url.replace(
+			"https://",
+			"https://insiders.vscode.dev/"
+		);
 
-		const externalPrefix = this._externalContributorPR ? 'External PR: ' : '';
+		const externalPrefix = this._externalContributorPR
+			? "External PR: "
+			: "";
 		const message = `${externalPrefix}*${cleanTitle}* by _${pr.owner}_${repoMessage} \`${diffMessage}\` <${githubUrl}|Review (GH)> | <${vscodeDevUrl}|Review (VSCode)>`;
 		return message;
 	}
@@ -257,21 +285,21 @@ export class CodeReviewChat extends Chatter {
 		).data;
 		const pr = createPRObject(prFromApi);
 		if (pr.draft) {
-			safeLog('PR is draft, ignoring');
+			safeLog("PR is draft, ignoring");
 			return;
 		}
 
 		// A small set of repos which we don't want to be posted
-		const ignoredRepos = ['vscode-extensions-loc', 'vscode-loc-drop'];
+		const ignoredRepos = ["vscode-extensions-loc", "vscode-loc-drop"];
 		// Ignore PRs from ignored repos
 		if (ignoredRepos.includes(this.options.payload.repo)) {
-			safeLog('PR is from ignored repo, ignoring');
+			safeLog("PR is from ignored repo, ignoring");
 			return;
 		}
 
 		// TODO @lramos15 possibly make this configurable
-		if (pr.baseBranchName.startsWith('release')) {
-			safeLog('PR is on a release branch, ignoring');
+		if (pr.baseBranchName.startsWith("release")) {
+			safeLog("PR is on a release branch, ignoring");
 			return;
 		}
 
@@ -288,11 +316,16 @@ export class CodeReviewChat extends Chatter {
 			return;
 		}
 
-		const teamMembers = new Set((await this.toolsAPI.getTeamMembers()).map((t) => t.id));
+		const teamMembers = new Set(
+			(await this.toolsAPI.getTeamMembers()).map((t) => t.id)
+		);
 		const author = data.author;
 		// Author must have write access to the repo or be a bot
-		if ((!teamMembers.has(author.name) && !author.isGitHubApp) || author.name.includes('dependabot')) {
-			safeLog('Issue author not team member, ignoring');
+		if (
+			(!teamMembers.has(author.name) && !author.isGitHubApp) ||
+			author.name.includes("dependabot")
+		) {
+			safeLog("Issue author not team member, ignoring");
 			return;
 		}
 		const tasks = [];
@@ -303,42 +336,46 @@ export class CodeReviewChat extends Chatter {
 
 		tasks.push(
 			(async () => {
-				const currentMilestone = await this.issue.getCurrentRepoMilestone();
+				const currentMilestone =
+					await this.issue.getCurrentRepoMilestone();
 				if (!data.milestone && currentMilestone) {
 					await this.issue.setMilestone(currentMilestone);
 				}
-			})(),
+			})()
 		);
 
 		tasks.push(
 			(async () => {
-				const [hasExistingReview, existingRequests] = await Promise.all([
-					meetsReviewThreshold(
-						this.octokit,
-						teamMembers,
-						this.options.payload.pr.number,
-						this.options.payload.repo,
-						this.options.payload.owner,
-						this.issue,
-					),
-					this.octokit.pulls.listRequestedReviewers({
-						owner: this.options.payload.owner,
-						repo: this.options.payload.repo,
-						pull_number: this.options.payload.pr.number,
-					}),
-				]);
+				const [hasExistingReview, existingRequests] = await Promise.all(
+					[
+						meetsReviewThreshold(
+							this.octokit,
+							teamMembers,
+							this.options.payload.pr.number,
+							this.options.payload.repo,
+							this.options.payload.owner,
+							this.issue
+						),
+						this.octokit.pulls.listRequestedReviewers({
+							owner: this.options.payload.owner,
+							repo: this.options.payload.repo,
+							pull_number: this.options.payload.pr.number,
+						}),
+					]
+				);
 
 				// Check to see if there is an existing review or review request. We don't check if the author is part of the review request as that isn't possible
-				const hasExisting = hasExistingReview || existingRequests?.data?.users?.length;
+				const hasExisting =
+					hasExistingReview || existingRequests?.data?.users?.length;
 				if (hasExisting) {
-					safeLog('had existing review requests, exiting');
+					safeLog("had existing review requests, exiting");
 					process.exit(0);
 				}
 
 				const message = this.getSlackMessage(pr);
 				safeLog(message);
 				await this.postMessage(message);
-			})(),
+			})()
 		);
 
 		await Promise.all(tasks);
@@ -364,7 +401,7 @@ export async function getTeamMemberReviews(
 	prNumber: number,
 	repo: string,
 	owner: string,
-	ghIssue: GitHubIssue | OctoKitIssue,
+	ghIssue: GitHubIssue | OctoKitIssue
 ) {
 	const reviews = await octokit.pulls.listReviews({
 		pull_number: prNumber,
@@ -383,7 +420,9 @@ export async function getTeamMemberReviews(
 	).data[0]?.commit?.committer?.date;
 
 	// Convert date string into unix timestamp
-	const lastCommitUnixTimestamp = lastCommitTimestamp ? new Date(lastCommitTimestamp).getTime() : 0;
+	const lastCommitUnixTimestamp = lastCommitTimestamp
+		? new Date(lastCommitTimestamp).getTime()
+		: 0;
 
 	// Only take the latest review of each user
 	const latestReviews = new Map();
@@ -394,20 +433,25 @@ export async function getTeamMemberReviews(
 		if (review.user.name === author || review.user.login === author) {
 			continue;
 		}
-		if (review.state === 'COMMENTED') {
+		if (review.state === "COMMENTED") {
 			continue;
 		}
 		const isTeamMember = teamMembers.has(review.user.login);
 		if (!isTeamMember) {
 			continue;
 		}
-		const reviewTimestamp = review.submitted_at ? new Date(review.submitted_at).getTime() : 0;
+		const reviewTimestamp = review.submitted_at
+			? new Date(review.submitted_at).getTime()
+			: 0;
 		// Check that the review occured after the last commit
 		if (reviewTimestamp < lastCommitUnixTimestamp) {
 			continue;
 		}
 		const existingReview = latestReviews.get(review.user.login);
-		if (!existingReview || reviewTimestamp > new Date(existingReview.submitted_at).getTime()) {
+		if (
+			!existingReview ||
+			reviewTimestamp > new Date(existingReview.submitted_at).getTime()
+		) {
 			latestReviews.set(review.user.login, review);
 		}
 	}
@@ -420,7 +464,7 @@ export async function meetsReviewThreshold(
 	prNumber: number,
 	repo: string,
 	owner: string,
-	ghIssue: GitHubIssue | OctoKitIssue,
+	ghIssue: GitHubIssue | OctoKitIssue
 ) {
 	// Get author of PR
 	const author = (await ghIssue.getIssue()).author.name;
@@ -430,10 +474,12 @@ export async function meetsReviewThreshold(
 		prNumber,
 		repo,
 		owner,
-		ghIssue,
+		ghIssue
 	);
 	// While more expensive to convert from Array -> Set -> Array, we want to ensure the same name isn't double counted if a user has multiple reviews
-	const reviewerNames = Array.from(new Set(teamMemberReviews?.map((r) => r.user?.login ?? 'Unknown')));
+	const reviewerNames = Array.from(
+		new Set(teamMemberReviews?.map((r) => r.user?.login ?? "Unknown"))
+	);
 	let meetsReviewThreshold = false;
 	// Team members require 1 review, external requires two
 	if (teamMembers.has(author)) {
@@ -443,7 +489,7 @@ export async function meetsReviewThreshold(
 	}
 	// Some more logging to help diagnose issues
 	if (meetsReviewThreshold) {
-		safeLog(`Met review threshold: ${reviewerNames.join(', ')}`);
+		safeLog(`Met review threshold: ${reviewerNames.join(", ")}`);
 	}
 	return meetsReviewThreshold;
 }
@@ -454,7 +500,7 @@ async function listAllMemberships(web: WebClient) {
 	do {
 		try {
 			groups = (await web.conversations.list({
-				types: 'public_channel,private_channel',
+				types: "public_channel,private_channel",
 				cursor: groups?.response_metadata?.next_cursor,
 				limit: 100,
 			})) as unknown as ConversationsList;

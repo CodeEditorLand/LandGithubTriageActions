@@ -3,31 +3,38 @@
  *  Licensed under the MIT License. See LICENSE in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { writeFileSync } from 'fs';
-import { join } from 'path';
-import { OctoKit } from '../../../api/octokit';
-import { getRequiredInput, daysAgoToHumanReadbleDate, normalizeIssue, safeLog } from '../../../common/utils';
-import { Action } from '../../../common/Action';
-import { execSync } from 'child_process';
-import { getInput, setFailed } from '@actions/core';
-import { downloadBlobFile } from '../../blobStorage';
+import { writeFileSync } from "fs";
+import { join } from "path";
+import { OctoKit } from "../../../api/octokit";
+import {
+	getRequiredInput,
+	daysAgoToHumanReadbleDate,
+	normalizeIssue,
+	safeLog,
+} from "../../../common/utils";
+import { Action } from "../../../common/Action";
+import { execSync } from "child_process";
+import { getInput, setFailed } from "@actions/core";
+import { downloadBlobFile } from "../../blobStorage";
 
 const minToDay = 0.0007;
-const fromInput = getInput('from') || undefined;
-const excludeLabels = (getInput('excludeLabels') || '')
-	.split('|')
+const fromInput = getInput("from") || undefined;
+const excludeLabels = (getInput("excludeLabels") || "")
+	.split("|")
 	.map((l) => `-label:${l}`)
-	.join(' ');
-const from = fromInput ? daysAgoToHumanReadbleDate(+fromInput * minToDay) : undefined;
-const until = daysAgoToHumanReadbleDate(+getRequiredInput('until') * minToDay);
+	.join(" ");
+const from = fromInput
+	? daysAgoToHumanReadbleDate(+fromInput * minToDay)
+	: undefined;
+const until = daysAgoToHumanReadbleDate(+getRequiredInput("until") * minToDay);
 
 const createdQuery = `created:` + (from ? `${from}..${until}` : `<${until}`);
 
-const blobContainer = getRequiredInput('blobContainerName');
-const blobStorageKey = getRequiredInput('blobStorageKey');
+const blobContainer = getRequiredInput("blobContainerName");
+const blobStorageKey = getRequiredInput("blobStorageKey");
 
 class FetchIssues extends Action {
-	id = 'Clasifier-Deep/Apply/FetchIssues';
+	id = "Clasifier-Deep/Apply/FetchIssues";
 
 	async onTriggered(github: OctoKit) {
 		const query = `${createdQuery} is:open no:assignee ${excludeLabels}`;
@@ -38,36 +45,46 @@ class FetchIssues extends Action {
 				const issueData = await issue.getIssue();
 
 				let performedPRAssignment = false;
-				let additionalInfo = '';
+				let additionalInfo = "";
 				if (issueData.isPr) {
 					if (await github.hasWriteAccess(issueData.author.name)) {
 						await issue.addAssignee(issueData.author.name);
 						performedPRAssignment = true;
 					} else {
 						try {
-							safeLog('issue is a PR, attempting to read find a linked issue');
-							const linkedIssue = issueData.body.match(/#(\d{3,7})/)?.[1];
+							safeLog(
+								"issue is a PR, attempting to read find a linked issue"
+							);
+							const linkedIssue =
+								issueData.body.match(/#(\d{3,7})/)?.[1];
 							if (linkedIssue) {
-								safeLog('PR is linked to', linkedIssue);
+								safeLog("PR is linked to", linkedIssue);
 								const linkedIssueData = await github
 									.getIssueByNumber(+linkedIssue)
 									.getIssue();
-								const normalized = normalizeIssue(linkedIssueData);
+								const normalized =
+									normalizeIssue(linkedIssueData);
 								additionalInfo = `\n\n${normalized.title}\n\n${normalized.body}`;
-								const linkedIssueAssignee = linkedIssueData.assignees[0];
+								const linkedIssueAssignee =
+									linkedIssueData.assignees[0];
 								if (linkedIssueAssignee) {
-									safeLog('linked issue is assigned to', linkedIssueAssignee);
-									await issue.addAssignee(linkedIssueAssignee);
+									safeLog(
+										"linked issue is assigned to",
+										linkedIssueAssignee
+									);
+									await issue.addAssignee(
+										linkedIssueAssignee
+									);
 									performedPRAssignment = true;
 								} else {
 									safeLog(
-										'unable to find assignee for linked issue. falling back to normal classification',
+										"unable to find assignee for linked issue. falling back to normal classification"
 									);
 								}
 							}
 						} catch (e) {
 							safeLog(
-								'Encountered error finding linked issue assignee. Falling back to normal classification',
+								"Encountered error finding linked issue assignee. Falling back to normal classification"
 							);
 						}
 					}
@@ -76,30 +93,52 @@ class FetchIssues extends Action {
 					const cleansed = normalizeIssue(issueData);
 					data.push({
 						number: issueData.number,
-						contents: `${cleansed.title}\n\n${cleansed.body}` + additionalInfo,
+						contents:
+							`${cleansed.title}\n\n${cleansed.body}` +
+							additionalInfo,
 					});
 				}
 			}
 		}
 
-		writeFileSync(join(__dirname, '../issue_data.json'), JSON.stringify(data));
+		writeFileSync(
+			join(__dirname, "../issue_data.json"),
+			JSON.stringify(data)
+		);
 
-		const config = await github.readConfig(getRequiredInput('configPath'));
-		writeFileSync(join(__dirname, '../configuration.json'), JSON.stringify(config));
+		const config = await github.readConfig(getRequiredInput("configPath"));
+		writeFileSync(
+			join(__dirname, "../configuration.json"),
+			JSON.stringify(config)
+		);
 
-		safeLog('dowloading area model');
-		await downloadBlobFile('area_model.zip', blobContainer, blobStorageKey);
-		safeLog('dowloading assignee model');
-		await downloadBlobFile('assignee_model.zip', blobContainer, blobStorageKey);
+		safeLog("dowloading area model");
+		await downloadBlobFile("area_model.zip", blobContainer, blobStorageKey);
+		safeLog("dowloading assignee model");
+		await downloadBlobFile(
+			"assignee_model.zip",
+			blobContainer,
+			blobStorageKey
+		);
 
-		const classifierDeepRoot = join(__dirname, '..', '..');
-		const blobStorage = join(classifierDeepRoot, 'blobStorage');
-		const models = join(classifierDeepRoot, 'apply');
+		const classifierDeepRoot = join(__dirname, "..", "..");
+		const blobStorage = join(classifierDeepRoot, "blobStorage");
+		const models = join(classifierDeepRoot, "apply");
 
-		safeLog('unzipping area model');
-		execSync(`unzip -q ${join(blobStorage, 'area_model.zip')} -d ${join(models, 'area_model')}`);
-		safeLog('unzipping assignee model');
-		execSync(`unzip -q ${join(blobStorage, 'assignee_model.zip')} -d ${join(models, 'assignee_model')}`);
+		safeLog("unzipping area model");
+		execSync(
+			`unzip -q ${join(blobStorage, "area_model.zip")} -d ${join(
+				models,
+				"area_model"
+			)}`
+		);
+		safeLog("unzipping assignee model");
+		execSync(
+			`unzip -q ${join(blobStorage, "assignee_model.zip")} -d ${join(
+				models,
+				"assignee_model"
+			)}`
+		);
 	}
 }
 

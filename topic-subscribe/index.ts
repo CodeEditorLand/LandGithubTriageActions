@@ -3,17 +3,19 @@
  *  Licensed under the MIT License. See LICENSE in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { OctoKitIssue } from '../api/octokit';
-import { getRequiredInput } from '../common/utils';
-import { Action } from '../common/Action';
+import { OctoKitIssue } from "../api/octokit";
+import { getRequiredInput } from "../common/utils";
+import { Action } from "../common/Action";
 
 type Config = { [laabel: string]: string[] };
 
 class SubscribeRunner extends Action {
-	id = 'Subscribe';
+	id = "Subscribe";
 
 	async onLabeled(issue: OctoKitIssue, label: string) {
-		const subscribe: Config = await issue.readConfig(getRequiredInput('config-path'));
+		const subscribe: Config = await issue.readConfig(
+			getRequiredInput("config-path")
+		);
 		const config = subscribe?.[label];
 		const prefix = `Pinging \`${label}\` topic followers: `;
 		if (config) {
@@ -22,9 +24,11 @@ class SubscribeRunner extends Action {
 					return;
 				}
 			}
-			await issue.postComment(prefix + config.map((name) => `@${name}`).join(' '));
+			await issue.postComment(
+				prefix + config.map((name) => `@${name}`).join(" ")
+			);
 		}
 	}
 }
 
-new SubscribeRunner().run() // eslint-disable-line
+new SubscribeRunner().run(); // eslint-disable-line

@@ -1,21 +1,24 @@
 name: "Classifier: Fetch Issues"
-description: Collect the issues which need to be labeled and write them to a file for later processing
+description:
+    Collect the issues which need to be labeled and write them to a file for
+    later processing
 inputs:
-  token:
-    description: GitHub token with issue, comment, and label read/write permissions
-    default: ${{ github.token }}
-  from:
-    description: Start point of collected issues (minutes ago)
-    required: true
-  until:
-    description: End point of collected issues (minutes ago)
-    required: true
-  blobContainerName:
-    description: Name of Azure Storage container
-    required: true
-  blobStorageKey:
-    description: Access string for blob storage account
-    required: true
+    token:
+        description:
+            GitHub token with issue, comment, and label read/write permissions
+        default: ${{ github.token }}
+    from:
+        description: Start point of collected issues (minutes ago)
+        required: true
+    until:
+        description: End point of collected issues (minutes ago)
+        required: true
+    blobContainerName:
+        description: Name of Azure Storage container
+        required: true
+    blobStorageKey:
+        description: Access string for blob storage account
+        required: true
 runs:
-  using: 'node16'
-  main: 'index.js'
+    using: "node16"
+    main: "index.js"
