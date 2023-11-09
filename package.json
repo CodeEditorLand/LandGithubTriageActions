@@ -1,65 +1,53 @@
 {
-	"name": "vscode-github-triage-actions",
-	"version": "0.0.1",
-	"private": "false",
-	"description": "GitHub Actions used by VS Code for triaging issues",
-	"keywords": [],
-	"homepage": "https://github.com/CodeEditorLand/CodeEditorLand#readme",
-	"bugs": {
-		"url": "https://github.com/CodeEditorLand/CodeEditorLand/issues"
-	},
-	"repository": {
-		"type": "git",
-		"url": "git+https://github.com/CodeEditorLand/CodeEditorLand.git"
-	},
-	"license": "MIT",
-	"author": {
-		"name": "Nikola Hristov",
-		"email": "nikola@nikolahristov.tech",
-		"url": "https://nikolahristov.tech"
-	},
-	"publisher": "playform",
-	"type": "module",
-	"scripts": {
-		"build": "tsc",
-		"compile": "tsc",
-		"lint": "eslint -c .eslintrc --fix --ext .ts .",
-		"prepublishOnly": "TypeScriptESBuild 'Source/**/*.ts'",
-		"test": "mocha -r ts-node/register **/*.test.ts",
-		"watch": "tsc --watch"
-	},
-	"dependencies": {
-		"@actions/core": "1.10.1",
-		"@actions/github": "6.0.0",
-		"@azure/core-http": "3.0.3",
-		"@azure/identity": "3.3.2",
-		"@azure/storage-blob": "12.16.0",
-		"@octokit/rest": "20.0.2",
-		"@slack/web-api": "6.9.0",
-		"axios": "1.6.0",
-		"uuid": "9.0.1"
-	},
-	"devDependencies": {
-		"@types/chai": "4.3.9",
-		"@types/mocha": "10.0.3",
-		"@types/uuid": "9.0.6",
-		"@types/yargs": "17.0.29",
-		"@typescript-eslint/eslint-plugin": "6.9.0",
-		"@typescript-eslint/parser": "6.9.0",
-		"chai": "4.3.10",
-		"eslint": "8.52.0",
-		"eslint-config-prettier": "9.0.0",
-		"eslint-plugin-prettier": "5.0.1",
-		"husky": "8.0.3",
-		"mocha": "10.2.0",
-		"nock": "13.3.6",
-		"prettier": "3.0.3",
-		"ts-node": "10.9.1",
-		"typescript": "5.2.2",
-		"typescript-esbuild": "0.3.1",
-		"yargs": "17.7.2"
-	},
-	"publishConfig": {
-		"access": "public"
-	}
+  "name": "vscode-github-triage-actions",
+  "version": "1.0.0",
+  "description": "GitHub Actions used by VS Code for triaging issues",
+  "scripts": {
+    "test": "mocha -r ts-node/register **/*.test.ts",
+    "build": "tsc",
+    "compile": "tsc",
+    "lint": "eslint -c .eslintrc --fix --ext .ts .",
+    "watch": "tsc --watch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/microsoft/vscode-github-triage-actions.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/microsoft/vscode-github-triage-actions/issues"
+  },
+  "homepage": "https://github.com/microsoft/vscode-github-triage-actions#readme",
+  "dependencies": {
+    "@actions/core": "^1.9.1",
+    "@actions/github": "^5.0.3",
+    "@azure/core-http": "^3.0.2",
+    "@azure/identity": "^3.2.3",
+    "@azure/storage-blob": "^12.13.0",
+    "@octokit/rest": "^19.0.3",
+    "@slack/web-api": "^6.7.2",
+    "axios": "^0.27.2",
+    "uuid": "^8.3.2"
+  },
+  "devDependencies": {
+    "@types/chai": "^4.3.3",
+    "@types/mocha": "^9.1.1",
+    "@types/uuid": "^8.3.4",
+    "@types/yargs": "^17.0.11",
+    "@typescript-eslint/eslint-plugin": "^5.33.0",
+    "@typescript-eslint/parser": "^5.33.0",
+    "chai": "^4.3.6",
+    "eslint": "^8.21.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-prettier": "^4.2.1",
+    "husky": "^8.0.1",
+    "mocha": "^10.0.0",
+    "nock": "^13.2.9",
+    "prettier": "2.7.1",
+    "ts-node": "^10.9.1",
+    "typescript": "^4.7.4",
+    "yargs": "^17.5.1"
+  }
 }

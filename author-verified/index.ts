@@ -3,22 +3,18 @@
  *  Licensed under the MIT License. See LICENSE in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { OctoKitIssue } from "../api/octokit";
-import { getRequiredInput } from "../common/utils";
-import { AuthorVerifiedLabeler } from "./AuthorVerified";
-import { Action } from "../common/Action";
+import { OctoKitIssue } from '../api/octokit';
+import { getRequiredInput } from '../common/utils';
+import { AuthorVerifiedLabeler } from './AuthorVerified';
+import { Action } from '../common/Action';
 
-const requestVerificationComment = getRequiredInput(
-	"requestVerificationComment"
-);
-const releasedLabel = getRequiredInput("releasedLabel");
-const verifiedLabel = getRequiredInput("verifiedLabel");
-const authorVerificationRequestedLabel = getRequiredInput(
-	"authorVerificationRequestedLabel"
-);
+const requestVerificationComment = getRequiredInput('requestVerificationComment');
+const releasedLabel = getRequiredInput('releasedLabel');
+const verifiedLabel = getRequiredInput('verifiedLabel');
+const authorVerificationRequestedLabel = getRequiredInput('authorVerificationRequestedLabel');
 
 class AuthorVerified extends Action {
-	id = "AuthorVerified";
+	id = 'AuthorVerified';
 
 	private runLabler(issue: OctoKitIssue) {
 		return new AuthorVerifiedLabeler(
@@ -26,7 +22,7 @@ class AuthorVerified extends Action {
 			requestVerificationComment,
 			releasedLabel,
 			authorVerificationRequestedLabel,
-			verifiedLabel
+			verifiedLabel,
 		).run();
 	}
 
@@ -35,13 +31,10 @@ class AuthorVerified extends Action {
 	}
 
 	async onLabeled(issue: OctoKitIssue, label: string) {
-		if (
-			label === authorVerificationRequestedLabel ||
-			label === releasedLabel
-		) {
+		if (label === authorVerificationRequestedLabel || label === releasedLabel) {
 			await this.runLabler(issue);
 		}
 	}
 }
 
-new AuthorVerified().run(); // eslint-disable-line
+new AuthorVerified().run() // eslint-disable-line

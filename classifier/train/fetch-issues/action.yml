@@ -1,14 +1,13 @@
 name: "Trainer: Fetch Issues"
 description: Download all issues and associated labeling data
 inputs:
-    token:
-        description:
-            GitHub token with issue, comment, and label read/write permissions
-        default: ${{ github.token }}
-    areas:
-        description: Pipe-seperated list of feature-areas to classify
-    assignees:
-        description: Pipe-seperated list of assignees to classify
+  token:
+    description: GitHub token with issue, comment, and label read/write permissions
+    default: ${{ github.token }}
+  areas:
+    description: Pipe-seperated list of feature-areas to classify
+  assignees:
+    description: Pipe-seperated list of assignees to classify
 runs:
-    using: "node16"
-    main: "index.js"
+  using: 'node16'
+  main: 'index.js'

@@ -3,13 +3,9 @@
  *  Licensed under the MIT License. See LICENSE in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { expect } from "chai";
-import { Comment } from "../api/api";
-import {
-	Testbed,
-	TestbedIssue,
-	TestbedIssueConstructorArgs,
-} from "../api/testbed";
+import { expect } from 'chai';
+import { Comment } from '../api/api';
+import { Testbed, TestbedIssue, TestbedIssueConstructorArgs } from '../api/testbed';
 import {
 	ACCEPT_MARKER,
 	CREATE_MARKER,
@@ -17,23 +13,23 @@ import {
 	FeatureRequestQueryer,
 	REJECT_MARKER,
 	WARN_MARKER,
-} from "./FeatureRequest";
+} from './FeatureRequest';
 
 const testConfig: FeatureRequestConfig = {
 	milestones: {
-		candidateName: "candidateMilestoneName",
+		candidateName: 'candidateMilestoneName',
 		candidateID: 1,
 		backlogID: 2,
 	},
-	featureRequestLabel: "featureRequestLabel",
+	featureRequestLabel: 'featureRequestLabel',
 	upvotesRequired: 3,
 	numCommentsOverride: 4,
 	labelsToExclude: [],
 	comments: {
-		init: "initComment",
-		warn: "warnComment",
-		accept: "acceptComment",
-		reject: "rejectComment",
+		init: 'initComment',
+		warn: 'warnComment',
+		accept: 'acceptComment',
+		reject: 'rejectComment',
 	},
 	delays: {
 		warn: 5,
@@ -44,7 +40,7 @@ const testConfig: FeatureRequestConfig = {
 const initalizeTestbed = (
 	issueConfig: TestbedIssueConstructorArgs,
 	milestoneId: number,
-	comments: { body: string; daysAgo: number }[]
+	comments: { body: string; daysAgo: number }[],
 ): { testbed: Testbed; issueTestbed: TestbedIssue } => {
 	const issue = new TestbedIssue(
 		{},
@@ -52,12 +48,12 @@ const initalizeTestbed = (
 			issue: issueConfig.issue,
 			labels: issueConfig.labels,
 			comments: comments.map((comment, index) => ({
-				author: { name: "rando" },
+				author: { name: 'rando' },
 				body: comment.body,
 				id: index,
 				timestamp: Date.now() - comment.daysAgo * 24 * 60 * 60 * 1000,
 			})),
-		}
+		},
 	);
 
 	void issue.setMilestone(milestoneId);
@@ -78,62 +74,58 @@ const getAllComments = async (issue: TestbedIssue): Promise<Comment[]> => {
 	return comments;
 };
 
-describe("FeatureRequest", () => {
-	describe("Queryer", () => {
-		describe("Initial", () => {
-			it("Does not add a comment to issues without the label", async () => {
+describe('FeatureRequest', () => {
+	describe('Queryer', () => {
+		describe('Initial', () => {
+			it('Does not add a comment to issues without the label', async () => {
 				const { testbed, issueTestbed } = initalizeTestbed(
 					{ issue: {} },
 					testConfig.milestones.candidateID,
-					[]
+					[],
 				);
 				await new FeatureRequestQueryer(testbed, testConfig).run();
 				expect((await getAllComments(issueTestbed)).length).equal(0);
 			});
 
-			it("Does not add a comment to closed issues", async () => {
+			it('Does not add a comment to closed issues', async () => {
 				const { testbed, issueTestbed } = initalizeTestbed(
 					{
 						issue: { open: false },
-						labels: ["featureRequestLabel"],
+						labels: ['featureRequestLabel'],
 					},
 					testConfig.milestones.candidateID,
 
-					[]
+					[],
 				);
 				await new FeatureRequestQueryer(testbed, testConfig).run();
 				expect((await getAllComments(issueTestbed)).length).equal(0);
 			});
 
-			it("Adds a comment to issues which have feature request label and candidate milestone but not init comment", async () => {
+			it('Adds a comment to issues which have feature request label and candidate milestone but not init comment', async () => {
 				const { testbed, issueTestbed } = initalizeTestbed(
 					{
 						issue: {},
-						labels: ["featureRequestLabel"],
+						labels: ['featureRequestLabel'],
 					},
 					testConfig.milestones.candidateID,
 
-					[]
+					[],
 				);
 				await new FeatureRequestQueryer(testbed, testConfig).run();
 				expect((await getAllComments(issueTestbed)).length).equal(1);
-				expect((await getAllComments(issueTestbed))[0].body).contains(
-					CREATE_MARKER
-				);
-				expect((await getAllComments(issueTestbed))[0].body).contains(
-					"initComment"
-				);
+				expect((await getAllComments(issueTestbed))[0].body).contains(CREATE_MARKER);
+				expect((await getAllComments(issueTestbed))[0].body).contains('initComment');
 			});
 
-			it("Does not double add init comment", async () => {
+			it('Does not double add init comment', async () => {
 				const { testbed, issueTestbed } = initalizeTestbed(
 					{
 						issue: {},
-						labels: ["featureRequestLabel"],
+						labels: ['featureRequestLabel'],
 					},
 					testConfig.milestones.candidateID,
 
-					[]
+					[],
 				);
 				await new FeatureRequestQueryer(testbed, testConfig).run();
 				await new FeatureRequestQueryer(testbed, testConfig).run();
@@ -141,128 +133,116 @@ describe("FeatureRequest", () => {
 			});
 		});
 
-		describe("Warning", () => {
-			it("Adds a warning to issues which are nearing closure", async () => {
+		describe('Warning', () => {
+			it('Adds a warning to issues which are nearing closure', async () => {
 				const { testbed, issueTestbed } = initalizeTestbed(
 					{
 						issue: {},
-						labels: ["featureRequestLabel"],
+						labels: ['featureRequestLabel'],
 					},
 					testConfig.milestones.candidateID,
 
-					[{ body: CREATE_MARKER + "initComment", daysAgo: 2 }]
+					[{ body: CREATE_MARKER + 'initComment', daysAgo: 2 }],
 				);
 				await new FeatureRequestQueryer(testbed, testConfig).run();
 				expect((await getAllComments(issueTestbed)).length).equal(2);
-				expect((await getAllComments(issueTestbed))[1].body).contains(
-					WARN_MARKER
-				);
-				expect((await getAllComments(issueTestbed))[1].body).contains(
-					"warnComment"
-				);
+				expect((await getAllComments(issueTestbed))[1].body).contains(WARN_MARKER);
+				expect((await getAllComments(issueTestbed))[1].body).contains('warnComment');
 			});
 
-			it("Does not warn if the issue has a large conversation", async () => {
+			it('Does not warn if the issue has a large conversation', async () => {
 				const { testbed, issueTestbed } = initalizeTestbed(
 					{
 						issue: {},
-						labels: ["featureRequestLabel"],
+						labels: ['featureRequestLabel'],
 					},
 					testConfig.milestones.candidateID,
 
 					[
-						{ body: CREATE_MARKER + "initComment", daysAgo: 2 },
-						{ body: "hello", daysAgo: 1.7 },
-						{ body: "cruel", daysAgo: 1.5 },
-						{ body: "cruel", daysAgo: 1.3 },
-						{ body: "world", daysAgo: 1 },
-					]
+						{ body: CREATE_MARKER + 'initComment', daysAgo: 2 },
+						{ body: 'hello', daysAgo: 1.7 },
+						{ body: 'cruel', daysAgo: 1.5 },
+						{ body: 'cruel', daysAgo: 1.3 },
+						{ body: 'world', daysAgo: 1 },
+					],
 				);
 				await new FeatureRequestQueryer(testbed, testConfig).run();
 				expect((await getAllComments(issueTestbed)).length).equal(5);
 			});
 
-			it("Does not double add a warning comment", async () => {
+			it('Does not double add a warning comment', async () => {
 				const { testbed, issueTestbed } = initalizeTestbed(
 					{
 						issue: {},
-						labels: ["featureRequestLabel"],
+						labels: ['featureRequestLabel'],
 					},
 					testConfig.milestones.candidateID,
 
-					[{ body: CREATE_MARKER + "initComment", daysAgo: 2 }]
+					[{ body: CREATE_MARKER + 'initComment', daysAgo: 2 }],
 				);
 				await new FeatureRequestQueryer(testbed, testConfig).run();
 				await new FeatureRequestQueryer(testbed, testConfig).run();
 				expect((await getAllComments(issueTestbed)).length).equal(2);
-				expect((await getAllComments(issueTestbed))[1].body).contains(
-					WARN_MARKER
-				);
-				expect((await getAllComments(issueTestbed))[1].body).contains(
-					"warnComment"
-				);
+				expect((await getAllComments(issueTestbed))[1].body).contains(WARN_MARKER);
+				expect((await getAllComments(issueTestbed))[1].body).contains('warnComment');
 			});
 		});
 
-		describe("Rejecting", () => {
-			it("Closes issues only after the proper days have passed since warning", async () => {
+		describe('Rejecting', () => {
+			it('Closes issues only after the proper days have passed since warning', async () => {
 				const { testbed, issueTestbed } = initalizeTestbed(
 					{
 						issue: {},
-						labels: ["featureRequestLabel"],
+						labels: ['featureRequestLabel'],
 					},
 					testConfig.milestones.candidateID,
 
 					[
-						{ body: CREATE_MARKER + "initComment", daysAgo: 7 },
+						{ body: CREATE_MARKER + 'initComment', daysAgo: 7 },
 						// warnComment delayed for wahtever reason. Issue should be closed until N days have passed, as thats that the warn comment says.
-						{ body: WARN_MARKER + "warnComment", daysAgo: 1 },
-					]
+						{ body: WARN_MARKER + 'warnComment', daysAgo: 1 },
+					],
 				);
 				await new FeatureRequestQueryer(testbed, testConfig).run();
 				expect((await getAllComments(issueTestbed)).length).equal(2);
 			});
 
-			it("Closes & rejects issues which have not recieved enough upvotes", async () => {
+			it('Closes & rejects issues which have not recieved enough upvotes', async () => {
 				const { testbed, issueTestbed } = initalizeTestbed(
 					{
 						issue: {},
-						labels: ["featureRequestLabel"],
+						labels: ['featureRequestLabel'],
 					},
 					testConfig.milestones.candidateID,
 
 					[
-						{ body: CREATE_MARKER + "initComment", daysAgo: 7 },
-						{ body: WARN_MARKER + "warnComment", daysAgo: 6 },
-					]
+						{ body: CREATE_MARKER + 'initComment', daysAgo: 7 },
+						{ body: WARN_MARKER + 'warnComment', daysAgo: 6 },
+					],
 				);
 				await new FeatureRequestQueryer(testbed, testConfig).run();
 				expect((await getAllComments(issueTestbed)).length).equal(3);
-				expect((await getAllComments(issueTestbed))[2].body).contains(
-					REJECT_MARKER
-				);
-				expect((await getAllComments(issueTestbed))[2].body).contains(
-					"rejectComment"
-				);
+				expect((await getAllComments(issueTestbed))[2].body).contains(REJECT_MARKER);
+				expect((await getAllComments(issueTestbed))[2].body).contains('rejectComment');
 				expect(issueTestbed.issueConfig.issue.open).false;
 			});
 
-			it("Does not close issues which have an ongoing hearty conversation", async () => {
+			it('Does not close issues which have an ongoing hearty conversation', async () => {
 				const { testbed, issueTestbed } = initalizeTestbed(
 					{
 						issue: {},
-						labels: ["featureRequestLabel"],
+						labels: ['featureRequestLabel'],
 					},
 					testConfig.milestones.candidateID,
 
 					[
-						{ body: CREATE_MARKER + "initComment", daysAgo: 7 },
-						{ body: WARN_MARKER + "warnComment", daysAgo: 6 },
-						{ body: "hello", daysAgo: 1.7 },
-						{ body: "cruel", daysAgo: 1.5 },
-						{ body: "cruel", daysAgo: 1.3 },
-						{ body: "world", daysAgo: 1 },
-					]
+						{ body: CREATE_MARKER + 'initComment', daysAgo: 7 },
+						{ body: WARN_MARKER + 'warnComment', daysAgo: 6 },
+						{ body: 'hello', daysAgo: 1.7 },
+						{ body: 'cruel', daysAgo: 1.5 },
+						{ body: 'cruel', daysAgo: 1.3 },
+						{ body: 'world', daysAgo: 1 },
+					],
 				);
 				await new FeatureRequestQueryer(testbed, testConfig).run();
 				expect((await getAllComments(issueTestbed)).length).equal(6);
@@ -270,14 +250,14 @@ describe("FeatureRequest", () => {
 			});
 		});
 
-		describe("Accepting", () => {
-			it("Accepts issues which have sufficient upvotes", async () => {
+		describe('Accepting', () => {
+			it('Accepts issues which have sufficient upvotes', async () => {
 				const { testbed, issueTestbed } = initalizeTestbed(
 					{
 						issue: {
 							reactions: {
-								"+1": 3,
-								"-1": 0,
+								'+1': 3,
+								'-1': 0,
 								confused: 0,
 								eyes: 0,
 								heart: 0,
@@ -286,40 +266,34 @@ describe("FeatureRequest", () => {
 								rocket: 0,
 							},
 						},
-						labels: ["featureRequestLabel"],
+						labels: ['featureRequestLabel'],
 					},
 					testConfig.milestones.candidateID,
 
 					[
-						{ body: CREATE_MARKER + "initComment", daysAgo: 7 },
-						{ body: WARN_MARKER + "warnComment", daysAgo: 6 },
-						{ body: "hello", daysAgo: 1.7 },
-						{ body: "cruel", daysAgo: 1.5 },
-						{ body: "cruel", daysAgo: 1.3 },
-						{ body: "world", daysAgo: 1 },
-					]
+						{ body: CREATE_MARKER + 'initComment', daysAgo: 7 },
+						{ body: WARN_MARKER + 'warnComment', daysAgo: 6 },
+						{ body: 'hello', daysAgo: 1.7 },
+						{ body: 'cruel', daysAgo: 1.5 },
+						{ body: 'cruel', daysAgo: 1.3 },
+						{ body: 'world', daysAgo: 1 },
+					],
 				);
 				await new FeatureRequestQueryer(testbed, testConfig).run();
 				expect((await getAllComments(issueTestbed)).length).equal(7);
 				expect(issueTestbed.issueConfig.issue.open).true;
-				expect(
-					issueTestbed.issueConfig.issue.milestone?.milestoneId
-				).equal(2);
-				expect((await getAllComments(issueTestbed))[6].body).contains(
-					ACCEPT_MARKER
-				);
-				expect((await getAllComments(issueTestbed))[6].body).contains(
-					"acceptComment"
-				);
+				expect(issueTestbed.issueConfig.issue.milestone?.milestoneId).equal(2);
+				expect((await getAllComments(issueTestbed))[6].body).contains(ACCEPT_MARKER);
+				expect((await getAllComments(issueTestbed))[6].body).contains('acceptComment');
 			});
 
-			it("Doesnt accept issues which simply have enough of any reactions", async () => {
+			it('Doesnt accept issues which simply have enough of any reactions', async () => {
 				const { testbed, issueTestbed } = initalizeTestbed(
 					{
 						issue: {
 							reactions: {
-								"+1": 1,
-								"-1": 1,
+								'+1': 1,
+								'-1': 1,
 								confused: 1,
 								eyes: 1,
 								heart: 1,
@@ -328,10 +302,10 @@ describe("FeatureRequest", () => {
 								rocket: 1,
 							},
 						},
-						labels: ["featureRequestLabel"],
+						labels: ['featureRequestLabel'],
 					},
 					testConfig.milestones.candidateID,
-					[{ body: CREATE_MARKER + "initComment", daysAgo: 0 }]
+					[{ body: CREATE_MARKER + 'initComment', daysAgo: 0 }],
 				);
 				await new FeatureRequestQueryer(testbed, testConfig).run();
 				expect((await getAllComments(issueTestbed)).length).equal(1);
