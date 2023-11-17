@@ -3,26 +3,31 @@
  *  Licensed under the MIT License. See LICENSE in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { OctoKit, OctoKitIssue } from '../api/octokit';
-import { context, getOctokit } from '@actions/github';
-import { getRequiredInput, logErrorToIssue, errorLoggingIssue, safeLog } from './utils';
-import { getInput, setFailed } from '@actions/core';
-import { v4 as uuid } from 'uuid';
-import { WebhookPayload } from '@actions/github/lib/interfaces';
+import { OctoKit, OctoKitIssue } from "../api/octokit";
+import { context, getOctokit } from "@actions/github";
+import {
+	getRequiredInput,
+	logErrorToIssue,
+	errorLoggingIssue,
+	safeLog,
+} from "./utils";
+import { getInput, setFailed } from "@actions/core";
+import { v4 as uuid } from "uuid";
+import { WebhookPayload } from "@actions/github/lib/interfaces";
 
 export abstract class Action {
 	abstract id: string;
 
 	private username: Promise<string>;
-	private token = getRequiredInput('token');
+	private token = getRequiredInput("token");
 
 	constructor() {
-		console.log('::stop-commands::' + uuid());
+		console.log("::stop-commands::" + uuid());
 		this.username = getOctokit(this.token)
 			.rest.users.getAuthenticated()
 			.then(
-				(v) => v.data.name ?? 'unknown',
-				() => 'unknown',
+				(v) => v.data.name ?? "unknown",
+				() => "unknown"
 			);
 	}
 
@@ -34,65 +39,92 @@ export abstract class Action {
 				context.repo.owner === owner &&
 				context.payload.issue?.number === issue
 			) {
-				return safeLog('refusing to run on error logging issue to prevent cascading errors');
+				return safeLog(
+					"refusing to run on error logging issue to prevent cascading errors"
+				);
 			}
 		}
 
 		try {
-			const token = getRequiredInput('token');
-			const readonly = !!getInput('readonly');
+			const token = getRequiredInput("token");
+			const readonly = !!getInput("readonly");
 
 			const issue = context?.issue?.number;
 			if (issue) {
-				const octokit = new OctoKitIssue(token, context.repo, { number: issue }, { readonly });
-				if (context.eventName === 'issue_comment') {
-					await this.onCommented(octokit, context.payload.comment?.body, context.actor);
+				const octokit = new OctoKitIssue(
+					token,
+					context.repo,
+					{ number: issue },
+					{ readonly }
+				);
+				if (context.eventName === "issue_comment") {
+					await this.onCommented(
+						octokit,
+						context.payload.comment?.body,
+						context.actor
+					);
 				} else if (
-					context.eventName === 'issues' ||
-					context.eventName === 'pull_request' ||
-					context.eventName === 'pull_request_target'
+					context.eventName === "issues" ||
+					context.eventName === "pull_request" ||
+					context.eventName === "pull_request_target"
 				) {
 					switch (context.payload.action) {
-						case 'opened':
-						case 'ready_for_review':
+						case "opened":
+						case "ready_for_review":
 							await this.onOpened(octokit, context.payload);
 							break;
-						case 'reopened':
+						case "reopened":
 							await this.onReopened(octokit);
 							break;
-						case 'closed':
+						case "closed":
 							await this.onClosed(octokit, context.payload);
 							break;
-						case 'labeled':
-							await this.onLabeled(octokit, context.payload.label.name);
+						case "labeled":
+							await this.onLabeled(
+								octokit,
+								context.payload.label.name
+							);
 							break;
-						case 'assigned':
-							await this.onAssigned(octokit, context.payload.assignee.login);
+						case "assigned":
+							await this.onAssigned(
+								octokit,
+								context.payload.assignee.login
+							);
 							break;
-						case 'unassigned':
-							await this.onUnassigned(octokit, context.payload.assignee.login);
+						case "unassigned":
+							await this.onUnassigned(
+								octokit,
+								context.payload.assignee.login
+							);
 							break;
-						case 'edited':
+						case "edited":
 							await this.onEdited(octokit);
 							break;
-						case 'milestoned':
+						case "milestoned":
 							await this.onMilestoned(octokit);
 							break;
-						case 'converted_to_draft':
-							await this.onConvertedToDraft(octokit, context.payload);
+						case "converted_to_draft":
+							await this.onConvertedToDraft(
+								octokit,
+								context.payload
+							);
 							break;
 						default:
-							throw Error('Unexpected action: ' + context.payload.action);
+							throw Error(
+								"Unexpected action: " + context.payload.action
+							);
 					}
 				}
-			} else if (context.eventName === 'create') {
+			} else if (context.eventName === "create") {
 				await this.onCreated(
 					new OctoKit(token, context.repo, { readonly }),
 					context?.payload?.ref,
-					context?.payload?.sender?.login,
+					context?.payload?.sender?.login
 				);
 			} else {
-				await this.onTriggered(new OctoKit(token, context.repo, { readonly }));
+				await this.onTriggered(
+					new OctoKit(token, context.repo, { readonly })
+				);
 			}
 		} catch (e) {
 			const err = e as Error;
@@ -128,39 +160,65 @@ ID: ${details.id}
 	}
 
 	protected async onTriggered(_octokit: OctoKit): Promise<void> {
-		throw Error('not implemented');
+		throw Error("not implemented");
 	}
-	protected async onCreated(_octokit: OctoKit, _ref: string, _creator: string): Promise<void> {
-		throw Error('not implemented');
+	protected async onCreated(
+		_octokit: OctoKit,
+		_ref: string,
+		_creator: string
+	): Promise<void> {
+		throw Error("not implemented");
 	}
 	protected async onEdited(_issue: OctoKitIssue): Promise<void> {
-		throw Error('not implemented');
+		throw Error("not implemented");
 	}
-	protected async onLabeled(_issue: OctoKitIssue, _label: string): Promise<void> {
-		throw Error('not implemented');
+	protected async onLabeled(
+		_issue: OctoKitIssue,
+		_label: string
+	): Promise<void> {
+		throw Error("not implemented");
 	}
-	protected async onAssigned(_issue: OctoKitIssue, _assignee: string): Promise<void> {
-		throw Error('not implemented');
+	protected async onAssigned(
+		_issue: OctoKitIssue,
+		_assignee: string
+	): Promise<void> {
+		throw Error("not implemented");
 	}
-	protected async onUnassigned(_issue: OctoKitIssue, _assignee: string): Promise<void> {
-		throw Error('not implemented');
+	protected async onUnassigned(
+		_issue: OctoKitIssue,
+		_assignee: string
+	): Promise<void> {
+		throw Error("not implemented");
 	}
-	protected async onOpened(_issue: OctoKitIssue, _payload: WebhookPayload): Promise<void> {
-		throw Error('not implemented');
+	protected async onOpened(
+		_issue: OctoKitIssue,
+		_payload: WebhookPayload
+	): Promise<void> {
+		throw Error("not implemented");
 	}
 	protected async onReopened(_issue: OctoKitIssue): Promise<void> {
-		throw Error('not implemented');
+		throw Error("not implemented");
 	}
-	protected async onClosed(_issue: OctoKitIssue, _payload: WebhookPayload): Promise<void> {
-		throw Error('not implemented');
+	protected async onClosed(
+		_issue: OctoKitIssue,
+		_payload: WebhookPayload
+	): Promise<void> {
+		throw Error("not implemented");
 	}
-	protected async onConvertedToDraft(_issue: OctoKitIssue, _payload: WebhookPayload): Promise<void> {
-		throw Error('not implemented');
+	protected async onConvertedToDraft(
+		_issue: OctoKitIssue,
+		_payload: WebhookPayload
+	): Promise<void> {
+		throw Error("not implemented");
 	}
 	protected async onMilestoned(_issue: OctoKitIssue): Promise<void> {
-		throw Error('not implemented');
+		throw Error("not implemented");
 	}
-	protected async onCommented(_issue: OctoKitIssue, _comment: string, _actor: string): Promise<void> {
-		throw Error('not implemented');
+	protected async onCommented(
+		_issue: OctoKitIssue,
+		_comment: string,
+		_actor: string
+	): Promise<void> {
+		throw Error("not implemented");
 	}
 }

@@ -10,13 +10,23 @@ const utils_1 = require("../common/utils");
 const RegexLabeler_1 = require("./RegexLabeler");
 const Action_1 = require("../common/Action");
 class RegexFlaggerActon extends Action_1.Action {
-    constructor() {
-        super(...arguments);
-        this.id = 'RegexFlagger';
-    }
-    async onOpened() {
-        await new RegexLabeler_1.RegexFlagger(new octokit_1.OctoKitIssue((0, utils_1.getRequiredInput)('token'), github_1.context.repo, { number: github_1.context.issue.number }), (0, utils_1.getInput)('label'), (0, utils_1.getInput)('comment'), (0, utils_1.getInput)('mustMatch'), (0, utils_1.getInput)('mustNotMatch')).run();
-    }
+	constructor() {
+		super(...arguments);
+		this.id = "RegexFlagger";
+	}
+	async onOpened() {
+		await new RegexLabeler_1.RegexFlagger(
+			new octokit_1.OctoKitIssue(
+				(0, utils_1.getRequiredInput)("token"),
+				github_1.context.repo,
+				{ number: github_1.context.issue.number }
+			),
+			(0, utils_1.getInput)("label"),
+			(0, utils_1.getInput)("comment"),
+			(0, utils_1.getInput)("mustMatch"),
+			(0, utils_1.getInput)("mustNotMatch")
+		).run();
+	}
 }
 new RegexFlaggerActon().run(); // eslint-disable-line
 //# sourceMappingURL=index.js.map
