@@ -1,52 +1,62 @@
 {
-	"name": "vscode-github-triage-actions",
-	"version": "1.0.0",
-	"description": "GitHub Actions used by VS Code for triaging issues",
-	"keywords": [],
-	"homepage": "https://github.com/microsoft/vscode-github-triage-actions#readme",
-	"bugs": {
-		"url": "https://github.com/microsoft/vscode-github-triage-actions/issues"
-	},
-	"repository": {
-		"type": "git",
-		"url": "git+https://github.com/microsoft/vscode-github-triage-actions.git"
-	},
-	"license": "MIT",
-	"author": "",
-	"scripts": {
-		"build": "tsc",
-		"compile": "tsc",
-		"lint": "eslint -c .eslintrc --fix --ext .ts .",
-		"test": "mocha -r ts-node/register **/*.test.ts",
-		"watch": "tsc --watch"
-	},
-	"dependencies": {
-		"@actions/core": "1.10.1",
-		"@actions/github": "6.0.0",
-		"@azure/core-http": "3.0.4",
-		"@azure/identity": "4.0.0",
-		"@azure/storage-blob": "12.17.0",
-		"@octokit/rest": "20.0.2",
-		"@slack/web-api": "6.10.0",
-		"axios": "1.6.2",
-		"uuid": "9.0.1"
-	},
-	"devDependencies": {
-		"@types/chai": "4.3.10",
-		"@types/mocha": "10.0.4",
-		"@types/uuid": "9.0.7",
-		"@types/yargs": "17.0.31",
-		"@typescript-eslint/eslint-plugin": "6.11.0",
-		"@typescript-eslint/parser": "6.11.0",
-		"chai": "4.3.10",
-		"eslint": "8.54.0",
-		"eslint-config-prettier": "9.0.0",
-		"eslint-plugin-prettier": "5.0.1",
-		"husky": "8.0.3",
-		"mocha": "10.2.0",
-		"nock": "13.3.8",
-		"ts-node": "10.9.1",
-		"typescript": "5.2.2",
-		"yargs": "17.7.2"
-	}
+  "name": "vscode-github-triage-actions",
+  "version": "0.0.1",
+  "description": "GitHub Actions used by VS Code for triaging issues",
+  "homepage": "https://github.com/CodeEditorLand/CodeEditorLand#readme",
+  "bugs": {
+    "url": "https://github.com/CodeEditorLand/CodeEditorLand/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CodeEditorLand/CodeEditorLand.git"
+  },
+  "license": "MIT",
+  "author": {
+    "name": "Nikola Hristov",
+    "email": "nikola@nikolahristov.tech",
+    "url": "https://nikolahristov.tech"
+  },
+  "scripts": {
+    "build": "tsc",
+    "compile": "tsc",
+    "lint": "eslint -c .eslintrc --fix --ext .ts .",
+    "test": "mocha -r ts-node/register **/*.test.ts",
+    "watch": "tsc --watch",
+    "prepublishOnly": "TypeScriptESBuild 'Source/**/*.ts'"
+  },
+  "dependencies": {
+    "@actions/core": "1.10.1",
+    "@actions/github": "6.0.0",
+    "@azure/core-http": "3.0.4",
+    "@azure/identity": "4.0.0",
+    "@azure/storage-blob": "12.17.0",
+    "@octokit/rest": "20.0.2",
+    "@slack/web-api": "6.10.0",
+    "axios": "1.6.2",
+    "uuid": "9.0.1"
+  },
+  "devDependencies": {
+    "@types/chai": "4.3.11",
+    "@types/mocha": "10.0.6",
+    "@types/uuid": "9.0.7",
+    "@types/yargs": "17.0.32",
+    "@typescript-eslint/eslint-plugin": "6.12.0",
+    "@typescript-eslint/parser": "6.12.0",
+    "chai": "4.3.10",
+    "eslint-config-prettier": "9.0.0",
+    "eslint-plugin-prettier": "5.0.1",
+    "husky": "8.0.3",
+    "mocha": "10.2.0",
+    "nock": "13.3.8",
+    "ts-node": "10.9.1",
+    "typescript": "5.3.2",
+    "yargs": "17.7.2",
+    "typescript-esbuild": "0.3.1"
+  },
+  "type": "module",
+  "publisher": "playform",
+  "private": "false",
+  "publishConfig": {
+    "access": "public"
+  }
 }
