@@ -106,8 +106,8 @@ class OctoKit {
 				return typeof label === "string"
 					? label
 					: (_a = label.name) !== null && _a !== void 0
-					? _a
-					: "";
+					  ? _a
+					  : "";
 			}),
 			open: issue.state === "open",
 			locked: issue.locked,
@@ -120,11 +120,11 @@ class OctoKit {
 						: _f.login) !== null && _g !== void 0
 					? _g
 					: (_j =
-							(_h = issue.assignees) === null || _h === void 0
-								? void 0
-								: _h[0]) === null || _j === void 0
-					? void 0
-					: _j.login,
+								(_h = issue.assignees) === null || _h === void 0
+									? void 0
+									: _h[0]) === null || _j === void 0
+					  ? void 0
+					  : _j.login,
 			assignees:
 				(_l =
 					(_k = issue.assignees) === null || _k === void 0

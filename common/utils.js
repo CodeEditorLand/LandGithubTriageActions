@@ -67,8 +67,8 @@ const normalizeIssue = (issue) => {
 		issueType: isBug
 			? "bug"
 			: isFeatureRequest
-			? "feature_request"
-			: "unknown",
+			  ? "feature_request"
+			  : "unknown",
 	};
 };
 exports.normalizeIssue = normalizeIssue;
