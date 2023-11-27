@@ -75,12 +75,13 @@ const createDataDirectories = async (areas, assignees) => {
 				)) !== null && _a !== void 0
 					? _a
 					: ["*caused-by-extension", "info-needed", "*question"].find(
-							(otherLabel) => issue.labels.includes(otherLabel)
-					  )
-					? name === "area" && Math.random() < 0.2
-						? "__OTHER__"
-						: undefined
-					: undefined;
+								(otherLabel) =>
+									issue.labels.includes(otherLabel)
+					    )
+					  ? name === "area" && Math.random() < 0.2
+							? "__OTHER__"
+							: undefined
+					  : undefined;
 			const isDuplicate = issue.labels.includes("*duplicate");
 			const isHumanLabeled = !!issue.labelEvents.find(
 				(event) =>
