@@ -1,14 +1,29 @@
-import { ServiceClient } from '@azure/core-http';
-import { ClientSecretCredential } from '@azure/identity';
-import { TRIAGE_DUTY, type ITeamMember, Availability } from './vscodeToolsTypes';
+import { ServiceClient } from "@azure/core-http";
+import { ClientSecretCredential } from "@azure/identity";
+import {
+	TRIAGE_DUTY,
+	type ITeamMember,
+	Availability,
+} from "./vscodeToolsTypes";
 
-const API_URL = 'https://tools.code.visualstudio.com/api';
+const API_URL = "https://tools.code.visualstudio.com/api";
 
 export class VSCodeToolsAPIManager {
 	private readonly serviceClient: ServiceClient;
-	constructor(config: { tenantId: string; clientId: string; clientSecret: string; clientScope: string }) {
-		const credential = new ClientSecretCredential(config.tenantId, config.clientId, config.clientSecret);
-		this.serviceClient = new ServiceClient(credential, { credentialScopes: [config.clientScope] });
+	constructor(config: {
+		tenantId: string;
+		clientId: string;
+		clientSecret: string;
+		clientScope: string;
+	}) {
+		const credential = new ClientSecretCredential(
+			config.tenantId,
+			config.clientId,
+			config.clientSecret
+		);
+		this.serviceClient = new ServiceClient(credential, {
+			credentialScopes: [config.clientScope],
+		});
 	}
 
 	async getTeamMembers() {
@@ -21,7 +36,7 @@ export class VSCodeToolsAPIManager {
 			.filter(
 				(member) =>
 					member.duties?.includes(TRIAGE_DUTY) &&
-					member.availability !== Availability.NOT_AVAILABLE,
+					member.availability !== Availability.NOT_AVAILABLE
 			)
 			.map((member) => member.id);
 	}
@@ -32,10 +47,13 @@ export class VSCodeToolsAPIManager {
 	}
 
 	private async fetchDataFromAPI<T>(url: string): Promise<T> {
-		const response = await this.serviceClient.sendRequest({ url, method: 'GET' });
+		const response = await this.serviceClient.sendRequest({
+			url,
+			method: "GET",
+		});
 		// TODO @lramos15 Fix this as throwing is not the best way to handle errors
 		if (!response.bodyAsText) {
-			throw new Error('No body in response');
+			throw new Error("No body in response");
 		}
 		return JSON.parse(response.bodyAsText);
 	}

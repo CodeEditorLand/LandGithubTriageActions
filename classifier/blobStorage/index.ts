@@ -3,11 +3,15 @@
  *  Licensed under the MIT License. See LICENSE in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { join } from 'path';
-import { BlobServiceClient } from '@azure/storage-blob';
-import { Readable } from 'stream';
+import { join } from "path";
+import { BlobServiceClient } from "@azure/storage-blob";
+import { Readable } from "stream";
 
-export async function downloadBlobFile(name: string, container: string, key: string) {
+export async function downloadBlobFile(
+	name: string,
+	container: string,
+	key: string
+) {
 	const blobServiceClient = BlobServiceClient.fromConnectionString(key);
 	const containerClient = blobServiceClient.getContainerClient(container);
 
@@ -15,7 +19,11 @@ export async function downloadBlobFile(name: string, container: string, key: str
 	await createContainerResponse.downloadToFile(join(__dirname, name));
 }
 
-export async function uploadBlobFile(name: string, container: string, key: string) {
+export async function uploadBlobFile(
+	name: string,
+	container: string,
+	key: string
+) {
 	const blobServiceClient = BlobServiceClient.fromConnectionString(key);
 	const containerClient = blobServiceClient.getContainerClient(container);
 
@@ -24,7 +32,12 @@ export async function uploadBlobFile(name: string, container: string, key: strin
 	await createContainerResponse.uploadFile(join(__dirname, name));
 }
 
-export async function uploadBlobText(name: string, text: string, container: string, key: string) {
+export async function uploadBlobText(
+	name: string,
+	text: string,
+	container: string,
+	key: string
+) {
 	const blobServiceClient = BlobServiceClient.fromConnectionString(key);
 	const containerClient = blobServiceClient.getContainerClient(container);
 
@@ -33,7 +46,11 @@ export async function uploadBlobText(name: string, text: string, container: stri
 	await createContainerResponse.uploadStream(Readable.from([text]));
 }
 
-export async function downloadBlobText(name: string, container: string, key: string) {
+export async function downloadBlobText(
+	name: string,
+	container: string,
+	key: string
+) {
 	const blobServiceClient = BlobServiceClient.fromConnectionString(key);
 	const containerClient = blobServiceClient.getContainerClient(container);
 
