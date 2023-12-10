@@ -3,8 +3,8 @@
  *  Licensed under the MIT License. See LICENSE in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { GitHubIssue } from "../api/api";
-import { loadLatestRelease } from "../common/utils";
+import { GitHubIssue } from '../api/api';
+import { loadLatestRelease } from '../common/utils';
 
 export class AuthorVerifiedLabeler {
 	constructor(
@@ -12,7 +12,7 @@ export class AuthorVerifiedLabeler {
 		private comment: string,
 		private releasedLabel: string,
 		private authorVerificationRequestedLabel: string,
-		private verifiedLabel: string
+		private verifiedLabel: string,
 	) {}
 
 	private async commentVerficationRequest(comment: string) {
@@ -22,9 +22,7 @@ export class AuthorVerifiedLabeler {
 			for (const comment of page) {
 				if (
 					comment.body.includes(key) ||
-					comment.body.includes(
-						"you can help us out by commenting `/verified`"
-					) // legacy
+					comment.body.includes('you can help us out by commenting `/verified`') // legacy
 				) {
 					return;
 				}
@@ -41,16 +39,16 @@ export class AuthorVerifiedLabeler {
 			issue.labels.includes(this.authorVerificationRequestedLabel) &&
 			issue.labels.includes(this.releasedLabel)
 		) {
-			const latestRelease = await loadLatestRelease("insider");
-			if (!latestRelease) throw Error("Error loading latest release");
+			const latestRelease = await loadLatestRelease('insider');
+			if (!latestRelease) throw Error('Error loading latest release');
 			if (!issue.labels.includes(this.verifiedLabel)) {
 				if (issue.locked) {
 					await this.github.unlockIssue();
 				}
 				await this.commentVerficationRequest(
 					this.comment
-						.replace("${commit}", latestRelease.version)
-						.replace("${author}", issue.author.name)
+						.replace('${commit}', latestRelease.version)
+						.replace('${author}', issue.author.name),
 				);
 			}
 		}

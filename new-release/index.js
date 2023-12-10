@@ -8,20 +8,13 @@ const utils_1 = require("../common/utils");
 const NewRelease_1 = require("./NewRelease");
 const Action_1 = require("../common/Action");
 class NewReleaseAction extends Action_1.Action {
-	constructor() {
-		super(...arguments);
-		this.id = "NewRelease";
-	}
-	async onOpened(issue) {
-		await new NewRelease_1.NewRelease(
-			issue,
-			(0, utils_1.getRequiredInput)("label"),
-			(0, utils_1.getRequiredInput)("labelColor"),
-			(0, utils_1.getRequiredInput)("labelDescription"),
-			+(0, utils_1.getRequiredInput)("days"),
-			(0, utils_1.getInput)("oldVersionMessage")
-		).run();
-	}
+    constructor() {
+        super(...arguments);
+        this.id = 'NewRelease';
+    }
+    async onOpened(issue) {
+        await new NewRelease_1.NewRelease(issue, (0, utils_1.getRequiredInput)('label'), (0, utils_1.getRequiredInput)('labelColor'), (0, utils_1.getRequiredInput)('labelDescription'), +(0, utils_1.getRequiredInput)('days'), (0, utils_1.getInput)('oldVersionMessage')).run();
+    }
 }
 new NewReleaseAction().run(); // eslint-disable-line
 //# sourceMappingURL=index.js.map
