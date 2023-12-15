@@ -3,16 +3,16 @@
  *  Licensed under the MIT License. See LICENSE in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { OctoKit, OctoKitIssue } from '../api/octokit';
-import { getRequiredInput } from '../common/utils';
-import { ReleasePipeline, enrollIssue, unenrollIssue } from './ReleasePipeline';
-import { Action } from '../common/Action';
+import { OctoKit, OctoKitIssue } from "../api/octokit";
+import { getRequiredInput } from "../common/utils";
+import { ReleasePipeline, enrollIssue, unenrollIssue } from "./ReleasePipeline";
+import { Action } from "../common/Action";
 
-const notYetReleasedLabel = getRequiredInput('notYetReleasedLabel');
-const insidersReleasedLabel = getRequiredInput('insidersReleasedLabel');
+const notYetReleasedLabel = getRequiredInput("notYetReleasedLabel");
+const insidersReleasedLabel = getRequiredInput("insidersReleasedLabel");
 
 class ReleasePipelineAction extends Action {
-	id = 'ReleasePipeline';
+	id = "ReleasePipeline";
 
 	async onReopened(issue: OctoKitIssue) {
 		await unenrollIssue(issue, notYetReleasedLabel, insidersReleasedLabel);
@@ -23,11 +23,15 @@ class ReleasePipelineAction extends Action {
 	}
 
 	async onTriggered(github: OctoKit) {
-		await new ReleasePipeline(github, notYetReleasedLabel, insidersReleasedLabel).run();
+		await new ReleasePipeline(
+			github,
+			notYetReleasedLabel,
+			insidersReleasedLabel,
+		).run();
 	}
 
 	async onCommented(issue: OctoKitIssue, comment: string) {
-		if (comment.includes('closedWith')) {
+		if (comment.includes("closedWith")) {
 			await enrollIssue(issue, notYetReleasedLabel);
 		}
 	}

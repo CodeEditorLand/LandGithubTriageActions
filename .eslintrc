@@ -3,30 +3,23 @@
 	"parserOptions": {
 		"ecmaVersion": 6,
 		"sourceType": "module",
-		"project": [
-			"./tsconfig.json",
-			"./tsconfig.test.json"
-		]
+		"project": ["./tsconfig.json", "./tsconfig.test.json"]
 	},
-	"plugins": [
-		"@typescript-eslint",
-		"prettier"
-	],
+	"plugins": ["@typescript-eslint", "prettier"],
 	"extends": [
 		"eslint:recommended",
 		"plugin:@typescript-eslint/eslint-recommended",
-    "plugin:@typescript-eslint/recommended",
+		"plugin:@typescript-eslint/recommended",
 		"prettier"
 	],
-	"ignorePatterns": [
-		"node_modules",
-		"vm-filesystem",
-		"*.js"
-	],
+	"ignorePatterns": ["node_modules", "vm-filesystem", "*.js"],
 	"rules": {
 		"semi": "error",
 		"@typescript-eslint/no-var-requires": "off",
-		"@typescript-eslint/no-unused-vars": ["error", { "argsIgnorePattern": "^_" }],
+		"@typescript-eslint/no-unused-vars": [
+			"error",
+			{ "argsIgnorePattern": "^_" }
+		],
 		"@typescript-eslint/no-explicit-any": "off",
 		"@typescript-eslint/no-floating-promises": "error",
 		"@typescript-eslint/no-misused-promises": [

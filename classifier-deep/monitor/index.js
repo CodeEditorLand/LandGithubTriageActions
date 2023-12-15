@@ -7,20 +7,20 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const Action_1 = require("../../common/Action");
 const utils_1 = require("../../common/utils");
 class DeepClassifierMonitor extends Action_1.Action {
-    constructor() {
-        super(...arguments);
-        this.id = 'Classifier-Deep/Monitor';
-    }
-    async onAssigned(issue, assignee) {
-        const assigner = await issue.getAssigner(assignee);
-        if (assigner !== (0, utils_1.getRequiredInput)('botName')) {
-            await issue.removeLabel('triage-needed');
-            await issue.removeLabel('stale');
-        }
-    }
-    async onUnassigned(_issue, _assignee) {
-        // no-op
-    }
+	constructor() {
+		super(...arguments);
+		this.id = "Classifier-Deep/Monitor";
+	}
+	async onAssigned(issue, assignee) {
+		const assigner = await issue.getAssigner(assignee);
+		if (assigner !== (0, utils_1.getRequiredInput)("botName")) {
+			await issue.removeLabel("triage-needed");
+			await issue.removeLabel("stale");
+		}
+	}
+	async onUnassigned(_issue, _assignee) {
+		// no-op
+	}
 }
 new DeepClassifierMonitor().run(); // eslint-disable-line
 //# sourceMappingURL=index.js.map

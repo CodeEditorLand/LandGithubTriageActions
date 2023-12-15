@@ -3,11 +3,16 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { Octokit } from '@octokit/rest';
-import { HeaderBlock, KnownBlock, SectionBlock, WebClient } from '@slack/web-api';
-import { VSCodeToolsAPIManager } from '../api/vscodeTools';
-import { ITeamMember } from '../api/vscodeToolsTypes';
-import { safeLog } from '../common/utils';
+import { Octokit } from "@octokit/rest";
+import {
+	HeaderBlock,
+	KnownBlock,
+	SectionBlock,
+	WebClient,
+} from "@slack/web-api";
+import { VSCodeToolsAPIManager } from "../api/vscodeTools";
+import { ITeamMember } from "../api/vscodeToolsTypes";
+import { safeLog } from "../common/utils";
 
 interface IReview {
 	prUrl: string;
@@ -23,7 +28,7 @@ interface IReviewerStat {
 	reviewer: string;
 	monthlyCount: number;
 	weeklyCount: number;
-	place?: 'first' | 'second' | 'third';
+	place?: "first" | "second" | "third";
 }
 
 interface IReviewStats {
@@ -35,52 +40,60 @@ export class ReviewReminder {
 	private readonly slackClient: WebClient;
 	private readonly octokit: Octokit;
 
-	constructor(gitHubToken: string, slackToken: string, private readonly toolsAPI: VSCodeToolsAPIManager) {
+	constructor(
+		gitHubToken: string,
+		slackToken: string,
+		private readonly toolsAPI: VSCodeToolsAPIManager,
+	) {
 		this.slackClient = new WebClient(slackToken);
 		this.octokit = new Octokit({ auth: gitHubToken });
 	}
 
-	public static reviewWarningMessage(numberOfReviews: number, topReviewer: number): KnownBlock[] {
+	public static reviewWarningMessage(
+		numberOfReviews: number,
+		topReviewer: number,
+	): KnownBlock[] {
 		const headerBlock: HeaderBlock = {
-			type: 'header',
+			type: "header",
 			text: {
-				type: 'plain_text',
-				text: 'Review reminder',
+				type: "plain_text",
+				text: "Review reminder",
 				emoji: true,
 			},
 		};
 		const messageBlock: SectionBlock = {
-			type: 'section',
+			type: "section",
 			text: {
-				type: 'mrkdwn',
+				type: "mrkdwn",
 				text: `You've completed *${numberOfReviews}* code reviews in the past 7 days. Thank you! If you were wondering, the top reviewer has completed ${topReviewer} reviews in the past 7 days. Just a friendly reminder to keep an eye on the #codereview channel!`,
 			},
 		};
-		return [headerBlock, { type: 'divider' }, messageBlock];
+		return [headerBlock, { type: "divider" }, messageBlock];
 	}
 
 	public static topReviewerMessage(
 		numberOfReviewsPatWeek: number,
 		numberOfReviewsPastMonth: number,
-		place: 'first' | 'second' | 'third',
+		place: "first" | "second" | "third",
 	): KnownBlock[] {
-		const medalEmoji = place === 'first' ? '🥇' : place === 'second' ? '🥈' : '🥉';
+		const medalEmoji =
+			place === "first" ? "🥇" : place === "second" ? "🥈" : "🥉";
 		const headerBlock: HeaderBlock = {
-			type: 'header',
+			type: "header",
 			text: {
-				type: 'plain_text',
+				type: "plain_text",
 				text: `Top reviewer this week! ${medalEmoji}`,
 				emoji: true,
 			},
 		};
 		const messageBlock: SectionBlock = {
-			type: 'section',
+			type: "section",
 			text: {
-				type: 'mrkdwn',
+				type: "mrkdwn",
 				text: `Thank you for helping out with code reviews this week! You have completed *${numberOfReviewsPatWeek}* reviews in the past 7 days, putting you in ${place}! In the past 30 days you have completed an amazing *${numberOfReviewsPastMonth}* reviews! You're awesome 🎉🎉🎉`,
 			},
 		};
-		return [headerBlock, { type: 'divider' }, messageBlock];
+		return [headerBlock, { type: "divider" }, messageBlock];
 	}
 
 	/**
@@ -89,11 +102,14 @@ export class ReviewReminder {
 	 */
 	private async *getRepositories(octokit: Octokit) {
 		// Inject a few extra repos that aren't in the VS Code org
-		yield { owner: { login: 'microsoft' }, name: 'vscode-jupyter' };
-		yield { owner: { login: 'microsoft' }, name: 'vscode-python' };
-		const it = octokit.paginate.iterator(octokit.rest.repos.listForAuthenticatedUser, {
-			per_page: 100,
-		});
+		yield { owner: { login: "microsoft" }, name: "vscode-jupyter" };
+		yield { owner: { login: "microsoft" }, name: "vscode-python" };
+		const it = octokit.paginate.iterator(
+			octokit.rest.repos.listForAuthenticatedUser,
+			{
+				per_page: 100,
+			},
+		);
 
 		for await (const { data: repositories } of it) {
 			for (const repository of repositories) {
@@ -121,23 +137,30 @@ export class ReviewReminder {
 		const data: IReview[] = [];
 		const durations = [];
 
-		console.log(`Processing ${repositoryInfo.owner}/${repositoryInfo.repo}`);
+		console.log(
+			`Processing ${repositoryInfo.owner}/${repositoryInfo.repo}`,
+		);
 
 		// The timeslot to query for
 		const timeWindowToQuery = new Date();
 		timeWindowToQuery.setDate(timeWindowToQuery.getDate() - numberOfDays);
 
-		for await (const response of octokit.paginate.iterator(octokit.rest.pulls.list, {
-			owner: repositoryInfo.owner,
-			repo: repositoryInfo.repo,
-			state: 'closed',
-			per_page: 100,
-			sort: 'created',
-			direction: 'desc',
-		})) {
+		for await (const response of octokit.paginate.iterator(
+			octokit.rest.pulls.list,
+			{
+				owner: repositoryInfo.owner,
+				repo: repositoryInfo.repo,
+				state: "closed",
+				per_page: 100,
+				sort: "created",
+				direction: "desc",
+			},
+		)) {
 			let pastTimeInterval = false;
 			for (const pr of response.data) {
-				const hasWriteAccess = teamMembers.has(pr.user?.login ?? 'No Member');
+				const hasWriteAccess = teamMembers.has(
+					pr.user?.login ?? "No Member",
+				);
 				// Author isn't in the team, so we skip this PR
 				if (!hasWriteAccess) {
 					continue;
@@ -161,7 +184,7 @@ export class ReviewReminder {
 				});
 
 				const first = {
-					reviewer: 'void',
+					reviewer: "void",
 					submitted_at: new Date().toString(),
 					submitted_ts: Date.now(),
 				};
@@ -173,12 +196,12 @@ export class ReviewReminder {
 					}
 
 					// We only want to count reviews from another team member
-					if (!teamMembers.has(review.user?.login ?? 'No Member')) {
+					if (!teamMembers.has(review.user?.login ?? "No Member")) {
 						continue;
 					}
 
 					if (!review.submitted_at) {
-						console.log('BOGOUS', review);
+						console.log("BOGOUS", review);
 						continue;
 					}
 
@@ -186,11 +209,11 @@ export class ReviewReminder {
 					if (ts < first.submitted_ts) {
 						first.submitted_ts = ts;
 						first.submitted_at = review.submitted_at;
-						first.reviewer = review.user?.login ?? 'MISSING';
+						first.reviewer = review.user?.login ?? "MISSING";
 					}
 				}
 
-				if (first.reviewer === 'void') {
+				if (first.reviewer === "void") {
 					console.log(`SKIPPING, no reviews: ${pr.html_url}`);
 					continue;
 				}
@@ -208,7 +231,8 @@ export class ReviewReminder {
 
 				const wasRequested = true;
 
-				const duration = first.submitted_ts - new Date(pr.created_at).getTime();
+				const duration =
+					first.submitted_ts - new Date(pr.created_at).getTime();
 				durations.push(duration);
 
 				data.push({
@@ -232,10 +256,15 @@ export class ReviewReminder {
 			return [];
 		}
 
-		console.log(`PR Stats for ${repositoryInfo.owner}/${repositoryInfo.repo}`);
+		console.log(
+			`PR Stats for ${repositoryInfo.owner}/${repositoryInfo.repo}`,
+		);
 
 		// median duration
-		const median = durations.sort()[durations.length === 1 ? 0 : Math.ceil(durations.length / 2)];
+		const median =
+			durations.sort()[
+				durations.length === 1 ? 0 : Math.ceil(durations.length / 2)
+			];
 		console.log(`MEDIAN time to review ${median / (1000 * 60)}mins`);
 
 		const avg = durations.reduce((p, c) => p + c, 0) / durations.length;
@@ -264,12 +293,20 @@ export class ReviewReminder {
 	 * @param teamMembers The map of team members to their various accounts
 	 * @returns A set of review stats regarding reviews completed
 	 */
-	private async processAllRepositories(teamMembers: Map<string, ITeamMember>): Promise<IReviewStats> {
+	private async processAllRepositories(
+		teamMembers: Map<string, ITeamMember>,
+	): Promise<IReviewStats> {
 		let data: IReview[] = [];
 		for await (const repository of this.getRepositories(this.octokit)) {
 			const owner = repository.owner.login;
 			const repo = repository.name;
-			data = data.concat(await this.processRepository(this.octokit, { owner, repo }, teamMembers));
+			data = data.concat(
+				await this.processRepository(
+					this.octokit,
+					{ owner, repo },
+					teamMembers,
+				),
+			);
 		}
 		// Calculate number of reviews done by each reviewer
 		const monthlyStats = new Map<string, number>();
@@ -302,7 +339,9 @@ export class ReviewReminder {
 		const weeklyBottom20 = await this.getBottomPercent(weeklyStats, 0.2);
 
 		// Filter the bottom to just bottom reviewers who are bottom reviewers for the week and the month
-		const bottomReviewers = new Set([...monthlyBottom20.keys()].filter((x) => weeklyBottom20.has(x)));
+		const bottomReviewers = new Set(
+			[...monthlyBottom20.keys()].filter((x) => weeklyBottom20.has(x)),
+		);
 		const bottomReviewerStats: IReviewerStat[] = [];
 		for (const reviewer of bottomReviewers) {
 			bottomReviewerStats.push({
@@ -313,8 +352,14 @@ export class ReviewReminder {
 		}
 
 		// Print average number reviews completed this month and this week
-		const totalMonthlyReviews = [...monthlyStats.values()].reduce((p, c) => p + c, 0);
-		const totalWeeklyReviews = [...weeklyStats.values()].reduce((p, c) => p + c, 0);
+		const totalMonthlyReviews = [...monthlyStats.values()].reduce(
+			(p, c) => p + c,
+			0,
+		);
+		const totalWeeklyReviews = [...weeklyStats.values()].reduce(
+			(p, c) => p + c,
+			0,
+		);
 		const monthlyAvg = totalMonthlyReviews / monthlyStats.size;
 		const weeklyAvg = totalWeeklyReviews / weeklyStats.size;
 		console.log(
@@ -325,7 +370,9 @@ export class ReviewReminder {
 		);
 
 		// Calculate top reviewer stats
-		const weeklySorted = Array.from(weeklyStats).sort((a, b) => b[1] - a[1]);
+		const weeklySorted = Array.from(weeklyStats).sort(
+			(a, b) => b[1] - a[1],
+		);
 		const topReviewerStats: IReviewerStat[] = [];
 		for (let i = 0; i < 3; i++) {
 			const reviewer = weeklySorted[i][0];
@@ -333,7 +380,7 @@ export class ReviewReminder {
 				reviewer,
 				monthlyCount: monthlyStats.get(reviewer) ?? 0,
 				weeklyCount: weeklyStats.get(reviewer) ?? 0,
-				place: i === 0 ? 'first' : i === 1 ? 'second' : 'third',
+				place: i === 0 ? "first" : i === 1 ? "second" : "third",
 			});
 		}
 
@@ -365,7 +412,7 @@ export class ReviewReminder {
 		// Get id of conversation with user
 		const conversation = (
 			await this.slackClient.conversations.list({
-				types: 'im',
+				types: "im",
 				limit: 100,
 			})
 		).channels?.find((c) => c.user === slackId);
@@ -377,13 +424,19 @@ export class ReviewReminder {
 				channel: conversation.id,
 				limit: 1,
 			});
-			const lastMessage = history.messages ? history.messages[0] : undefined;
+			const lastMessage = history.messages
+				? history.messages[0]
+				: undefined;
 			if (lastMessage && lastMessage.ts) {
-				const lastMessageDate = new Date(parseInt(lastMessage.ts) * 1000);
+				const lastMessageDate = new Date(
+					parseInt(lastMessage.ts) * 1000,
+				);
 				const tenDaysAgo = new Date();
 				tenDaysAgo.setDate(tenDaysAgo.getDate() - 10);
 				if (lastMessageDate > tenDaysAgo && !skipCooldown) {
-					console.log(`Skipping DM as last message was ${lastMessageDate}`);
+					console.log(
+						`Skipping DM as last message was ${lastMessageDate}`,
+					);
 					return;
 				}
 			}
@@ -410,17 +463,17 @@ export class ReviewReminder {
 	 * The main function executed when the action is triggered
 	 */
 	async run() {
-		console.time('Review Reminder Action');
+		console.time("Review Reminder Action");
 		const accounts = await this.toolsAPI.getTeamMembers();
 		// Mapping of GitHub accounts to entry in blob storage
 		const teamMembers = new Map<string, ITeamMember>();
 		for (const account of accounts) {
 			// Don't include the high level managers and non devs. Eventually we will have nice API to skip them
 			if (
-				account.id === 'gregvanl' ||
-				account.id === 'chrisdias' ||
-				account.id === 'egamma' ||
-				account.id === 'kieferrm'
+				account.id === "gregvanl" ||
+				account.id === "chrisdias" ||
+				account.id === "egamma" ||
+				account.id === "kieferrm"
 			) {
 				continue;
 			}
@@ -443,11 +496,11 @@ export class ReviewReminder {
 			}
 			await this.sendSlackDM(
 				account.slack,
-				'Top Reviewer!',
+				"Top Reviewer!",
 				ReviewReminder.topReviewerMessage(
 					reviewer.weeklyCount,
 					reviewer.monthlyCount,
-					reviewer.place ?? 'third',
+					reviewer.place ?? "third",
 				),
 				undefined,
 				true,
@@ -465,15 +518,20 @@ export class ReviewReminder {
 				continue;
 			}
 			// Generate a random unix timestamp in the next 4 hours
-			const timestampToSend = Math.floor(Date.now() / 1000) + Math.floor(Math.random() * 14400);
+			const timestampToSend =
+				Math.floor(Date.now() / 1000) +
+				Math.floor(Math.random() * 14400);
 			await this.sendSlackDM(
 				account.slack,
-				'Review Reminder!',
-				ReviewReminder.reviewWarningMessage(reviewer.weeklyCount, stats.topReviewers[0].weeklyCount),
+				"Review Reminder!",
+				ReviewReminder.reviewWarningMessage(
+					reviewer.weeklyCount,
+					stats.topReviewers[0].weeklyCount,
+				),
 				timestampToSend,
 			);
 		}
 
-		console.timeEnd('Review Reminder Action');
+		console.timeEnd("Review Reminder Action");
 	}
 }

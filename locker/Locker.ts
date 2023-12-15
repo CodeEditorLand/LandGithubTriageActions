@@ -3,8 +3,8 @@
  *  Licensed under the MIT License. See LICENSE in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { GitHub } from '../api/api';
-import { daysAgoToHumanReadbleDate, safeLog } from '../common/utils';
+import { GitHub } from "../api/api";
+import { daysAgoToHumanReadbleDate, safeLog } from "../common/utils";
 
 export class Locker {
 	constructor(
@@ -18,11 +18,13 @@ export class Locker {
 
 	async run() {
 		const closedTimestamp = daysAgoToHumanReadbleDate(this.daysSinceClose);
-		const updatedTimestamp = daysAgoToHumanReadbleDate(this.daysSinceUpdate);
+		const updatedTimestamp = daysAgoToHumanReadbleDate(
+			this.daysSinceUpdate,
+		);
 
 		const query =
 			`closed:<${closedTimestamp} updated:<${updatedTimestamp} is:unlocked` +
-			(this.label ? ` -label:${this.label}` : '');
+			(this.label ? ` -label:${this.label}` : "");
 
 		for await (const page of this.github.query({ q: query })) {
 			await Promise.all(
@@ -45,13 +47,20 @@ export class Locker {
 							safeLog(`Locking issue ${hydrated.number}`);
 							await issue.lockIssue();
 						} else {
-							safeLog(`Not locking issue as it has ignoreLabelUntil but not labelUntil`);
+							safeLog(
+								`Not locking issue as it has ignoreLabelUntil but not labelUntil`,
+							);
 						}
 					} else {
 						if (hydrated.locked) {
-							safeLog(`Issue ${hydrated.number} is already locked. Ignoring`);
+							safeLog(
+								`Issue ${hydrated.number} is already locked. Ignoring`,
+							);
 						} else {
-							safeLog('Query returned an invalid issue:' + hydrated.number);
+							safeLog(
+								"Query returned an invalid issue:" +
+									hydrated.number,
+							);
 						}
 					}
 				}),

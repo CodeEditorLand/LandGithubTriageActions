@@ -12,16 +12,28 @@ export interface GitHub {
 	hasWriteAccess(username: string): Promise<boolean>;
 
 	repoHasLabel(label: string): Promise<boolean>;
-	createLabel(label: string, color: string, description: string): Promise<void>;
+	createLabel(
+		label: string,
+		color: string,
+		description: string,
+	): Promise<void>;
 	deleteLabel(label: string): Promise<void>;
 
 	readConfig(path: string): Promise<any>;
 
 	dispatch(title: string): Promise<void>;
 
-	createIssue(owner: string, repo: string, title: string, body: string): Promise<void>;
+	createIssue(
+		owner: string,
+		repo: string,
+		title: string,
+		body: string,
+	): Promise<void>;
 
-	releaseContainsCommit(release: string, commit: string): Promise<'yes' | 'no' | 'unknown'>;
+	releaseContainsCommit(
+		release: string,
+		commit: string,
+	): Promise<"yes" | "no" | "unknown">;
 
 	/**
 	 * Returns what we think the current milestone for the repo is based on the due on date.
@@ -37,7 +49,7 @@ export interface GitHubIssue extends GitHub {
 	deleteComment(id: number): Promise<void>;
 	getComments(last?: boolean): AsyncIterableIterator<Comment[]>;
 
-	closeIssue(reason: 'completed' | 'not_planned'): Promise<void>;
+	closeIssue(reason: "completed" | "not_planned"): Promise<void>;
 	lockIssue(): Promise<void>;
 	unlockIssue(): Promise<void>;
 
@@ -49,25 +61,27 @@ export interface GitHubIssue extends GitHub {
 	addAssignee(assignee: string): Promise<void>;
 	removeAssignee(assignee: string): Promise<void>;
 
-	getClosingInfo(): Promise<{ hash: string | undefined; timestamp: number } | undefined>;
+	getClosingInfo(): Promise<
+		{ hash: string | undefined; timestamp: number } | undefined
+	>;
 }
 
 type SortVar =
-	| 'comments'
-	| 'reactions'
-	| 'reactions-+1'
-	| 'reactions--1'
-	| 'reactions-smile'
-	| 'reactions-thinking_face'
-	| 'reactions-heart'
-	| 'reactions-tada'
-	| 'interactions'
-	| 'created'
-	| 'updated';
-type SortOrder = 'asc' | 'desc';
+	| "comments"
+	| "reactions"
+	| "reactions-+1"
+	| "reactions--1"
+	| "reactions-smile"
+	| "reactions-thinking_face"
+	| "reactions-heart"
+	| "reactions-tada"
+	| "interactions"
+	| "created"
+	| "updated";
+type SortOrder = "asc" | "desc";
 export type Reactions = {
-	'+1': number;
-	'-1': number;
+	"+1": number;
+	"-1": number;
 	laugh: number;
 	hooray: number;
 	confused: number;
@@ -113,7 +127,7 @@ export interface Milestone {
 	dueOn: Date | null;
 	createdAt: Date | null;
 	closedAt: Date | null;
-	state: 'open' | 'closed';
+	state: "open" | "closed";
 }
 export interface Query {
 	q: string;
