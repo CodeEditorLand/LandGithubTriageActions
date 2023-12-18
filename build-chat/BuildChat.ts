@@ -42,7 +42,7 @@ export interface Options {
 export async function buildChat(
 	octokit: Octokit,
 	workflowUrl: string,
-	options: Options = {}
+	options: Options = {},
 ) {
 	safeLog(workflowUrl);
 	const parts = workflowUrl.split("/");
@@ -66,7 +66,7 @@ async function handleNotification(
 	owner: string,
 	repo: string,
 	runId: number,
-	options: Options
+	options: Options,
 ) {
 	const results = await buildComplete(octokit, owner, repo, runId, options);
 	if (
@@ -107,7 +107,7 @@ async function handleNotification(
 			memberships.find((m) => m.name === options.notificationChannel);
 		if (options.notificationChannel && !notificationChannel) {
 			safeLog(
-				`Notification channel not found: ${options.notificationChannel}`
+				`Notification channel not found: ${options.notificationChannel}`,
 			);
 		}
 		for (const message of results.messages) {
@@ -159,10 +159,10 @@ async function buildComplete(
 	owner: string,
 	repo: string,
 	runId: number,
-	options: Options
+	options: Options,
 ) {
 	safeLog(
-		`buildComplete: https://github.com/${owner}/${repo}/actions/runs/${runId}`
+		`buildComplete: https://github.com/${owner}/${repo}/actions/runs/${runId}`,
 	);
 	const buildResult = (
 		await octokit.actions.getWorkflowRun({
@@ -192,12 +192,12 @@ async function buildComplete(
 	).data.workflow_runs.filter(
 		(run) =>
 			run.status === "completed" &&
-			conclusions.indexOf(run.conclusion || "success") !== -1
+			conclusions.indexOf(run.conclusion || "success") !== -1,
 	);
 	buildResults.sort((a, b) => -a.created_at.localeCompare(b.created_at));
 
 	const currentBuildIndex = buildResults.findIndex(
-		(build) => build.id === buildResult.id
+		(build) => build.id === buildResult.id,
 	);
 	if (currentBuildIndex === -1) {
 		safeLog("Build not on first page. Terminating.");
@@ -207,14 +207,14 @@ async function buildComplete(
 					id,
 					status,
 					conclusion,
-				}))
-			)
+				})),
+			),
 		);
 		throw new Error("Build not on first page. Terminating.");
 	}
 	const slicedResults = buildResults.slice(
 		currentBuildIndex,
-		currentBuildIndex + 2
+		currentBuildIndex + 2,
 	);
 	const builds = slicedResults.map<Build>((build, i, array) => ({
 		data: build,
@@ -228,11 +228,11 @@ async function buildComplete(
 		.slice(0, 1)
 		.map(
 			(build) =>
-				`Id: ${build.data.id} | Repository: ${owner}/${repo} | Branch: ${build.data.head_branch} | Conclusion: ${build.data.conclusion} | Created: ${build.data.created_at} | Updated: ${build.data.updated_at}`
+				`Id: ${build.data.id} | Repository: ${owner}/${repo} | Branch: ${build.data.head_branch} | Conclusion: ${build.data.conclusion} | Created: ${build.data.created_at} | Updated: ${build.data.updated_at}`,
 		);
 	const transitionedBuilds = builds.filter(
 		(build, i, array) =>
-			i < array.length - 1 && transitioned(build, array[i + 1])
+			i < array.length - 1 && transitioned(build, array[i + 1]),
 	);
 	await Promise.all(
 		transitionedBuilds.map(async (build) => {
@@ -242,7 +242,7 @@ async function buildComplete(
 					owner,
 					repo,
 					build.previousSourceVersion,
-					build.data.head_sha
+					build.data.head_sha,
 				);
 				const commits = cmp.data.commits;
 				const authors = new Set<string>([
@@ -253,21 +253,21 @@ async function buildComplete(
 				build.authors = [...authors];
 				build.changesHtmlUrl = `https://github.com/${owner}/${repo}/compare/${build.previousSourceVersion.substr(
 					0,
-					7
+					7,
 				)}...${build.data.head_sha.substr(0, 7)}`; // Shorter than: cmp.data.html_url
 			}
-		})
+		}),
 	);
 	const vscode = repo === "vscode";
 	const name = vscode ? `VS Code ${build.name} Build` : build.name;
 	// TBD: `Requester: ${vstsToSlackUser(build.requester, build.degraded)}${pingBenForSmokeTests && releaseBuild && build.result === 'partiallySucceeded' ? ' | Ping: @bpasero' : ''}`
 	const accounts = await readAccountsFromBlobStorage(
-		options.storageConnectionString
+		options.storageConnectionString,
 	);
 	const githubAccountMap = githubToAccounts(accounts);
 	const messages = transitionedBuilds.map((build) => {
 		const issueBody = encodeURIComponent(
-			`Build: ${build.buildHtmlUrl}\nChanges: ${build.changesHtmlUrl}`
+			`Build: ${build.buildHtmlUrl}\nChanges: ${build.changesHtmlUrl}`,
 		);
 		const issueTitle = encodeURIComponent("Build failure");
 		const createIssueLink = `https://github.com/microsoft/vscode/issues/new?body=${issueBody}&title=${issueTitle}`;
@@ -279,7 +279,7 @@ Result: ${build.data.conclusion} | Repository: ${owner}/${repo} | Branch: ${
 				githubToSlackUsers(
 					githubAccountMap,
 					build.authors,
-					build.degraded
+					build.degraded,
 				)
 					.sort()
 					.join(", ") || `None (rebuild)`
@@ -314,7 +314,7 @@ async function compareCommits(
 	owner: string,
 	repo: string,
 	base: string,
-	head: string
+	head: string,
 ) {
 	return octokit.repos.compareCommits({ owner, repo, base, head });
 }
@@ -322,10 +322,12 @@ async function compareCommits(
 function githubToSlackUsers(
 	githubToAccounts: Record<string, Accounts>,
 	githubUsers: string[],
-	at?: boolean
+	at?: boolean,
 ) {
 	return githubUsers.map((g) =>
-		githubToAccounts[g] ? `${at ? "@" : ""}${githubToAccounts[g].slack}` : g
+		githubToAccounts[g]
+			? `${at ? "@" : ""}${githubToAccounts[g].slack}`
+			: g,
 	);
 }
 
@@ -335,7 +337,7 @@ function githubToAccounts(accounts: Accounts[]) {
 			m[e.github] = e;
 			return m;
 		},
-		<Record<string, Accounts>>{}
+		<Record<string, Accounts>>{},
 	);
 }
 

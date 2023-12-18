@@ -4,9 +4,9 @@
  *--------------------------------------------------------------------------------------------*/
 
 import { Octokit } from "@octokit/rest";
+import { Action } from "../common/Action";
 import { getInput, getRequiredInput } from "../common/utils";
 import { buildChat } from "./BuildChat";
-import { Action } from "../common/Action";
 
 class BuildChatAction extends Action {
 	id = "BuildChat";

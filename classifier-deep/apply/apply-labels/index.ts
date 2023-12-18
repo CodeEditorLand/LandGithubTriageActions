@@ -7,14 +7,14 @@ import { readFileSync } from "fs";
 import { join } from "path";
 import { context } from "@actions/github";
 import { OctoKit, OctoKitIssue } from "../../../api/octokit";
-import {
-	getRequiredInput,
-	getInput,
-	safeLog,
-	daysAgoToHumanReadbleDate,
-} from "../../../common/utils";
-import { Action } from "../../../common/Action";
 import { VSCodeToolsAPIManager } from "../../../api/vscodeTools";
+import { Action } from "../../../common/Action";
+import {
+	daysAgoToHumanReadbleDate,
+	getInput,
+	getRequiredInput,
+	safeLog,
+} from "../../../common/utils";
 
 const token = getRequiredInput("token");
 const apiConfig = {
@@ -44,9 +44,9 @@ type LabelingsFile = { number: number; area: Labeling; assignee: Labeling }[];
 // Copied from https://github.com/microsoft/vscode-tools/blob/91715fe00caab042b4aab5ed41d0402b0ae2393b/src/common/endgame.ts#L11-L16
 export enum Availability {
 	FULL = 1,
-	HALF,
-	OPTIONAL,
-	NOT_AVAILABLE,
+	HALF = 2,
+	OPTIONAL = 3,
+	NOT_AVAILABLE = 4,
 }
 
 class ApplyLabels extends Action {
@@ -54,12 +54,12 @@ class ApplyLabels extends Action {
 
 	async onTriggered(github: OctoKit) {
 		const config: ClassifierConfig = await github.readConfig(
-			getRequiredInput("configPath")
+			getRequiredInput("configPath"),
 		);
 		const labelings: LabelingsFile = JSON.parse(
 			readFileSync(join(__dirname, "../issue_labels.json"), {
 				encoding: "utf8",
-			})
+			}),
 		);
 
 		for (const labeling of labelings) {
@@ -73,7 +73,7 @@ class ApplyLabels extends Action {
 					safeLog(
 						"not assigning ",
 						assignee,
-						"becuase they are on vacation"
+						"becuase they are on vacation",
 					);
 				} else {
 					potentialAssignees.push(assignee);
@@ -84,15 +84,15 @@ class ApplyLabels extends Action {
 
 			if (issueData.number !== labeling.number) {
 				safeLog(
-					`issue ${labeling.number} moved to ${issueData.number}, skipping`
+					`issue ${labeling.number} moved to ${issueData.number}, skipping`,
 				);
 				continue;
 			}
 
 			const allLabelsAllowed = issueData.labels.every((issueLabel) =>
 				allowLabels.some((allowedLabel) =>
-					issueLabel.includes(allowedLabel)
-				)
+					issueLabel.includes(allowedLabel),
+				),
 			);
 
 			if (!debug && (issueData.assignee || !allLabelsAllowed)) {
@@ -106,7 +106,7 @@ class ApplyLabels extends Action {
 					assignee: labeling.assignee,
 					area: labeling.area,
 					number: labeling.number,
-				})
+				}),
 			);
 
 			{
@@ -122,13 +122,13 @@ class ApplyLabels extends Action {
 					await issue.postComment(
 						`confidence for label ${category}: ${confidence}. ${
 							confident ? "does" : "does not"
-						} meet threshold`
+						} meet threshold`,
 					);
 				}
 
 				if (confident) {
 					safeLog(
-						`assigning person based on label ${category} for issue ${issueData.number}`
+						`assigning person based on label ${category} for issue ${issueData.number}`,
 					);
 
 					// Assign the issue to the proper person based on the label that was assigned
@@ -137,8 +137,8 @@ class ApplyLabels extends Action {
 					await Promise.all<any>([
 						...(labelConfig?.assign
 							? labelConfig.assign.map((assignee) =>
-									addAssignee(assignee)
-								)
+									addAssignee(assignee),
+							  )
 							: []),
 					]);
 				}
@@ -157,7 +157,7 @@ class ApplyLabels extends Action {
 					await issue.postComment(
 						`confidence for assignee ${category}: ${confidence}. ${
 							confident ? "does" : "does not"
-						} meet threshold`
+						} meet threshold`,
 					);
 				}
 
@@ -205,7 +205,7 @@ class ApplyLabels extends Action {
 							await issue.addAssignee(randomSelection);
 							const staleIssues = github.query({
 								q: `is:issue is:open label:triage-needed -label:stale -label:info-needed updated:<${daysAgoToHumanReadbleDate(
-									7
+									7,
 								)}`,
 							});
 							// Loop through assigning new people to issues which are over a week old and not triaged
@@ -217,7 +217,7 @@ class ApplyLabels extends Action {
 									}
 									safeLog(
 										"assigning to stale issue",
-										available[i]
+										available[i],
 									);
 									await issue.addAssignee(available[i]);
 									await issue.addLabel("stale");

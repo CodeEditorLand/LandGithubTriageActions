@@ -1,4 +1,3 @@
-"use strict";
 /*---------------------------------------------------------------------------------------------
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See LICENSE in the project root for license information.
@@ -13,7 +12,7 @@ class SubscribeRunner extends Action_1.Action {
 	}
 	async onLabeled(issue, label) {
 		const subscribe = await issue.readConfig(
-			(0, utils_1.getRequiredInput)("config-path")
+			(0, utils_1.getRequiredInput)("config-path"),
 		);
 		const config =
 			subscribe === null || subscribe === void 0
@@ -27,7 +26,7 @@ class SubscribeRunner extends Action_1.Action {
 				}
 			}
 			await issue.postComment(
-				prefix + config.map((name) => `@${name}`).join(" ")
+				prefix + config.map((name) => `@${name}`).join(" "),
 			);
 		}
 	}

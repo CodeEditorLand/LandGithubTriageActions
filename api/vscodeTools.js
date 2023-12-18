@@ -1,4 +1,3 @@
-"use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.VSCodeToolsAPIManager = void 0;
 const core_http_1 = require("@azure/core-http");
@@ -10,7 +9,7 @@ class VSCodeToolsAPIManager {
 		const credential = new identity_1.ClientSecretCredential(
 			config.tenantId,
 			config.clientId,
-			config.clientSecret
+			config.clientSecret,
 		);
 		this.serviceClient = new core_http_1.ServiceClient(credential, {
 			credentialScopes: [config.clientScope],

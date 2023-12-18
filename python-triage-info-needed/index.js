@@ -1,4 +1,3 @@
-"use strict";
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -28,11 +27,11 @@ class TriageInfoNeeded extends Action_1.Action {
 		const commentAuthor = github_1.context.payload.comment.user.login;
 		const commentBody = github_1.context.payload.comment.body;
 		const isTeamMember = JSON.parse(
-			(0, utils_1.getRequiredInput)("triagers")
+			(0, utils_1.getRequiredInput)("triagers"),
 		).includes(commentAuthor);
 		const keywords = JSON.parse((0, utils_1.getRequiredInput)("keywords"));
 		const isRequestForInfo = new RegExp(keywords.join("|"), "i").test(
-			commentBody
+			commentBody,
 		);
 		const shouldAddLabel =
 			isTeamMember &&
@@ -66,7 +65,7 @@ class TriageInfoNeeded extends Action_1.Action {
 		}
 		if (
 			JSON.parse((0, utils_1.getRequiredInput)("triagers")).includes(
-				commentAuthor
+				commentAuthor,
 			)
 		) {
 			// If one of triagers made a comment, ignore it
@@ -82,14 +81,14 @@ class TriageInfoNeeded extends Action_1.Action {
 		for (const comment of comments.data.slice().reverse()) {
 			if (
 				!JSON.parse((0, utils_1.getRequiredInput)("triagers")).includes(
-					comment.user.login
+					comment.user.login,
 				)
 			) {
 				continue;
 			}
 			const matches = comment.body.match(/@\w+/g) || [];
 			const mentionedUsernames = matches.map((match) =>
-				match.replace("@", "")
+				match.replace("@", ""),
 			);
 			if (mentionedUsernames.includes(commentAuthor)) {
 				await github.rest.issues.removeLabel({

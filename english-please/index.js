@@ -1,4 +1,3 @@
-"use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const utils_1 = require("../common/utils");
 const EnglishPlease_1 = require("./EnglishPlease");
@@ -6,13 +5,13 @@ const Action_1 = require("../common/Action");
 const nonEnglishLabel = (0, utils_1.getRequiredInput)("nonEnglishLabel");
 const needsMoreInfoLabel = (0, utils_1.getRequiredInput)("needsMoreInfoLabel");
 const translatorRequestedLabelPrefix = (0, utils_1.getRequiredInput)(
-	"translatorRequestedLabelPrefix"
+	"translatorRequestedLabelPrefix",
 );
 const translatorRequestedLabelColor = (0, utils_1.getRequiredInput)(
-	"translatorRequestedLabelColor"
+	"translatorRequestedLabelColor",
 );
 const cognitiveServicesAPIKey = (0, utils_1.getRequiredInput)(
-	"cognitiveServicesAPIKey"
+	"cognitiveServicesAPIKey",
 );
 class EnglishPlease extends Action_1.Action {
 	constructor() {
@@ -22,7 +21,7 @@ class EnglishPlease extends Action_1.Action {
 	async onOpened(issue) {
 		await new EnglishPlease_1.EnglishPleaseLabler(
 			issue,
-			nonEnglishLabel
+			nonEnglishLabel,
 		).run();
 	}
 	async doLanguageSpecific(issue) {
@@ -32,7 +31,7 @@ class EnglishPlease extends Action_1.Action {
 			translatorRequestedLabelColor,
 			nonEnglishLabel,
 			needsMoreInfoLabel,
-			cognitiveServicesAPIKey
+			cognitiveServicesAPIKey,
 		).run();
 	}
 	async onEdited(issue) {

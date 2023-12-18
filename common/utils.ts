@@ -41,7 +41,7 @@ export const normalizeIssue = (issue: {
 			.replace(/steps to reproduce:/gu, "")
 			.replace(
 				/does this issue occur when all extensions are disabled.*/gu,
-				""
+				"",
 			)
 			.replace(/!?\[[^\]]*\]\([^)]*\)/gu, "")
 			.replace(/\s+/gu, " ")
@@ -66,8 +66,8 @@ export const normalizeIssue = (issue: {
 		issueType: isBug
 			? "bug"
 			: isFeatureRequest
-				? "feature_request"
-				: "unknown",
+			  ? "feature_request"
+			  : "unknown",
 	};
 };
 
@@ -78,11 +78,11 @@ export interface Release {
 }
 
 export const loadLatestRelease = async (
-	quality: "stable" | "insider"
+	quality: "stable" | "insider",
 ): Promise<Release | undefined> =>
 	(
 		await axios.get(
-			`https://update.code.visualstudio.com/api/update/darwin/${quality}/latest`
+			`https://update.code.visualstudio.com/api/update/darwin/${quality}/latest`,
 		)
 	).data;
 
@@ -143,7 +143,7 @@ export const errorLoggingIssue = (() => {
 export const logErrorToIssue = async (
 	message: string,
 	ping: boolean,
-	token: string
+	token: string,
 ): Promise<void> => {
 	// Attempt to wait out abuse detection timeout if present
 	await new Promise((resolve) => setTimeout(resolve, 10000));
@@ -154,14 +154,15 @@ export const logErrorToIssue = async (
 	return new OctoKitIssue(
 		token,
 		{ owner: dest.owner, repo: dest.repo },
-		{ number: dest.issue }
+		{ number: dest.issue },
 	).postComment(`
 Workflow: ${context.workflow}
 
 Error: ${message}
 
-Issue: ${ping ? `${context.repo.owner}/${context.repo.repo}#` : ""}${context
-		.issue?.number}
+Issue: ${ping ? `${context.repo.owner}/${context.repo.repo}#` : ""}${
+		context.issue?.number
+	}
 
 Repo: ${context.repo.owner}/${context.repo.repo}
 
@@ -194,7 +195,7 @@ export interface Accounts {
  * @returns An array of accounts
  */
 export async function readAccountsFromBlobStorage(
-	connectionString: string | undefined
+	connectionString: string | undefined,
 ) {
 	if (!connectionString) {
 		safeLog("Connection string missing.");

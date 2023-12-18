@@ -1,4 +1,3 @@
-"use strict";
 /*---------------------------------------------------------------------------------------------
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See LICENSE in the project root for license information.
@@ -26,12 +25,12 @@ class FetchIssues extends Action_1.Action {
 			await (0, download_1.download)(
 				token,
 				github_1.context.repo,
-				endCursor
+				endCursor,
 			);
 		} else {
 			try {
 				(0, fs_1.statSync)(
-					(0, path_1.join)(__dirname, "issues.json")
+					(0, path_1.join)(__dirname, "issues.json"),
 				).isFile();
 			} catch {
 				await (0, download_1.download)(token, github_1.context.repo);
@@ -44,13 +43,13 @@ class FetchIssues extends Action_1.Action {
 				"..",
 				"..",
 				"blobStorage",
-				"issues.json.zip"
-			)} ${(0, path_1.join)(__dirname, "issues.json")}`
+				"issues.json.zip",
+			)} ${(0, path_1.join)(__dirname, "issues.json")}`,
 		);
 		await (0, blobStorage_1.uploadBlobFile)(
 			"issues.json.zip",
 			blobContainer,
-			blobStorageKey
+			blobStorageKey,
 		);
 	}
 }

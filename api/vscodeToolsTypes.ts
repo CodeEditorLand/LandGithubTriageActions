@@ -3,9 +3,9 @@
 
 export enum Platform {
 	MAC = 1,
-	WINDOWS,
-	LINUX,
-	IPAD,
+	WINDOWS = 2,
+	LINUX = 3,
+	IPAD = 4,
 }
 
 export type Region = "Redmond" | "Zurich";
@@ -23,9 +23,9 @@ export enum Role {
 // https://github.com/microsoft/vscode-github-triage-actions/blob/c53b3637cd694df982b4a6a048c75ae16500ba1b/classifier-deep/apply/apply-labels/index.ts#L34-L41
 export enum Availability {
 	FULL = 1,
-	HALF,
-	OPTIONAL,
-	NOT_AVAILABLE,
+	HALF = 2,
+	OPTIONAL = 3,
+	NOT_AVAILABLE = 4,
 }
 
 export interface ITeamMember {
@@ -47,7 +47,7 @@ export const TWITTER_DUTY = "twitter";
 export const DISCUSSIONS_DUTY = "discussions";
 
 export enum RotatingMode {
-	NONE,
+	NONE = 0,
 	WEEKLY = "weekly",
 	MONTHLY = "monthly",
 }

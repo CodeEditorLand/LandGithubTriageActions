@@ -1,4 +1,3 @@
-"use strict";
 /*---------------------------------------------------------------------------------------------
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See LICENSE in the project root for license information.
@@ -83,7 +82,7 @@ const download = async (token, repo, startCursor, isRetry = false) => {
 					"User-Agent":
 						"github-actions://microsoft/vscode-github-triage-actions#fetch-issues",
 				},
-			}
+			},
 		)
 		.then((r) => r.data);
 	const response = data.data;
@@ -100,7 +99,7 @@ const download = async (token, repo, startCursor, isRetry = false) => {
 	) {
 		(0, utils_1.safeLog)(
 			"recieved unexpected response",
-			JSON.stringify(data)
+			JSON.stringify(data),
 		);
 		if (isRetry) {
 			console.error("max retries exceeded");
@@ -142,7 +141,7 @@ const download = async (token, repo, startCursor, isRetry = false) => {
 		issues.map((issue) => JSON.stringify(issue)).join("\n") + "\n",
 		{
 			flag: "a",
-		}
+		},
 	);
 	const pageInfo = response.repository.issues.pageInfo;
 	const rateInfo = response.rateLimit;
@@ -171,7 +170,7 @@ const extractLabelEvents = (_issue) => {
 			timestamp: +new Date(node.editedAt),
 			type: "bodyEdited",
 			new: node.diff,
-		}))
+		})),
 	);
 	events.push(
 		...issue.timelineItems.nodes
@@ -191,7 +190,7 @@ const extractLabelEvents = (_issue) => {
 							? _b
 							: "ghost",
 				};
-			})
+			}),
 	);
 	events.push(
 		...issue.timelineItems.nodes
@@ -200,7 +199,7 @@ const extractLabelEvents = (_issue) => {
 				timestamp: +new Date(node.createdAt),
 				type: "unlabeled",
 				label: node.label.name,
-			}))
+			})),
 	);
 	events.push(
 		...issue.timelineItems.nodes
@@ -210,7 +209,7 @@ const extractLabelEvents = (_issue) => {
 				type: "titleEdited",
 				new: node.currentTitle,
 				old: node.previousTitle,
-			}))
+			})),
 	);
 	events.sort(({ timestamp: a }, { timestamp: b }) => a - b);
 	let currentTitle =

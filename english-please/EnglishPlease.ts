@@ -2,9 +2,9 @@ import axios from "axios";
 import { GitHubIssue } from "../api/api";
 import { normalizeIssue, safeLog } from "../common/utils";
 import {
+	baseString,
 	commonNames as _commonNames,
 	knownTranslations as _knownTranslations,
-	baseString,
 } from "./translation-data.json";
 
 const commonNames: { [langCode: string]: string | undefined } = _commonNames;
@@ -19,7 +19,7 @@ const emojiChars =
 export class EnglishPleaseLabler {
 	constructor(
 		private issue: GitHubIssue,
-		private englishPleaseLabel: string
+		private englishPleaseLabel: string,
 	) {}
 
 	async run(): Promise<boolean> {
@@ -46,7 +46,7 @@ export class LanguageSpecificLabeler {
 		private translatorRequestedLabelColor: string,
 		private englishPleaseLabel: string,
 		private needsMoreInfoLabel: string,
-		private cognitiveServicesAPIKey: string
+		private cognitiveServicesAPIKey: string,
 	) {}
 
 	private async detectLanguage(chunk: string): Promise<string | undefined> {
@@ -54,7 +54,7 @@ export class LanguageSpecificLabeler {
 		safeLog(
 			"attempting to detect language...",
 			chunk.slice(0, 30),
-			hashedKey
+			hashedKey,
 		);
 
 		const result = await axios
@@ -67,7 +67,7 @@ export class LanguageSpecificLabeler {
 							this.cognitiveServicesAPIKey,
 						"Content-type": "application/json",
 					},
-				}
+				},
 			)
 			.catch((error) => {
 				if (error.response) {
@@ -90,7 +90,7 @@ export class LanguageSpecificLabeler {
 
 	private async translate(
 		text: string,
-		to: string
+		to: string,
 	): Promise<string | undefined> {
 		const hashedKey = this.cognitiveServicesAPIKey.replace(/./g, "*");
 		safeLog("attempting to translate...", hashedKey, text.slice(0, 20), to);
@@ -105,7 +105,7 @@ export class LanguageSpecificLabeler {
 							this.cognitiveServicesAPIKey,
 						"Content-type": "application/json",
 					},
-				}
+				},
 			)
 			.catch((e) => {
 				safeLog("error translating language", e);
@@ -123,7 +123,7 @@ export class LanguageSpecificLabeler {
 			for (const comment of page) {
 				if (
 					comment.body.includes(
-						"<!-- translation_requested_comment -->"
+						"<!-- translation_requested_comment -->",
 					)
 				) {
 					return;
@@ -137,7 +137,7 @@ export class LanguageSpecificLabeler {
 
 		if (!language || language === "en") {
 			const languagelabel = issue.labels.find((label) =>
-				label.startsWith(this.translatorRequestedLabelPrefix)
+				label.startsWith(this.translatorRequestedLabelPrefix),
 			);
 			if (languagelabel) await this.issue.removeLabel(languagelabel);
 			await this.issue.removeLabel(this.englishPleaseLabel);
@@ -150,7 +150,7 @@ export class LanguageSpecificLabeler {
 				await this.issue.createLabel(
 					label,
 					this.translatorRequestedLabelColor,
-					""
+					"",
 				);
 			}
 			await this.issue.addLabel(label);
@@ -169,7 +169,7 @@ export class LanguageSpecificLabeler {
 				for (const comment of page) {
 					if (
 						comment.body.includes(
-							"<!-- translation_requested_comment -->"
+							"<!-- translation_requested_comment -->",
 						)
 					) {
 						return;
@@ -178,7 +178,7 @@ export class LanguageSpecificLabeler {
 			}
 
 			await this.issue.postComment(
-				`${targetLanguageComment}\n\n---\n${englishComment}\n<!-- translation_requested_comment -->`
+				`${targetLanguageComment}\n\n---\n${englishComment}\n<!-- translation_requested_comment -->`,
 			);
 		}
 	}

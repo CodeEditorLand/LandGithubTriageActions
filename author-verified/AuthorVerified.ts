@@ -12,7 +12,7 @@ export class AuthorVerifiedLabeler {
 		private comment: string,
 		private releasedLabel: string,
 		private authorVerificationRequestedLabel: string,
-		private verifiedLabel: string
+		private verifiedLabel: string,
 	) {}
 
 	private async commentVerficationRequest(comment: string) {
@@ -23,7 +23,7 @@ export class AuthorVerifiedLabeler {
 				if (
 					comment.body.includes(key) ||
 					comment.body.includes(
-						"you can help us out by commenting `/verified`"
+						"you can help us out by commenting `/verified`",
 					) // legacy
 				) {
 					return;
@@ -50,7 +50,7 @@ export class AuthorVerifiedLabeler {
 				await this.commentVerficationRequest(
 					this.comment
 						.replace("${commit}", latestRelease.version)
-						.replace("${author}", issue.author.name)
+						.replace("${author}", issue.author.name),
 				);
 			}
 		}

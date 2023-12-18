@@ -4,9 +4,9 @@
  *--------------------------------------------------------------------------------------------*/
 
 import { OctoKit } from "../api/octokit";
+import { Action } from "../common/Action";
 import { getInput, getRequiredInput } from "../common/utils";
 import { NeedsMoreInfoCloser } from "./NeedsMoreInfoCloser";
-import { Action } from "../common/Action";
 
 class NeedsMoreInfo extends Action {
 	id = "NeedsMoreInfo";
@@ -19,7 +19,7 @@ class NeedsMoreInfo extends Action {
 			+getRequiredInput("pingDays"),
 			getInput("closeComment") || "",
 			getInput("pingComment") || "",
-			(getInput("additionalTeam") ?? "").split("|")
+			(getInput("additionalTeam") ?? "").split("|"),
 		).run();
 	}
 }

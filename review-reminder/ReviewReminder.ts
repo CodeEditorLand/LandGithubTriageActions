@@ -43,7 +43,7 @@ export class ReviewReminder {
 	constructor(
 		gitHubToken: string,
 		slackToken: string,
-		private readonly toolsAPI: VSCodeToolsAPIManager
+		private readonly toolsAPI: VSCodeToolsAPIManager,
 	) {
 		this.slackClient = new WebClient(slackToken);
 		this.octokit = new Octokit({ auth: gitHubToken });
@@ -51,7 +51,7 @@ export class ReviewReminder {
 
 	public static reviewWarningMessage(
 		numberOfReviews: number,
-		topReviewer: number
+		topReviewer: number,
 	): KnownBlock[] {
 		const headerBlock: HeaderBlock = {
 			type: "header",
@@ -74,7 +74,7 @@ export class ReviewReminder {
 	public static topReviewerMessage(
 		numberOfReviewsPatWeek: number,
 		numberOfReviewsPastMonth: number,
-		place: "first" | "second" | "third"
+		place: "first" | "second" | "third",
 	): KnownBlock[] {
 		const medalEmoji =
 			place === "first" ? "🥇" : place === "second" ? "🥈" : "🥉";
@@ -108,7 +108,7 @@ export class ReviewReminder {
 			octokit.rest.repos.listForAuthenticatedUser,
 			{
 				per_page: 100,
-			}
+			},
 		);
 
 		for await (const { data: repositories } of it) {
@@ -132,13 +132,13 @@ export class ReviewReminder {
 		octokit: Octokit,
 		repositoryInfo: { owner: string; repo: string },
 		teamMembers: Map<string, ITeamMember>,
-		numberOfDays = 30
+		numberOfDays = 30,
 	) {
 		const data: IReview[] = [];
 		const durations = [];
 
 		console.log(
-			`Processing ${repositoryInfo.owner}/${repositoryInfo.repo}`
+			`Processing ${repositoryInfo.owner}/${repositoryInfo.repo}`,
 		);
 
 		// The timeslot to query for
@@ -154,12 +154,12 @@ export class ReviewReminder {
 				per_page: 100,
 				sort: "created",
 				direction: "desc",
-			}
+			},
 		)) {
 			let pastTimeInterval = false;
 			for (const pr of response.data) {
 				const hasWriteAccess = teamMembers.has(
-					pr.user?.login ?? "No Member"
+					pr.user?.login ?? "No Member",
 				);
 				// Author isn't in the team, so we skip this PR
 				if (!hasWriteAccess) {
@@ -257,7 +257,7 @@ export class ReviewReminder {
 		}
 
 		console.log(
-			`PR Stats for ${repositoryInfo.owner}/${repositoryInfo.repo}`
+			`PR Stats for ${repositoryInfo.owner}/${repositoryInfo.repo}`,
 		);
 
 		// median duration
@@ -281,7 +281,7 @@ export class ReviewReminder {
 	 */
 	private async getBottomPercent(
 		stats: Map<string, number>,
-		percentile: number
+		percentile: number,
 	): Promise<Map<string, number>> {
 		const sorted = [...stats.entries()].sort((a, b) => a[1] - b[1]);
 		const bottom = Math.ceil(sorted.length * percentile);
@@ -294,7 +294,7 @@ export class ReviewReminder {
 	 * @returns A set of review stats regarding reviews completed
 	 */
 	private async processAllRepositories(
-		teamMembers: Map<string, ITeamMember>
+		teamMembers: Map<string, ITeamMember>,
 	): Promise<IReviewStats> {
 		let data: IReview[] = [];
 		for await (const repository of this.getRepositories(this.octokit)) {
@@ -304,8 +304,8 @@ export class ReviewReminder {
 				await this.processRepository(
 					this.octokit,
 					{ owner, repo },
-					teamMembers
-				)
+					teamMembers,
+				),
 			);
 		}
 		// Calculate number of reviews done by each reviewer
@@ -340,7 +340,7 @@ export class ReviewReminder {
 
 		// Filter the bottom to just bottom reviewers who are bottom reviewers for the week and the month
 		const bottomReviewers = new Set(
-			[...monthlyBottom20.keys()].filter((x) => weeklyBottom20.has(x))
+			[...monthlyBottom20.keys()].filter((x) => weeklyBottom20.has(x)),
 		);
 		const bottomReviewerStats: IReviewerStat[] = [];
 		for (const reviewer of bottomReviewers) {
@@ -354,24 +354,24 @@ export class ReviewReminder {
 		// Print average number reviews completed this month and this week
 		const totalMonthlyReviews = [...monthlyStats.values()].reduce(
 			(p, c) => p + c,
-			0
+			0,
 		);
 		const totalWeeklyReviews = [...weeklyStats.values()].reduce(
 			(p, c) => p + c,
-			0
+			0,
 		);
 		const monthlyAvg = totalMonthlyReviews / monthlyStats.size;
 		const weeklyAvg = totalWeeklyReviews / weeklyStats.size;
 		console.log(
-			`Average number of reviews per person completed this month: ${monthlyAvg} out of ${totalMonthlyReviews} total reviews.`
+			`Average number of reviews per person completed this month: ${monthlyAvg} out of ${totalMonthlyReviews} total reviews.`,
 		);
 		console.log(
-			`Average number of reviews per person completed this week: ${weeklyAvg} out of ${totalWeeklyReviews} total reviews.`
+			`Average number of reviews per person completed this week: ${weeklyAvg} out of ${totalWeeklyReviews} total reviews.`,
 		);
 
 		// Calculate top reviewer stats
 		const weeklySorted = Array.from(weeklyStats).sort(
-			(a, b) => b[1] - a[1]
+			(a, b) => b[1] - a[1],
 		);
 		const topReviewerStats: IReviewerStat[] = [];
 		for (let i = 0; i < 3; i++) {
@@ -402,7 +402,7 @@ export class ReviewReminder {
 		preview: string,
 		blocks?: KnownBlock[],
 		timestampToSend?: number,
-		skipCooldown?: boolean
+		skipCooldown?: boolean,
 	) {
 		// If user isn't populated and we didn't return early in the error handler, return now
 		if (!slackId) {
@@ -429,13 +429,13 @@ export class ReviewReminder {
 				: undefined;
 			if (lastMessage && lastMessage.ts) {
 				const lastMessageDate = new Date(
-					parseInt(lastMessage.ts) * 1000
+					parseInt(lastMessage.ts) * 1000,
 				);
 				const tenDaysAgo = new Date();
 				tenDaysAgo.setDate(tenDaysAgo.getDate() - 10);
 				if (lastMessageDate > tenDaysAgo && !skipCooldown) {
 					console.log(
-						`Skipping DM as last message was ${lastMessageDate}`
+						`Skipping DM as last message was ${lastMessageDate}`,
 					);
 					return;
 				}
@@ -500,10 +500,10 @@ export class ReviewReminder {
 				ReviewReminder.topReviewerMessage(
 					reviewer.weeklyCount,
 					reviewer.monthlyCount,
-					reviewer.place ?? "third"
+					reviewer.place ?? "third",
 				),
 				undefined,
-				true
+				true,
 			);
 		}
 
@@ -526,9 +526,9 @@ export class ReviewReminder {
 				"Review Reminder!",
 				ReviewReminder.reviewWarningMessage(
 					reviewer.weeklyCount,
-					stats.topReviewers[0].weeklyCount
+					stats.topReviewers[0].weeklyCount,
 				),
-				timestampToSend
+				timestampToSend,
 			);
 		}
 

@@ -1,4 +1,3 @@
-"use strict";
 /*---------------------------------------------------------------------------------------------
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See LICENSE in the project root for license information.
@@ -45,7 +44,7 @@ const normalizeIssue = (issue) => {
 			.replace(/steps to reproduce:/gu, "")
 			.replace(
 				/does this issue occur when all extensions are disabled.*/gu,
-				""
+				"",
 			)
 			.replace(/!?\[[^\]]*\]\([^)]*\)/gu, "")
 			.replace(/\s+/gu, " ")
@@ -67,15 +66,15 @@ const normalizeIssue = (issue) => {
 		issueType: isBug
 			? "bug"
 			: isFeatureRequest
-				? "feature_request"
-				: "unknown",
+			  ? "feature_request"
+			  : "unknown",
 	};
 };
 exports.normalizeIssue = normalizeIssue;
 const loadLatestRelease = async (quality) =>
 	(
 		await axios_1.default.get(
-			`https://update.code.visualstudio.com/api/update/darwin/${quality}/latest`
+			`https://update.code.visualstudio.com/api/update/darwin/${quality}/latest`,
 		)
 	).data;
 exports.loadLatestRelease = loadLatestRelease;
@@ -154,7 +153,7 @@ const logErrorToIssue = async (message, ping, token) => {
 	return new octokit_1.OctoKitIssue(
 		token,
 		{ owner: dest.owner, repo: dest.repo },
-		{ number: dest.issue }
+		{ number: dest.issue },
 	).postComment(`
 Workflow: ${github_1.context.workflow}
 

@@ -15,7 +15,7 @@ export interface GitHub {
 	createLabel(
 		label: string,
 		color: string,
-		description: string
+		description: string,
 	): Promise<void>;
 	deleteLabel(label: string): Promise<void>;
 
@@ -27,12 +27,12 @@ export interface GitHub {
 		owner: string,
 		repo: string,
 		title: string,
-		body: string
+		body: string,
 	): Promise<void>;
 
 	releaseContainsCommit(
 		release: string,
-		commit: string
+		commit: string,
 	): Promise<"yes" | "no" | "unknown">;
 
 	/**

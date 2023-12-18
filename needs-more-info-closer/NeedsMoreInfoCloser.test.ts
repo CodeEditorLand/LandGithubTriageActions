@@ -6,8 +6,8 @@
 import { expect } from "chai";
 import { Comment, Query } from "../api/api";
 import { Testbed, TestbedIssueConstructorArgs } from "../api/testbed";
-import { NeedsMoreInfoCloser } from "./NeedsMoreInfoCloser";
 import { daysAgoToTimestamp } from "../common/utils";
+import { NeedsMoreInfoCloser } from "./NeedsMoreInfoCloser";
 
 describe("NeedsMoreInfoCloser", () => {
 	it("creates a reasonable query and closes the issues the query yields, but only if the last comment was a bot or contributor", async () => {
@@ -90,7 +90,7 @@ describe("NeedsMoreInfoCloser", () => {
 		];
 
 		const queryRunner = async function* (
-			_query: Query
+			_query: Query,
 		): AsyncIterableIterator<TestbedIssueConstructorArgs[]> {
 			yield [...issuesToClose, ...issuesNotToClose, ...issuesToPing];
 		};
@@ -103,29 +103,29 @@ describe("NeedsMoreInfoCloser", () => {
 			2,
 			"closed this because it needs more info thx :)",
 			"please check this issue out",
-			["jax"]
+			["jax"],
 		).run();
 		issuesToClose.map(
 			(issue) =>
 				expect(
 					issue.issue?.open,
-					issue.comments?.map((comment) => comment.body).join(",")
-				).to.be.false
+					issue.comments?.map((comment) => comment.body).join(","),
+				).to.be.false,
 		);
 		issuesNotToClose.map(
 			(issue) =>
 				expect(
 					issue.issue?.open,
-					issue.comments?.map((comment) => comment.body).join(",")
-				).to.be.true
+					issue.comments?.map((comment) => comment.body).join(","),
+				).to.be.true,
 		);
 		issuesToPing.map((issue) => {
 			expect(
 				issue.issue?.open,
-				issue.comments?.map((comment) => comment.body).join(",")
+				issue.comments?.map((comment) => comment.body).join(","),
 			).to.be.true;
 			expect(
-				issue.comments?.map((comment) => comment.body).join(",")
+				issue.comments?.map((comment) => comment.body).join(","),
 			).to.contain("please check");
 		});
 	});

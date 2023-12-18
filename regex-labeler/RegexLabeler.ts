@@ -12,7 +12,7 @@ export class RegexFlagger {
 		private label: string | undefined,
 		private comment: string | undefined,
 		private mustMatch: string | undefined,
-		private mustNotMatch: string | undefined
+		private mustNotMatch: string | undefined,
 	) {}
 
 	async run() {

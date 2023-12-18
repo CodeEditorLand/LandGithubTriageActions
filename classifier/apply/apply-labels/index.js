@@ -1,4 +1,3 @@
-"use strict";
 /*---------------------------------------------------------------------------------------------
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See LICENSE in the project root for license information.
@@ -21,26 +20,26 @@ class ApplyLabels extends Action_1.Action {
 	async onTriggered(github) {
 		var _a, _b;
 		const config = await github.readConfig(
-			(0, utils_1.getRequiredInput)("config-path")
+			(0, utils_1.getRequiredInput)("config-path"),
 		);
 		const labelings = JSON.parse(
 			(0, fs_1.readFileSync)(
 				(0, path_1.join)(__dirname, "../issue_labels.json"),
-				{ encoding: "utf8" }
-			)
+				{ encoding: "utf8" },
+			),
 		);
 		for (const labeling of labelings) {
 			const issue = new octokit_1.OctoKitIssue(
 				token,
 				github_1.context.repo,
-				{ number: labeling.number }
+				{ number: labeling.number },
 			);
 			const issueData = await issue.getIssue();
 			if (
 				!debug &&
 				(issueData.assignee ||
 					issueData.labels.some(
-						(label) => !allowLabels.includes(label)
+						(label) => !allowLabels.includes(label),
 					))
 			) {
 				(0, utils_1.safeLog)("skipping");
@@ -81,7 +80,7 @@ class ApplyLabels extends Action_1.Action {
 			const label = labeling.area;
 			if (label) {
 				(0, utils_1.safeLog)(
-					`adding label ${label} to issue ${issueData.number}`
+					`adding label ${label} to issue ${issueData.number}`,
 				);
 				if (debug) {
 					if (!(await github.repoHasLabel(label))) {
@@ -112,8 +111,8 @@ class ApplyLabels extends Action_1.Action {
 							: labelConfig.assign
 					)
 						? labelConfig.assign.map((assignee) =>
-								issue.addAssignee(assignee)
-							)
+								issue.addAssignee(assignee),
+						  )
 						: []),
 				]);
 			}

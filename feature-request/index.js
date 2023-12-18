@@ -1,4 +1,3 @@
-"use strict";
 /*---------------------------------------------------------------------------------------------
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See LICENSE in the project root for license information.
@@ -45,7 +44,7 @@ class FeatureRequest extends Action_1.Action {
 				github,
 				+(0, utils_1.getRequiredInput)("milestoneDelaySeconds"),
 				config.milestones.candidateID,
-				config.featureRequestLabel
+				config.featureRequestLabel,
 			).run();
 		}
 	}
@@ -53,7 +52,7 @@ class FeatureRequest extends Action_1.Action {
 		await new FeatureRequest_1.FeatureRequestOnMilestone(
 			github,
 			config.comments.init,
-			config.milestones.candidateID
+			config.milestones.candidateID,
 		).run();
 	}
 }

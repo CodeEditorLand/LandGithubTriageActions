@@ -4,9 +4,9 @@
  *--------------------------------------------------------------------------------------------*/
 
 import { OctoKit, OctoKitIssue } from "../api/octokit";
+import { Action } from "../common/Action";
 import { getRequiredInput } from "../common/utils";
 import { ReleasePipeline, enrollIssue, unenrollIssue } from "./ReleasePipeline";
-import { Action } from "../common/Action";
 
 const notYetReleasedLabel = getRequiredInput("notYetReleasedLabel");
 const insidersReleasedLabel = getRequiredInput("insidersReleasedLabel");
@@ -26,7 +26,7 @@ class ReleasePipelineAction extends Action {
 		await new ReleasePipeline(
 			github,
 			notYetReleasedLabel,
-			insidersReleasedLabel
+			insidersReleasedLabel,
 		).run();
 	}
 

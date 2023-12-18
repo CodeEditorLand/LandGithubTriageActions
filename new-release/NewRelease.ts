@@ -13,7 +13,7 @@ export class NewRelease {
 		private labelColor: string,
 		private labelDescription: string,
 		private days: number,
-		private oldVersionMessage?: string
+		private oldVersionMessage?: string,
 	) {}
 
 	async run() {
@@ -36,8 +36,8 @@ export class NewRelease {
 			await this.github.postComment(
 				this.oldVersionMessage.replace(
 					"{currentVersion}",
-					release.productVersion
-				)
+					release.productVersion,
+				),
 			);
 			return;
 		}
@@ -46,7 +46,7 @@ export class NewRelease {
 			// delete the label from the repo as a whole to remove it from all issues
 			safeLog(
 				"New release window passed. Globally deleting label " +
-					this.label
+					this.label,
 			);
 			return this.github.deleteLabel(this.label);
 		}
@@ -56,20 +56,20 @@ export class NewRelease {
 			new RegExp(
 				`VS ?Code Version:(.*[^\\d])?${release.productVersion.replace(
 					".",
-					"\\."
+					"\\.",
 				)}([^\\d]|$)`,
-				"i"
+				"i",
 			).test(cleansed)
 		) {
 			if (!(await this.github.repoHasLabel(this.label))) {
 				safeLog(
 					"First release issue found. Globally creating label " +
-						this.label
+						this.label,
 				);
 				await this.github.createLabel(
 					this.label,
 					this.labelColor,
-					this.labelDescription
+					this.labelDescription,
 				);
 			}
 

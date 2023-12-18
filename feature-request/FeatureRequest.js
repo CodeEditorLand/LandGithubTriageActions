@@ -1,4 +1,3 @@
-"use strict";
 /*---------------------------------------------------------------------------------------------
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See LICENSE in the project root for license information.
@@ -38,19 +37,19 @@ class FeatureRequestQueryer {
 						: _a.milestoneId) ===
 						this.config.milestones.candidateID &&
 					issueData.labels.includes(
-						this.config.featureRequestLabel
+						this.config.featureRequestLabel,
 					) &&
 					!issueData.labels.some((issueLabel) =>
 						this.config.labelsToExclude.some(
-							(excludeLabel) => issueLabel === excludeLabel
-						)
+							(excludeLabel) => issueLabel === excludeLabel,
+						),
 					)
 				) {
 					await this.actOn(issue);
 				} else {
 					(0, utils_1.safeLog)(
 						"Query returned an invalid issue:",
-						issueData.number
+						issueData.number,
 					);
 				}
 			}
@@ -60,7 +59,7 @@ class FeatureRequestQueryer {
 		const issueData = await issue.getIssue();
 		if (!issueData.reactions)
 			throw Error(
-				"No reaction data in issue " + JSON.stringify(issueData)
+				"No reaction data in issue " + JSON.stringify(issueData),
 			);
 		if (
 			issueData.reactions["+1"] >= this.config.upvotesRequired &&
@@ -68,12 +67,12 @@ class FeatureRequestQueryer {
 			this.config.milestones.backlogID
 		) {
 			(0, utils_1.safeLog)(
-				`Issue #${issueData.number} sucessfully promoted`
+				`Issue #${issueData.number} sucessfully promoted`,
 			);
 			await Promise.all([
 				issue.setMilestone(this.config.milestones.backlogID),
 				issue.postComment(
-					exports.ACCEPT_MARKER + "\n" + this.config.comments.accept
+					exports.ACCEPT_MARKER + "\n" + this.config.comments.accept,
 				),
 			]);
 		} else if (issueData.numComments < this.config.numCommentsOverride) {
@@ -93,7 +92,7 @@ class FeatureRequestQueryer {
 					await new FeatureRequestOnMilestone(
 						issue,
 						this.config.comments.init,
-						this.config.milestones.candidateID
+						this.config.milestones.candidateID,
 					).run();
 				}
 			} else if (!state.warnTimestamp) {
@@ -102,10 +101,10 @@ class FeatureRequestQueryer {
 					this.config.delays.close - this.config.delays.warn
 				) {
 					(0, utils_1.safeLog)(
-						`Issue #${issueData.number} nearing rejection`
+						`Issue #${issueData.number} nearing rejection`,
 					);
 					await issue.postComment(
-						exports.WARN_MARKER + "\n" + this.config.comments.warn
+						exports.WARN_MARKER + "\n" + this.config.comments.warn,
 					);
 				}
 			} else if (
@@ -113,7 +112,7 @@ class FeatureRequestQueryer {
 			) {
 				(0, utils_1.safeLog)(`Issue #${issueData.number} rejected`);
 				await issue.postComment(
-					exports.REJECT_MARKER + "\n" + this.config.comments.reject
+					exports.REJECT_MARKER + "\n" + this.config.comments.reject,
 				);
 				await issue.closeIssue("not_planned");
 				if (this.config.comments.rejectLabel) {
@@ -122,7 +121,7 @@ class FeatureRequestQueryer {
 			}
 		} else {
 			(0, utils_1.safeLog)(
-				`Issue #${issueData.number} has hot discussion. Ignoring.`
+				`Issue #${issueData.number} has hot discussion. Ignoring.`,
 			);
 		}
 	}
@@ -172,7 +171,7 @@ class FeatureRequestOnMilestone {
 				: _a.milestoneId) === this.milestone
 		) {
 			await this.github.postComment(
-				exports.CREATE_MARKER + "\n" + this.comment
+				exports.CREATE_MARKER + "\n" + this.comment,
 			);
 		}
 	}

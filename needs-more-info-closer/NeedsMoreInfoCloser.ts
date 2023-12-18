@@ -18,7 +18,7 @@ export class NeedsMoreInfoCloser {
 		private pingDays: number,
 		private closeComment: string,
 		private pingComment: string,
-		private additionalTeam: string[]
+		private additionalTeam: string[],
 	) {}
 
 	async run() {
@@ -52,54 +52,49 @@ export class NeedsMoreInfoCloser {
 					) {
 						if (lastComment) {
 							safeLog(
-								`Last comment on ${hydrated.number} by team. Closing.`
+								`Last comment on ${hydrated.number} by team. Closing.`,
 							);
 						} else {
 							safeLog(
-								`No comments on ${hydrated.number}. Closing.`
+								`No comments on ${hydrated.number}. Closing.`,
 							);
 						}
 						if (this.closeComment) {
 							await issue.postComment(this.closeComment);
 						}
 						await issue.closeIssue("not_planned");
-					} else {
-						if (
-							hydrated.updatedAt < pingTimestamp &&
-							hydrated.assignee
-						) {
-							safeLog(
-								`Last comment on ${hydrated.number} by rando. Pinging @${hydrated.assignee}`
-							);
-							if (this.pingComment) {
-								await issue.postComment(
-									this.pingComment
-										.replace(
-											"${assignee}",
-											hydrated.assignees?.join(" @") ||
-												hydrated.assignee
-										)
-										.replace(
-											"${author}",
-											hydrated.author.name
-										)
-								);
-							}
-						} else {
-							safeLog(
-								`Last comment on ${
-									hydrated.number
-								} by rando. Skipping.${
-									hydrated.assignee
-										? " cc @" + hydrated.assignee
-										: ""
-								}`
+					} else if (
+						hydrated.updatedAt < pingTimestamp &&
+						hydrated.assignee
+					) {
+						safeLog(
+							`Last comment on ${hydrated.number} by rando. Pinging @${hydrated.assignee}`,
+						);
+						if (this.pingComment) {
+							await issue.postComment(
+								this.pingComment
+									.replace(
+										"${assignee}",
+										hydrated.assignees?.join(" @") ||
+											hydrated.assignee,
+									)
+									.replace("${author}", hydrated.author.name),
 							);
 						}
+					} else {
+						safeLog(
+							`Last comment on ${
+								hydrated.number
+							} by rando. Skipping.${
+								hydrated.assignee
+									? " cc @" + hydrated.assignee
+									: ""
+							}`,
+						);
 					}
 				} else {
 					safeLog(
-						"Query returned an invalid issue:" + hydrated.number
+						"Query returned an invalid issue:" + hydrated.number,
 					);
 				}
 			}

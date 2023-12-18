@@ -1,9 +1,9 @@
 import { ServiceClient } from "@azure/core-http";
 import { ClientSecretCredential } from "@azure/identity";
 import {
-	TRIAGE_DUTY,
-	type ITeamMember,
 	Availability,
+	type ITeamMember,
+	TRIAGE_DUTY,
 } from "./vscodeToolsTypes";
 
 const API_URL = "https://tools.code.visualstudio.com/api";
@@ -19,7 +19,7 @@ export class VSCodeToolsAPIManager {
 		const credential = new ClientSecretCredential(
 			config.tenantId,
 			config.clientId,
-			config.clientSecret
+			config.clientSecret,
 		);
 		this.serviceClient = new ServiceClient(credential, {
 			credentialScopes: [config.clientScope],
@@ -36,7 +36,7 @@ export class VSCodeToolsAPIManager {
 			.filter(
 				(member) =>
 					member.duties?.includes(TRIAGE_DUTY) &&
-					member.availability !== Availability.NOT_AVAILABLE
+					member.availability !== Availability.NOT_AVAILABLE,
 			)
 			.map((member) => member.id);
 	}

@@ -1,15 +1,15 @@
-import { getRequiredInput } from "../common/utils";
-import { LanguageSpecificLabeler, EnglishPleaseLabler } from "./EnglishPlease";
 import { OctoKitIssue } from "../api/octokit";
 import { Action } from "../common/Action";
+import { getRequiredInput } from "../common/utils";
+import { EnglishPleaseLabler, LanguageSpecificLabeler } from "./EnglishPlease";
 
 const nonEnglishLabel = getRequiredInput("nonEnglishLabel");
 const needsMoreInfoLabel = getRequiredInput("needsMoreInfoLabel");
 const translatorRequestedLabelPrefix = getRequiredInput(
-	"translatorRequestedLabelPrefix"
+	"translatorRequestedLabelPrefix",
 );
 const translatorRequestedLabelColor = getRequiredInput(
-	"translatorRequestedLabelColor"
+	"translatorRequestedLabelColor",
 );
 const cognitiveServicesAPIKey = getRequiredInput("cognitiveServicesAPIKey");
 
@@ -27,7 +27,7 @@ class EnglishPlease extends Action {
 			translatorRequestedLabelColor,
 			nonEnglishLabel,
 			needsMoreInfoLabel,
-			cognitiveServicesAPIKey
+			cognitiveServicesAPIKey,
 		).run();
 	}
 

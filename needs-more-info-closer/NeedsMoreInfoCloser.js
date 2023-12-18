@@ -1,4 +1,3 @@
-"use strict";
 /*---------------------------------------------------------------------------------------------
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See LICENSE in the project root for license information.
@@ -14,7 +13,7 @@ class NeedsMoreInfoCloser {
 		pingDays,
 		closeComment,
 		pingComment,
-		additionalTeam
+		additionalTeam,
 	) {
 		this.github = github;
 		this.label = label;
@@ -27,7 +26,7 @@ class NeedsMoreInfoCloser {
 	async run() {
 		var _a;
 		const updatedTimestamp = (0, utils_1.daysAgoToHumanReadbleDate)(
-			this.closeDays
+			this.closeDays,
 		);
 		const pingTimestamp = (0, utils_1.daysAgoToTimestamp)(this.pingDays);
 		const query = `updated:<${updatedTimestamp} label:"${this.label}" is:open is:unlocked`;
@@ -55,57 +54,52 @@ class NeedsMoreInfoCloser {
 					) {
 						if (lastComment) {
 							(0, utils_1.safeLog)(
-								`Last comment on ${hydrated.number} by team. Closing.`
+								`Last comment on ${hydrated.number} by team. Closing.`,
 							);
 						} else {
 							(0, utils_1.safeLog)(
-								`No comments on ${hydrated.number}. Closing.`
+								`No comments on ${hydrated.number}. Closing.`,
 							);
 						}
 						if (this.closeComment) {
 							await issue.postComment(this.closeComment);
 						}
 						await issue.closeIssue("not_planned");
-					} else {
-						if (
-							hydrated.updatedAt < pingTimestamp &&
-							hydrated.assignee
-						) {
-							(0, utils_1.safeLog)(
-								`Last comment on ${hydrated.number} by rando. Pinging @${hydrated.assignee}`
-							);
-							if (this.pingComment) {
-								await issue.postComment(
-									this.pingComment
-										.replace(
-											"${assignee}",
-											((_a = hydrated.assignees) ===
-												null || _a === void 0
-												? void 0
-												: _a.join(" @")) ||
-												hydrated.assignee
-										)
-										.replace(
-											"${author}",
-											hydrated.author.name
-										)
-								);
-							}
-						} else {
-							(0, utils_1.safeLog)(
-								`Last comment on ${
-									hydrated.number
-								} by rando. Skipping.${
-									hydrated.assignee
-										? " cc @" + hydrated.assignee
-										: ""
-								}`
+					} else if (
+						hydrated.updatedAt < pingTimestamp &&
+						hydrated.assignee
+					) {
+						(0, utils_1.safeLog)(
+							`Last comment on ${hydrated.number} by rando. Pinging @${hydrated.assignee}`,
+						);
+						if (this.pingComment) {
+							await issue.postComment(
+								this.pingComment
+									.replace(
+										"${assignee}",
+										((_a = hydrated.assignees) === null ||
+										_a === void 0
+											? void 0
+											: _a.join(" @")) ||
+											hydrated.assignee,
+									)
+									.replace("${author}", hydrated.author.name),
 							);
 						}
+					} else {
+						(0, utils_1.safeLog)(
+							`Last comment on ${
+								hydrated.number
+							} by rando. Skipping.${
+								hydrated.assignee
+									? " cc @" + hydrated.assignee
+									: ""
+							}`,
+						);
 					}
 				} else {
 					(0, utils_1.safeLog)(
-						"Query returned an invalid issue:" + hydrated.number
+						"Query returned an invalid issue:" + hydrated.number,
 					);
 				}
 			}

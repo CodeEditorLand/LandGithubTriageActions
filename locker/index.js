@@ -1,4 +1,3 @@
-"use strict";
 /*---------------------------------------------------------------------------------------------
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See LICENSE in the project root for license information.
@@ -19,7 +18,7 @@ class LockerAction extends Action_1.Action {
 			+(0, utils_1.getRequiredInput)("daysSinceUpdate"),
 			(0, utils_1.getInput)("ignoredLabel") || undefined,
 			(0, utils_1.getInput)("ignoreLabelUntil") || undefined,
-			(0, utils_1.getInput)("labelUntil") || undefined
+			(0, utils_1.getInput)("labelUntil") || undefined,
 		).run();
 	}
 }

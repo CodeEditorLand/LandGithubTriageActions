@@ -28,12 +28,12 @@ class TriageInfoNeeded extends Action {
 		const commentAuthor = context.payload.comment!.user.login;
 		const commentBody = context.payload.comment!.body;
 		const isTeamMember = JSON.parse(getRequiredInput("triagers")).includes(
-			commentAuthor
+			commentAuthor,
 		);
 
 		const keywords = JSON.parse(getRequiredInput("keywords"));
 		const isRequestForInfo = new RegExp(keywords.join("|"), "i").test(
-			commentBody
+			commentBody,
 		);
 
 		const shouldAddLabel =
@@ -82,14 +82,14 @@ class TriageInfoNeeded extends Action {
 		for (const comment of comments.data.slice().reverse()) {
 			if (
 				!JSON.parse(getRequiredInput("triagers")).includes(
-					comment.user!.login
+					comment.user!.login,
 				)
 			) {
 				continue;
 			}
 			const matches = comment.body!.match(/@\w+/g) || [];
 			const mentionedUsernames = matches.map((match) =>
-				match.replace("@", "")
+				match.replace("@", ""),
 			);
 			if (mentionedUsernames.includes(commentAuthor)) {
 				await github.rest.issues.removeLabel({

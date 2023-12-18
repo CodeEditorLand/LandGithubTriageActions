@@ -4,8 +4,8 @@
  *--------------------------------------------------------------------------------------------*/
 
 import { OctoKitIssue } from "../api/octokit";
-import { getRequiredInput } from "../common/utils";
 import { Action } from "../common/Action";
+import { getRequiredInput } from "../common/utils";
 
 type Config = { [laabel: string]: string[] };
 
@@ -14,7 +14,7 @@ class SubscribeRunner extends Action {
 
 	async onLabeled(issue: OctoKitIssue, label: string) {
 		const subscribe: Config = await issue.readConfig(
-			getRequiredInput("config-path")
+			getRequiredInput("config-path"),
 		);
 		const config = subscribe?.[label];
 		const prefix = `Pinging \`${label}\` topic followers: `;
@@ -25,7 +25,7 @@ class SubscribeRunner extends Action {
 				}
 			}
 			await issue.postComment(
-				prefix + config.map((name) => `@${name}`).join(" ")
+				prefix + config.map((name) => `@${name}`).join(" "),
 			);
 		}
 	}

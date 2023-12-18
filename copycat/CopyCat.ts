@@ -10,13 +10,13 @@ export class CopyCat {
 	constructor(
 		private github: GitHubIssue,
 		private owner: string,
-		private repo: string
+		private repo: string,
 	) {}
 
 	async run() {
 		const issue = await this.github.getIssue();
 		safeLog(
-			`Mirroring issue \`${issue.number}\` to ${this.owner}/${this.repo}`
+			`Mirroring issue \`${issue.number}\` to ${this.owner}/${this.repo}`,
 		);
 		await this.github.createIssue(
 			this.owner,
@@ -24,7 +24,7 @@ export class CopyCat {
 			issue.title,
 			(issue.body ?? "")
 				.replace(/@|#|issues/g, "-")
-				.replace(/\/github.com\//g, "/github-com/")
+				.replace(/\/github.com\//g, "/github-com/"),
 		);
 	}
 }

@@ -3,9 +3,9 @@
  *  Licensed under the MIT License. See LICENSE in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import axios from "axios";
 import { writeFileSync } from "fs";
 import { join } from "path";
+import axios from "axios";
 import { safeLog } from "../../../common/utils";
 
 type Response = {
@@ -78,7 +78,7 @@ export const download = async (
 	token: string,
 	repo: { owner: string; repo: string },
 	startCursor?: string,
-	isRetry = false
+	isRetry = false,
 ) => {
 	const data = await axios
 		.post(
@@ -152,7 +152,7 @@ export const download = async (
 					"User-Agent":
 						"github-actions://microsoft/vscode-github-triage-actions#fetch-issues",
 				},
-			}
+			},
 		)
 		.then((r) => r.data);
 
@@ -188,9 +188,9 @@ export const download = async (
 				(event) =>
 					event.__typename === "ClosedEvent" &&
 					(event.closer?.__typename === "PullRequest" ||
-						event.closer?.__typename === "Commit")
+						event.closer?.__typename === "Commit"),
 			),
-		})
+		}),
 	);
 
 	writeFileSync(
@@ -198,7 +198,7 @@ export const download = async (
 		issues.map((issue) => JSON.stringify(issue)).join("\n") + "\n",
 		{
 			flag: "a",
-		}
+		},
 	);
 
 	const pageInfo = response.repository.issues.pageInfo;
@@ -222,7 +222,7 @@ export const download = async (
 };
 
 const extractLabelEvents = (
-	_issue: IssueResponse["nodes"][number]
+	_issue: IssueResponse["nodes"][number],
 ): LabelEvent[] => {
 	const issue = _issue;
 	const events: ({ timestamp: number } & (
@@ -239,15 +239,15 @@ const extractLabelEvents = (
 					timestamp: +new Date(node.editedAt),
 					type: "bodyEdited",
 					new: node.diff,
-				}) as const
-		)
+				}) as const,
+		),
 	);
 
 	events.push(
 		...issue.timelineItems.nodes
 			.filter(
 				(node): node is GHLabelEvent =>
-					node.__typename === "LabeledEvent"
+					node.__typename === "LabeledEvent",
 			)
 			.map((node) => ({ ...node, issue }))
 			.map(
@@ -257,15 +257,15 @@ const extractLabelEvents = (
 						type: "labeled",
 						label: node.label.name,
 						actor: node.actor?.login ?? "ghost",
-					}) as const
-			)
+					}) as const,
+			),
 	);
 
 	events.push(
 		...issue.timelineItems.nodes
 			.filter(
 				(node): node is GHLabelEvent =>
-					node.__typename === "UnlabeledEvent"
+					node.__typename === "UnlabeledEvent",
 			)
 			.map(
 				(node) =>
@@ -273,15 +273,15 @@ const extractLabelEvents = (
 						timestamp: +new Date(node.createdAt),
 						type: "unlabeled",
 						label: node.label.name,
-					}) as const
-			)
+					}) as const,
+			),
 	);
 
 	events.push(
 		...issue.timelineItems.nodes
 			.filter(
 				(node): node is GHRenameEvent =>
-					node.__typename === "RenamedTitleEvent"
+					node.__typename === "RenamedTitleEvent",
 			)
 			.map(
 				(node) =>
@@ -290,8 +290,8 @@ const extractLabelEvents = (
 						type: "titleEdited",
 						new: node.currentTitle,
 						old: node.previousTitle,
-					}) as const
-			)
+					}) as const,
+			),
 	);
 
 	events.sort(({ timestamp: a }, { timestamp: b }) => a - b);

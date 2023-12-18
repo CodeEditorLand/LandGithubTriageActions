@@ -25,7 +25,7 @@ export class Commands {
 		private github: GitHubIssue,
 		private config: Command[],
 		private action: { label: string } | { comment: string; user: User },
-		private hydrate: (comment: string, issue: Issue) => string
+		private hydrate: (comment: string, issue: Issue) => string,
 	) {}
 
 	private async matches(command: Command, issue: Issue): Promise<boolean> {
@@ -55,8 +55,8 @@ export class Commands {
 				!!this.action.comment.match(
 					new RegExp(
 						`(/|\\\\)${escapeRegExp(command.name)}(\\s|$)`,
-						"i"
-					)
+						"i",
+					),
 				) &&
 				((await this.github.hasWriteAccess(this.action.user.name)) ||
 					command.allowUsers?.includes(this.action.user.name) ||
@@ -81,8 +81,8 @@ export class Commands {
 			let argList = (
 				this.action.comment.match(
 					new RegExp(
-						String.raw`(?:^|\s)(?:\\|/)${command.name}(.*)(?:\r)?(?:\n|$)`
-					)
+						String.raw`(?:^|\s)(?:\\|/)${command.name}(.*)(?:\r)?(?:\n|$)`,
+					),
 				)?.[1] ?? ""
 			).trim();
 			while (argList) {
@@ -93,7 +93,7 @@ export class Commands {
 					const endIndex = argList.indexOf('"', 1);
 					if (endIndex === -1)
 						throw Error(
-							"Unable to parse arglist. Could not find matching double quote"
+							"Unable to parse arglist. Could not find matching double quote",
 						);
 					args.push({ task, name: argList.slice(1, endIndex) });
 					argList = argList.slice(endIndex + 1).trim();
@@ -114,8 +114,8 @@ export class Commands {
 					...args.map((arg) =>
 						arg.task === "add"
 							? this.github.addLabel(arg.name)
-							: this.github.removeLabel(arg.name)
-					)
+							: this.github.removeLabel(arg.name),
+					),
 				);
 			}
 
@@ -126,14 +126,14 @@ export class Commands {
 							? this.github.addAssignee(
 									arg.name[0] === "@"
 										? arg.name.slice(1)
-										: arg.name
-								)
+										: arg.name,
+							  )
 							: this.github.removeAssignee(
 									arg.name[0] === "@"
 										? arg.name.slice(1)
-										: arg.name
-								)
-					)
+										: arg.name,
+							  ),
+					),
 				);
 			}
 		}
@@ -144,7 +144,7 @@ export class Commands {
 
 		if (command.comment && (command.action !== "close" || issue.open)) {
 			tasks.push(
-				this.github.postComment(this.hydrate(command.comment, issue))
+				this.github.postComment(this.hydrate(command.comment, issue)),
 			);
 		}
 
@@ -155,8 +155,8 @@ export class Commands {
 		if (command.assign) {
 			tasks.push(
 				...command.assign.map((assignee) =>
-					this.github.addAssignee(assignee)
-				)
+					this.github.addAssignee(assignee),
+				),
 			);
 		}
 
@@ -170,7 +170,7 @@ export class Commands {
 	async run() {
 		const issue = await this.github.getIssue();
 		return Promise.all(
-			this.config.map((command) => this.perform(command, issue))
+			this.config.map((command) => this.perform(command, issue)),
 		);
 	}
 }

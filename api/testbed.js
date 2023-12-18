@@ -1,4 +1,3 @@
-"use strict";
 /*---------------------------------------------------------------------------------------------
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See LICENSE in the project root for license information.
@@ -48,7 +47,7 @@ class Testbed {
 					? _e
 					: async function* () {
 							yield [];
-						},
+					  },
 		};
 	}
 	async *query(query) {
@@ -56,7 +55,7 @@ class Testbed {
 			yield page.map((issue) =>
 				issue instanceof TestbedIssue
 					? issue
-					: new TestbedIssue(this.config, issue)
+					: new TestbedIssue(this.config, issue),
 			);
 		}
 	}
@@ -77,7 +76,7 @@ class Testbed {
 	}
 	async deleteLabel(labelToDelete) {
 		this.config.globalLabels = this.config.globalLabels.filter(
-			(label) => label !== labelToDelete
+			(label) => label !== labelToDelete,
 		);
 	}
 	async releaseContainsCommit(_release, commit) {
@@ -183,7 +182,7 @@ class TestbedIssue extends Testbed {
 	}
 	async deleteComment(id) {
 		this.issueConfig.comments = this.issueConfig.comments.filter(
-			(comment) => comment.id !== id
+			(comment) => comment.id !== id,
 		);
 	}
 	async *getComments(last) {
@@ -196,7 +195,7 @@ class TestbedIssue extends Testbed {
 	}
 	async removeLabel(labelToDelete) {
 		this.issueConfig.labels = this.issueConfig.labels.filter(
-			(label) => label !== labelToDelete
+			(label) => label !== labelToDelete,
 		);
 	}
 	async closeIssue() {

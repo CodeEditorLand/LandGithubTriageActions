@@ -6,13 +6,13 @@
 import { writeFileSync } from "fs";
 import { join } from "path";
 import { OctoKit } from "../../../api/octokit";
+import { Action } from "../../../common/Action";
 import {
-	getRequiredInput,
 	daysAgoToHumanReadbleDate,
+	getRequiredInput,
 	normalizeIssue,
 } from "../../../common/utils";
 import { downloadBlobFile } from "../../blobStorage";
-import { Action } from "../../../common/Action";
 
 const minToDay = 0.0007;
 const from = daysAgoToHumanReadbleDate(+getRequiredInput("from") * minToDay);
@@ -41,29 +41,29 @@ class FetchIssues extends Action {
 
 		writeFileSync(
 			join(__dirname, "../issue_data.json"),
-			JSON.stringify(data)
+			JSON.stringify(data),
 		);
 
 		await downloadBlobFile(
 			"area-model.pickle",
 			blobContainer,
-			blobStorageKey
+			blobStorageKey,
 		);
 		await downloadBlobFile(
 			"area-model-config.json",
 			blobContainer,
-			blobStorageKey
+			blobStorageKey,
 		);
 
 		await downloadBlobFile(
 			"assignee-model.pickle",
 			blobContainer,
-			blobStorageKey
+			blobStorageKey,
 		);
 		await downloadBlobFile(
 			"assignee-model-config.json",
 			blobContainer,
-			blobStorageKey
+			blobStorageKey,
 		);
 	}
 }

@@ -4,9 +4,9 @@
  *--------------------------------------------------------------------------------------------*/
 
 import { OctoKitIssue } from "../api/octokit";
+import { Action } from "../common/Action";
 import { getRequiredInput } from "../common/utils";
 import { CopyCat } from "./CopyCat";
-import { Action } from "../common/Action";
 
 class CopyCatAction extends Action {
 	id = "CopyCat";
@@ -15,7 +15,7 @@ class CopyCatAction extends Action {
 		await new CopyCat(
 			issue,
 			getRequiredInput("owner"),
-			getRequiredInput("repo")
+			getRequiredInput("repo"),
 		).run();
 	}
 }

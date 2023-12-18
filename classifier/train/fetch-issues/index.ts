@@ -3,13 +3,13 @@
  *  Licensed under the MIT License. See LICENSE in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { context } from "@actions/github";
-import { getRequiredInput, getInput } from "../../../common/utils";
-import { download } from "./download";
-import { createDataDirectories } from "./createDataDir";
 import { statSync } from "fs";
 import { join } from "path";
+import { context } from "@actions/github";
 import { Action } from "../../../common/Action";
+import { getInput, getRequiredInput } from "../../../common/utils";
+import { createDataDirectories } from "./createDataDir";
+import { download } from "./download";
 
 const token = getRequiredInput("token");
 const endCursor = getInput("cursor");

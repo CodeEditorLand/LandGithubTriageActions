@@ -15,7 +15,7 @@ describe("NeedsMoreInfoLabeler", () => {
 			undefined,
 			undefined,
 			undefined,
-			"goodbye"
+			"goodbye",
 		).run();
 		expect(issue.issueConfig.issue.open).to.be.true;
 	});
@@ -27,7 +27,7 @@ describe("NeedsMoreInfoLabeler", () => {
 			undefined,
 			undefined,
 			"hello",
-			undefined
+			undefined,
 		).run();
 		expect(issue.issueConfig.issue.open).to.be.true;
 	});
@@ -39,7 +39,7 @@ describe("NeedsMoreInfoLabeler", () => {
 			undefined,
 			undefined,
 			"hello",
-			undefined
+			undefined,
 		).run();
 		expect(issue.issueConfig.issue.open).to.be.false;
 	});
@@ -51,14 +51,14 @@ describe("NeedsMoreInfoLabeler", () => {
 				issue: {
 					body: "We have written the needed data into your clipboard because it was too large to send. Please paste.",
 				},
-			}
+			},
 		);
 		await new RegexFlagger(
 			issue,
 			undefined,
 			undefined,
 			undefined,
-			"^We have written the needed data into your clipboard because it was too large to send\\. Please paste\\.$"
+			"^We have written the needed data into your clipboard because it was too large to send\\. Please paste\\.$",
 		).run();
 		expect(issue.issueConfig.issue.open).to.be.false;
 	});

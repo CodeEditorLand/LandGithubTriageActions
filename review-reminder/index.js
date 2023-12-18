@@ -1,4 +1,3 @@
-"use strict";
 /*---------------------------------------------------------------------------------------------
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See LICENSE in the project root for license information.
@@ -25,7 +24,7 @@ class ReviewReminderAction extends Action_1.Action {
 		await new ReviewReminder_1.ReviewReminder(
 			auth,
 			slackToken,
-			new vscodeTools_1.VSCodeToolsAPIManager(apiConfig)
+			new vscodeTools_1.VSCodeToolsAPIManager(apiConfig),
 		).run();
 	}
 }

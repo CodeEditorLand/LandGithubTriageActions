@@ -32,10 +32,7 @@ export type FeatureRequestConfig = {
 };
 
 export class FeatureRequestQueryer {
-	constructor(
-		private github: GitHub,
-		private config: FeatureRequestConfig
-	) {}
+	constructor(private github: GitHub, private config: FeatureRequestConfig) {}
 
 	async run(): Promise<void> {
 		let query = `is:open is:issue milestone:"${this.config.milestones.candidateName}" label:"${this.config.featureRequestLabel}"`;
@@ -50,19 +47,19 @@ export class FeatureRequestQueryer {
 					issueData.milestone?.milestoneId ===
 						this.config.milestones.candidateID &&
 					issueData.labels.includes(
-						this.config.featureRequestLabel
+						this.config.featureRequestLabel,
 					) &&
 					!issueData.labels.some((issueLabel) =>
 						this.config.labelsToExclude.some(
-							(excludeLabel) => issueLabel === excludeLabel
-						)
+							(excludeLabel) => issueLabel === excludeLabel,
+						),
 					)
 				) {
 					await this.actOn(issue);
 				} else {
 					safeLog(
 						"Query returned an invalid issue:",
-						issueData.number
+						issueData.number,
 					);
 				}
 			}
@@ -73,7 +70,7 @@ export class FeatureRequestQueryer {
 		const issueData = await issue.getIssue();
 		if (!issueData.reactions)
 			throw Error(
-				"No reaction data in issue " + JSON.stringify(issueData)
+				"No reaction data in issue " + JSON.stringify(issueData),
 			);
 
 		if (
@@ -85,7 +82,7 @@ export class FeatureRequestQueryer {
 			await Promise.all([
 				issue.setMilestone(this.config.milestones.backlogID),
 				issue.postComment(
-					ACCEPT_MARKER + "\n" + this.config.comments.accept
+					ACCEPT_MARKER + "\n" + this.config.comments.accept,
 				),
 			]);
 		} else if (issueData.numComments < this.config.numCommentsOverride) {
@@ -108,7 +105,7 @@ export class FeatureRequestQueryer {
 					await new FeatureRequestOnMilestone(
 						issue,
 						this.config.comments.init,
-						this.config.milestones.candidateID
+						this.config.milestones.candidateID,
 					).run();
 				}
 			} else if (!state.warnTimestamp) {
@@ -118,7 +115,7 @@ export class FeatureRequestQueryer {
 				) {
 					safeLog(`Issue #${issueData.number} nearing rejection`);
 					await issue.postComment(
-						WARN_MARKER + "\n" + this.config.comments.warn
+						WARN_MARKER + "\n" + this.config.comments.warn,
 					);
 				}
 			} else if (
@@ -126,7 +123,7 @@ export class FeatureRequestQueryer {
 			) {
 				safeLog(`Issue #${issueData.number} rejected`);
 				await issue.postComment(
-					REJECT_MARKER + "\n" + this.config.comments.reject
+					REJECT_MARKER + "\n" + this.config.comments.reject,
 				);
 				await issue.closeIssue("not_planned");
 
@@ -149,7 +146,7 @@ export class FeatureRequestOnLabel {
 		private github: GitHubIssue,
 		private delay: number,
 		private milestone: number,
-		private label: string
+		private label: string,
 	) {}
 
 	async run(): Promise<void> {
@@ -174,7 +171,7 @@ export class FeatureRequestOnMilestone {
 	constructor(
 		private github: GitHubIssue,
 		private comment: string,
-		private milestone: number
+		private milestone: number,
 	) {}
 
 	async run(): Promise<void> {

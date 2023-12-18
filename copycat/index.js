@@ -1,4 +1,3 @@
-"use strict";
 /*---------------------------------------------------------------------------------------------
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See LICENSE in the project root for license information.
@@ -16,7 +15,7 @@ class CopyCatAction extends Action_1.Action {
 		await new CopyCat_1.CopyCat(
 			issue,
 			(0, utils_1.getRequiredInput)("owner"),
-			(0, utils_1.getRequiredInput)("repo")
+			(0, utils_1.getRequiredInput)("repo"),
 		).run();
 	}
 }

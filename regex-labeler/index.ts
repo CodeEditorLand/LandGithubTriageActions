@@ -5,9 +5,9 @@
 
 import { context } from "@actions/github";
 import { OctoKitIssue } from "../api/octokit";
+import { Action } from "../common/Action";
 import { getInput, getRequiredInput } from "../common/utils";
 import { RegexFlagger } from "./RegexLabeler";
-import { Action } from "../common/Action";
 
 class RegexFlaggerActon extends Action {
 	id = "RegexFlagger";
@@ -19,7 +19,7 @@ class RegexFlaggerActon extends Action {
 			getInput("label"),
 			getInput("comment"),
 			getInput("mustMatch"),
-			getInput("mustNotMatch")
+			getInput("mustNotMatch"),
 		).run();
 	}
 }

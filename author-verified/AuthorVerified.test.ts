@@ -22,7 +22,7 @@ describe("AuthorVerified", () => {
 			"plz verify thx",
 			"released",
 			"verify-plz",
-			"verified"
+			"verified",
 		).run();
 		const comments: Comment[] = [];
 		for await (const page of testbed.getComments()) {
@@ -34,14 +34,14 @@ describe("AuthorVerified", () => {
 	it("Does nothing to issues which arent labeled", async () => {
 		const testbed = new TestbedIssue(
 			{},
-			{ labels: [], issue: { open: false } }
+			{ labels: [], issue: { open: false } },
 		);
 		await new AuthorVerifiedLabeler(
 			testbed,
 			"plz verify thx",
 			"released",
 			"verify-plz",
-			"verified"
+			"verified",
 		).run();
 		const comments: Comment[] = [];
 		for await (const page of testbed.getComments()) {
@@ -53,14 +53,14 @@ describe("AuthorVerified", () => {
 	it("Does nothing to issues which have not yet been released", async () => {
 		const testbed = new TestbedIssue(
 			{},
-			{ labels: ["verify-plz"], issue: { open: false } }
+			{ labels: ["verify-plz"], issue: { open: false } },
 		);
 		await new AuthorVerifiedLabeler(
 			testbed,
 			"plz verify thx",
 			"released",
 			"verify-plz",
-			"verified"
+			"verified",
 		).run();
 		const comments: Comment[] = [];
 		for await (const page of testbed.getComments()) {
@@ -72,14 +72,14 @@ describe("AuthorVerified", () => {
 	it("Does nothing to issues which have not been marked verifiable", async () => {
 		const testbed = new TestbedIssue(
 			{},
-			{ labels: ["released"], issue: { open: false } }
+			{ labels: ["released"], issue: { open: false } },
 		);
 		await new AuthorVerifiedLabeler(
 			testbed,
 			"plz verify thx",
 			"released",
 			"verify-plz",
-			"verified"
+			"verified",
 		).run();
 		const comments: Comment[] = [];
 		for await (const page of testbed.getComments()) {
@@ -91,14 +91,14 @@ describe("AuthorVerified", () => {
 	it("Adds comment to issues which have been released", async () => {
 		const testbed = new TestbedIssue(
 			{},
-			{ labels: ["verify-plz", "released"], issue: { open: false } }
+			{ labels: ["verify-plz", "released"], issue: { open: false } },
 		);
 		await new AuthorVerifiedLabeler(
 			testbed,
 			"plz verify thx",
 			"released",
 			"verify-plz",
-			"verified"
+			"verified",
 		).run();
 		const comments: Comment[] = [];
 		for await (const page of testbed.getComments()) {
@@ -115,14 +115,14 @@ describe("AuthorVerified", () => {
 				labels: ["verify-plz", "released"],
 				closingCommit: { hash: "commit", timestamp: 0 },
 				issue: { open: false },
-			}
+			},
 		);
 		await new AuthorVerifiedLabeler(
 			testbed,
 			"plz verify thx",
 			"released",
 			"verify-plz",
-			"verified"
+			"verified",
 		).run();
 
 		const comments: Comment[] = [];
@@ -140,14 +140,14 @@ describe("AuthorVerified", () => {
 				labels: ["verify-plz", "released"],
 				closingCommit: { hash: "commit", timestamp: 0 },
 				issue: { open: false, locked: true },
-			}
+			},
 		);
 		await new AuthorVerifiedLabeler(
 			testbed,
 			"plz verify thx",
 			"released",
 			"verify-plz",
-			"verified"
+			"verified",
 		).run();
 
 		const comments: Comment[] = [];
@@ -166,14 +166,14 @@ describe("AuthorVerified", () => {
 				labels: ["verify-plz", "released", "verified"],
 				closingCommit: { hash: "commit", timestamp: 0 },
 				issue: { open: false },
-			}
+			},
 		);
 		await new AuthorVerifiedLabeler(
 			testbed,
 			"plz verify thx",
 			"released",
 			"verify-plz",
-			"verified"
+			"verified",
 		).run();
 
 		const comments: Comment[] = [];

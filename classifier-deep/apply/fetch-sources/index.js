@@ -1,4 +1,3 @@
-"use strict";
 /*---------------------------------------------------------------------------------------------
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See LICENSE in the project root for license information.
@@ -21,7 +20,7 @@ const from = fromInput
 	? (0, utils_1.daysAgoToHumanReadbleDate)(+fromInput * minToDay)
 	: undefined;
 const until = (0, utils_1.daysAgoToHumanReadbleDate)(
-	+(0, utils_1.getRequiredInput)("until") * minToDay
+	+(0, utils_1.getRequiredInput)("until") * minToDay,
 );
 const createdQuery = `created:` + (from ? `${from}..${until}` : `<${until}`);
 const blobContainer = (0, utils_1.getRequiredInput)("blobContainerName");
@@ -47,7 +46,7 @@ class FetchIssues extends Action_1.Action {
 					} else {
 						try {
 							(0, utils_1.safeLog)(
-								"issue is a PR, attempting to read find a linked issue"
+								"issue is a PR, attempting to read find a linked issue",
 							);
 							const linkedIssue =
 								(_a = issueData.body.match(/#(\d{3,7})/)) ===
@@ -57,13 +56,13 @@ class FetchIssues extends Action_1.Action {
 							if (linkedIssue) {
 								(0, utils_1.safeLog)(
 									"PR is linked to",
-									linkedIssue
+									linkedIssue,
 								);
 								const linkedIssueData = await github
 									.getIssueByNumber(+linkedIssue)
 									.getIssue();
 								const normalized = (0, utils_1.normalizeIssue)(
-									linkedIssueData
+									linkedIssueData,
 								);
 								additionalInfo = `\n\n${normalized.title}\n\n${normalized.body}`;
 								const linkedIssueAssignee =
@@ -71,21 +70,21 @@ class FetchIssues extends Action_1.Action {
 								if (linkedIssueAssignee) {
 									(0, utils_1.safeLog)(
 										"linked issue is assigned to",
-										linkedIssueAssignee
+										linkedIssueAssignee,
 									);
 									await issue.addAssignee(
-										linkedIssueAssignee
+										linkedIssueAssignee,
 									);
 									performedPRAssignment = true;
 								} else {
 									(0, utils_1.safeLog)(
-										"unable to find assignee for linked issue. falling back to normal classification"
+										"unable to find assignee for linked issue. falling back to normal classification",
 									);
 								}
 							}
 						} catch (e) {
 							(0, utils_1.safeLog)(
-								"Encountered error finding linked issue assignee. Falling back to normal classification"
+								"Encountered error finding linked issue assignee. Falling back to normal classification",
 							);
 						}
 					}
@@ -103,26 +102,26 @@ class FetchIssues extends Action_1.Action {
 		}
 		(0, fs_1.writeFileSync)(
 			(0, path_1.join)(__dirname, "../issue_data.json"),
-			JSON.stringify(data)
+			JSON.stringify(data),
 		);
 		const config = await github.readConfig(
-			(0, utils_1.getRequiredInput)("configPath")
+			(0, utils_1.getRequiredInput)("configPath"),
 		);
 		(0, fs_1.writeFileSync)(
 			(0, path_1.join)(__dirname, "../configuration.json"),
-			JSON.stringify(config)
+			JSON.stringify(config),
 		);
 		(0, utils_1.safeLog)("dowloading area model");
 		await (0, blobStorage_1.downloadBlobFile)(
 			"area_model.zip",
 			blobContainer,
-			blobStorageKey
+			blobStorageKey,
 		);
 		(0, utils_1.safeLog)("dowloading assignee model");
 		await (0, blobStorage_1.downloadBlobFile)(
 			"assignee_model.zip",
 			blobContainer,
-			blobStorageKey
+			blobStorageKey,
 		);
 		const classifierDeepRoot = (0, path_1.join)(__dirname, "..", "..");
 		const blobStorage = (0, path_1.join)(classifierDeepRoot, "blobStorage");
@@ -131,15 +130,15 @@ class FetchIssues extends Action_1.Action {
 		(0, child_process_1.execSync)(
 			`unzip -q ${(0, path_1.join)(
 				blobStorage,
-				"area_model.zip"
-			)} -d ${(0, path_1.join)(models, "area_model")}`
+				"area_model.zip",
+			)} -d ${(0, path_1.join)(models, "area_model")}`,
 		);
 		(0, utils_1.safeLog)("unzipping assignee model");
 		(0, child_process_1.execSync)(
 			`unzip -q ${(0, path_1.join)(
 				blobStorage,
-				"assignee_model.zip"
-			)} -d ${(0, path_1.join)(models, "assignee_model")}`
+				"assignee_model.zip",
+			)} -d ${(0, path_1.join)(models, "assignee_model")}`,
 		);
 	}
 }

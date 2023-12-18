@@ -3,9 +3,9 @@
  *  Licensed under the MIT License. See LICENSE in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { getRequiredInput } from "../common/utils";
-import { Action } from "../common/Action";
 import { OctoKit } from "../api/octokit";
+import { Action } from "../common/Action";
+import { getRequiredInput } from "../common/utils";
 
 class TagAlert extends Action {
 	id = "TagAlert";
@@ -13,7 +13,7 @@ class TagAlert extends Action {
 	async onCreated(
 		_github: OctoKit,
 		ref: string,
-		creator: string
+		creator: string,
 	): Promise<void> {
 		if (getRequiredInput("tag-name") === ref) {
 			throw Error(`Warning: @${creator} pushed bad tag ${ref}`);

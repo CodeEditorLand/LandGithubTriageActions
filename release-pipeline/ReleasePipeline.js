@@ -1,4 +1,3 @@
-"use strict";
 /*---------------------------------------------------------------------------------------------
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See LICENSE in the project root for license information.
@@ -27,7 +26,7 @@ class ReleasePipeline {
 					await new Promise((resolve) => setTimeout(resolve, 1000));
 				} else {
 					(0, utils_1.safeLog)(
-						"Query returned an invalid issue:" + issueData.number
+						"Query returned an invalid issue:" + issueData.number,
 					);
 				}
 			}
@@ -100,7 +99,7 @@ exports.enrollIssue = enrollIssue;
 const unenrollIssue = async (
 	issue,
 	notYetReleasedLabel,
-	insidersReleasedLabel
+	insidersReleasedLabel,
 ) => {
 	await issue.removeLabel(insidersReleasedLabel);
 	await issue.removeLabel(notYetReleasedLabel);

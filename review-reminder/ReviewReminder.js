@@ -1,4 +1,3 @@
-"use strict";
 /*---------------------------------------------------------------------------------------------
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
@@ -35,7 +34,7 @@ class ReviewReminder {
 	static topReviewerMessage(
 		numberOfReviewsPatWeek,
 		numberOfReviewsPastMonth,
-		place
+		place,
 	) {
 		const medalEmoji =
 			place === "first" ? "🥇" : place === "second" ? "🥈" : "🥉";
@@ -68,7 +67,7 @@ class ReviewReminder {
 			octokit.rest.repos.listForAuthenticatedUser,
 			{
 				per_page: 100,
-			}
+			},
 		);
 		for await (const { data: repositories } of it) {
 			for (const repository of repositories) {
@@ -89,13 +88,13 @@ class ReviewReminder {
 		octokit,
 		repositoryInfo,
 		teamMembers,
-		numberOfDays = 30
+		numberOfDays = 30,
 	) {
 		var _a, _b, _c, _d, _e, _f, _g, _h, _j;
 		const data = [];
 		const durations = [];
 		console.log(
-			`Processing ${repositoryInfo.owner}/${repositoryInfo.repo}`
+			`Processing ${repositoryInfo.owner}/${repositoryInfo.repo}`,
 		);
 		// The timeslot to query for
 		const timeWindowToQuery = new Date();
@@ -109,7 +108,7 @@ class ReviewReminder {
 				per_page: 100,
 				sort: "created",
 				direction: "desc",
-			}
+			},
 		)) {
 			let pastTimeInterval = false;
 			for (const pr of response.data) {
@@ -119,7 +118,7 @@ class ReviewReminder {
 							? void 0
 							: _a.login) !== null && _b !== void 0
 						? _b
-						: "No Member"
+						: "No Member",
 				);
 				// Author isn't in the team, so we skip this PR
 				if (!hasWriteAccess) {
@@ -164,7 +163,7 @@ class ReviewReminder {
 									? void 0
 									: _e.login) !== null && _f !== void 0
 								? _f
-								: "No Member"
+								: "No Member",
 						)
 					) {
 						continue;
@@ -226,7 +225,7 @@ class ReviewReminder {
 			return [];
 		}
 		console.log(
-			`PR Stats for ${repositoryInfo.owner}/${repositoryInfo.repo}`
+			`PR Stats for ${repositoryInfo.owner}/${repositoryInfo.repo}`,
 		);
 		// median duration
 		const median =
@@ -264,8 +263,8 @@ class ReviewReminder {
 				await this.processRepository(
 					this.octokit,
 					{ owner, repo },
-					teamMembers
-				)
+					teamMembers,
+				),
 			);
 		}
 		// Calculate number of reviews done by each reviewer
@@ -303,7 +302,7 @@ class ReviewReminder {
 		const weeklyBottom20 = await this.getBottomPercent(weeklyStats, 0.2);
 		// Filter the bottom to just bottom reviewers who are bottom reviewers for the week and the month
 		const bottomReviewers = new Set(
-			[...monthlyBottom20.keys()].filter((x) => weeklyBottom20.has(x))
+			[...monthlyBottom20.keys()].filter((x) => weeklyBottom20.has(x)),
 		);
 		const bottomReviewerStats = [];
 		for (const reviewer of bottomReviewers) {
@@ -322,23 +321,23 @@ class ReviewReminder {
 		// Print average number reviews completed this month and this week
 		const totalMonthlyReviews = [...monthlyStats.values()].reduce(
 			(p, c) => p + c,
-			0
+			0,
 		);
 		const totalWeeklyReviews = [...weeklyStats.values()].reduce(
 			(p, c) => p + c,
-			0
+			0,
 		);
 		const monthlyAvg = totalMonthlyReviews / monthlyStats.size;
 		const weeklyAvg = totalWeeklyReviews / weeklyStats.size;
 		console.log(
-			`Average number of reviews per person completed this month: ${monthlyAvg} out of ${totalMonthlyReviews} total reviews.`
+			`Average number of reviews per person completed this month: ${monthlyAvg} out of ${totalMonthlyReviews} total reviews.`,
 		);
 		console.log(
-			`Average number of reviews per person completed this week: ${weeklyAvg} out of ${totalWeeklyReviews} total reviews.`
+			`Average number of reviews per person completed this week: ${weeklyAvg} out of ${totalWeeklyReviews} total reviews.`,
 		);
 		// Calculate top reviewer stats
 		const weeklySorted = Array.from(weeklyStats).sort(
-			(a, b) => b[1] - a[1]
+			(a, b) => b[1] - a[1],
 		);
 		const topReviewerStats = [];
 		for (let i = 0; i < 3; i++) {
@@ -396,13 +395,13 @@ class ReviewReminder {
 				: undefined;
 			if (lastMessage && lastMessage.ts) {
 				const lastMessageDate = new Date(
-					parseInt(lastMessage.ts) * 1000
+					parseInt(lastMessage.ts) * 1000,
 				);
 				const tenDaysAgo = new Date();
 				tenDaysAgo.setDate(tenDaysAgo.getDate() - 10);
 				if (lastMessageDate > tenDaysAgo && !skipCooldown) {
 					console.log(
-						`Skipping DM as last message was ${lastMessageDate}`
+						`Skipping DM as last message was ${lastMessageDate}`,
 					);
 					return;
 				}
@@ -466,17 +465,17 @@ class ReviewReminder {
 					reviewer.monthlyCount,
 					(_a = reviewer.place) !== null && _a !== void 0
 						? _a
-						: "third"
+						: "third",
 				),
 				undefined,
-				true
+				true,
 			);
 		}
 		for (const reviewer of stats.bottomReviewers) {
 			const account = teamMembers.get(reviewer.reviewer);
 			if (!account) {
 				(0, utils_1.safeLog)(
-					`Could not find account this is definitely a bug!`
+					`Could not find account this is definitely a bug!`,
 				);
 				continue;
 			}
@@ -493,9 +492,9 @@ class ReviewReminder {
 				"Review Reminder!",
 				ReviewReminder.reviewWarningMessage(
 					reviewer.weeklyCount,
-					stats.topReviewers[0].weeklyCount
+					stats.topReviewers[0].weeklyCount,
 				),
-				timestampToSend
+				timestampToSend,
 			);
 		}
 		console.timeEnd("Review Reminder Action");

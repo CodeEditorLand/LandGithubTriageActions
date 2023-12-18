@@ -31,12 +31,16 @@ class IssueLabels extends Action {
 				label.startsWith("needs") ||
 				label === "testplan-item" ||
 				label.startsWith("iteration-plan") ||
-				label === "release-plan"
+				label === "release-plan",
 		);
 
-		if (!hasNeedsOrTPI) {
+		if (hasNeedsOrTPI) {
 			console.log(
-				'This issue is not labeled with a "needs __", "iteration-plan", "release-plan", or the "testplan-item" label; add the "triage-needed" label.'
+				'This issue already has a "needs __", "iteration-plan", "release-plan", or the "testplan-item" label, do not add the "triage-needed" label.',
+			);
+		} else {
+			console.log(
+				'This issue is not labeled with a "needs __", "iteration-plan", "release-plan", or the "testplan-item" label; add the "triage-needed" label.',
 			);
 
 			github.rest.issues.addLabels({
@@ -45,10 +49,6 @@ class IssueLabels extends Action {
 				issue_number: context.issue.number,
 				labels: ["triage-needed"],
 			});
-		} else {
-			console.log(
-				'This issue already has a "needs __", "iteration-plan", "release-plan", or the "testplan-item" label, do not add the "triage-needed" label.'
-			);
 		}
 		const knownTriagers = JSON.parse(getRequiredInput("triagers"));
 		const currentAssignees = await github.rest.issues
@@ -61,7 +61,7 @@ class IssueLabels extends Action {
 		console.log("Known triagers:", JSON.stringify(knownTriagers));
 		console.log("Current assignees:", JSON.stringify(currentAssignees));
 		const assigneesToRemove = currentAssignees.filter(
-			(a) => !knownTriagers.includes(a)
+			(a) => !knownTriagers.includes(a),
 		);
 		console.log("Assignees to remove:", JSON.stringify(assigneesToRemove));
 		github.rest.issues.removeAssignees({

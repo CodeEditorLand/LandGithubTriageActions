@@ -1,4 +1,3 @@
-"use strict";
 /*---------------------------------------------------------------------------------------------
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See LICENSE in the project root for license information.
@@ -18,7 +17,7 @@ async function downloadBlobFile(name, container, key) {
 	const containerClient = blobServiceClient.getContainerClient(container);
 	const createContainerResponse = containerClient.getBlockBlobClient(name);
 	await createContainerResponse.downloadToFile(
-		(0, path_1.join)(__dirname, name)
+		(0, path_1.join)(__dirname, name),
 	);
 }
 exports.downloadBlobFile = downloadBlobFile;

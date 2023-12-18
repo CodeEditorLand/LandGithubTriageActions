@@ -1,4 +1,3 @@
-"use strict";
 /*---------------------------------------------------------------------------------------------
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See LICENSE in the project root for license information.
@@ -24,7 +23,7 @@ const debug = !!(0, utils_1.getInput)("__debug");
 // Do not modify.
 // Copied from https://github.com/microsoft/vscode-tools/blob/91715fe00caab042b4aab5ed41d0402b0ae2393b/src/common/endgame.ts#L11-L16
 var Availability;
-(function (Availability) {
+((Availability) => {
 	Availability[(Availability["FULL"] = 1)] = "FULL";
 	Availability[(Availability["HALF"] = 2)] = "HALF";
 	Availability[(Availability["OPTIONAL"] = 3)] = "OPTIONAL";
@@ -38,19 +37,19 @@ class ApplyLabels extends Action_1.Action {
 	async onTriggered(github) {
 		var _a;
 		const config = await github.readConfig(
-			(0, utils_1.getRequiredInput)("configPath")
+			(0, utils_1.getRequiredInput)("configPath"),
 		);
 		const labelings = JSON.parse(
 			(0, fs_1.readFileSync)(
 				(0, path_1.join)(__dirname, "../issue_labels.json"),
-				{ encoding: "utf8" }
-			)
+				{ encoding: "utf8" },
+			),
 		);
 		for (const labeling of labelings) {
 			const issue = new octokit_1.OctoKitIssue(
 				token,
 				github_1.context.repo,
-				{ number: labeling.number }
+				{ number: labeling.number },
 			);
 			const potentialAssignees = [];
 			const addAssignee = async (assignee) => {
@@ -63,7 +62,7 @@ class ApplyLabels extends Action_1.Action {
 					(0, utils_1.safeLog)(
 						"not assigning ",
 						assignee,
-						"becuase they are on vacation"
+						"becuase they are on vacation",
 					);
 				} else {
 					potentialAssignees.push(assignee);
@@ -72,14 +71,14 @@ class ApplyLabels extends Action_1.Action {
 			const issueData = await issue.getIssue();
 			if (issueData.number !== labeling.number) {
 				(0, utils_1.safeLog)(
-					`issue ${labeling.number} moved to ${issueData.number}, skipping`
+					`issue ${labeling.number} moved to ${issueData.number}, skipping`,
 				);
 				continue;
 			}
 			const allLabelsAllowed = issueData.labels.every((issueLabel) =>
 				allowLabels.some((allowedLabel) =>
-					issueLabel.includes(allowedLabel)
-				)
+					issueLabel.includes(allowedLabel),
+				),
 			);
 			if (!debug && (issueData.assignee || !allLabelsAllowed)) {
 				(0, utils_1.safeLog)("skipping");
@@ -91,7 +90,7 @@ class ApplyLabels extends Action_1.Action {
 					assignee: labeling.assignee,
 					area: labeling.area,
 					number: labeling.number,
-				})
+				}),
 			);
 			{
 				const { category, confidence, confident } = labeling.area;
@@ -106,12 +105,12 @@ class ApplyLabels extends Action_1.Action {
 					await issue.postComment(
 						`confidence for label ${category}: ${confidence}. ${
 							confident ? "does" : "does not"
-						} meet threshold`
+						} meet threshold`,
 					);
 				}
 				if (confident) {
 					(0, utils_1.safeLog)(
-						`assigning person based on label ${category} for issue ${issueData.number}`
+						`assigning person based on label ${category} for issue ${issueData.number}`,
 					);
 					// Assign the issue to the proper person based on the label that was assigned
 					// This is configurable in the per repo config
@@ -126,8 +125,8 @@ class ApplyLabels extends Action_1.Action {
 								: labelConfig.assign
 						)
 							? labelConfig.assign.map((assignee) =>
-									addAssignee(assignee)
-								)
+									addAssignee(assignee),
+							  )
 							: []),
 					]);
 				}
@@ -145,7 +144,7 @@ class ApplyLabels extends Action_1.Action {
 					await issue.postComment(
 						`confidence for assignee ${category}: ${confidence}. ${
 							confident ? "does" : "does not"
-						} meet threshold`
+						} meet threshold`,
 					);
 				}
 				if (confident) {
@@ -168,7 +167,7 @@ class ApplyLabels extends Action_1.Action {
 			}
 			if (!performedAssignment) {
 				(0, utils_1.safeLog)(
-					"could not find assignee, picking a random one..."
+					"could not find assignee, picking a random one...",
 				);
 				try {
 					const vscodeToolsAPI =
@@ -204,7 +203,7 @@ class ApplyLabels extends Action_1.Action {
 									}
 									(0, utils_1.safeLog)(
 										"assigning to stale issue",
-										available[i]
+										available[i],
 									);
 									await issue.addAssignee(available[i]);
 									await issue.addLabel("stale");

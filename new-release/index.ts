@@ -4,9 +4,9 @@
  *--------------------------------------------------------------------------------------------*/
 
 import { OctoKitIssue } from "../api/octokit";
+import { Action } from "../common/Action";
 import { getInput, getRequiredInput } from "../common/utils";
 import { NewRelease } from "./NewRelease";
-import { Action } from "../common/Action";
 
 class NewReleaseAction extends Action {
 	id = "NewRelease";
@@ -18,7 +18,7 @@ class NewReleaseAction extends Action {
 			getRequiredInput("labelColor"),
 			getRequiredInput("labelDescription"),
 			+getRequiredInput("days"),
-			getInput("oldVersionMessage")
+			getInput("oldVersionMessage"),
 		).run();
 	}
 }

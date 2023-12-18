@@ -1,4 +1,3 @@
-"use strict";
 /*---------------------------------------------------------------------------------------------
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See LICENSE in the project root for license information.
@@ -13,7 +12,7 @@ class NewRelease {
 		labelColor,
 		labelDescription,
 		days,
-		oldVersionMessage
+		oldVersionMessage,
 	) {
 		this.github = github;
 		this.label = label;
@@ -40,8 +39,8 @@ class NewRelease {
 			await this.github.postComment(
 				this.oldVersionMessage.replace(
 					"{currentVersion}",
-					release.productVersion
-				)
+					release.productVersion,
+				),
 			);
 			return;
 		}
@@ -49,7 +48,7 @@ class NewRelease {
 			// delete the label from the repo as a whole to remove it from all issues
 			(0, utils_1.safeLog)(
 				"New release window passed. Globally deleting label " +
-					this.label
+					this.label,
 			);
 			return this.github.deleteLabel(this.label);
 		}
@@ -58,24 +57,24 @@ class NewRelease {
 			new RegExp(
 				`VS ?Code Version:(.*[^\\d])?${release.productVersion.replace(
 					".",
-					"\\."
+					"\\.",
 				)}([^\\d]|$)`,
-				"i"
+				"i",
 			).test(cleansed)
 		) {
 			if (!(await this.github.repoHasLabel(this.label))) {
 				(0, utils_1.safeLog)(
 					"First release issue found. Globally creating label " +
-						this.label
+						this.label,
 				);
 				await this.github.createLabel(
 					this.label,
 					this.labelColor,
-					this.labelDescription
+					this.labelDescription,
 				);
 			}
 			(0, utils_1.safeLog)(
-				"New release issue found. Adding label " + this.label
+				"New release issue found. Adding label " + this.label,
 			);
 			await this.github.addLabel(this.label);
 		}

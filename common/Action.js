@@ -1,4 +1,3 @@
-"use strict";
 /*---------------------------------------------------------------------------------------------
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See LICENSE in the project root for license information.
@@ -23,7 +22,7 @@ class Action {
 						? _a
 						: "unknown";
 				},
-				() => "unknown"
+				() => "unknown",
 			);
 	}
 	async run() {
@@ -38,7 +37,7 @@ class Action {
 					: _a.number) === issue
 			) {
 				return (0, utils_1.safeLog)(
-					"refusing to run on error logging issue to prevent cascading errors"
+					"refusing to run on error logging issue to prevent cascading errors",
 				);
 			}
 		}
@@ -57,16 +56,16 @@ class Action {
 					token,
 					github_1.context.repo,
 					{ number: issue },
-					{ readonly }
+					{ readonly },
 				);
 				if (github_1.context.eventName === "issue_comment") {
 					await this.onCommented(
 						octokit,
 						(_c = github_1.context.payload.comment) === null ||
-							_c === void 0
+						_c === void 0
 							? void 0
 							: _c.body,
-						github_1.context.actor
+						github_1.context.actor,
 					);
 				} else if (
 					github_1.context.eventName === "issues" ||
@@ -78,7 +77,7 @@ class Action {
 						case "ready_for_review":
 							await this.onOpened(
 								octokit,
-								github_1.context.payload
+								github_1.context.payload,
 							);
 							break;
 						case "reopened":
@@ -87,25 +86,25 @@ class Action {
 						case "closed":
 							await this.onClosed(
 								octokit,
-								github_1.context.payload
+								github_1.context.payload,
 							);
 							break;
 						case "labeled":
 							await this.onLabeled(
 								octokit,
-								github_1.context.payload.label.name
+								github_1.context.payload.label.name,
 							);
 							break;
 						case "assigned":
 							await this.onAssigned(
 								octokit,
-								github_1.context.payload.assignee.login
+								github_1.context.payload.assignee.login,
 							);
 							break;
 						case "unassigned":
 							await this.onUnassigned(
 								octokit,
-								github_1.context.payload.assignee.login
+								github_1.context.payload.assignee.login,
 							);
 							break;
 						case "edited":
@@ -117,13 +116,13 @@ class Action {
 						case "converted_to_draft":
 							await this.onConvertedToDraft(
 								octokit,
-								github_1.context.payload
+								github_1.context.payload,
 							);
 							break;
 						default:
 							throw Error(
 								"Unexpected action: " +
-									github_1.context.payload.action
+									github_1.context.payload.action,
 							);
 					}
 				}
@@ -136,7 +135,7 @@ class Action {
 						github_1.context === null || github_1.context === void 0
 							? void 0
 							: github_1.context.payload) === null ||
-						_d === void 0
+					_d === void 0
 						? void 0
 						: _d.ref,
 					(_f =
@@ -149,13 +148,13 @@ class Action {
 							? void 0
 							: _e.sender) === null || _f === void 0
 						? void 0
-						: _f.login
+						: _f.login,
 				);
 			} else {
 				await this.onTriggered(
 					new octokit_1.OctoKit(token, github_1.context.repo, {
 						readonly,
-					})
+					}),
 				);
 			}
 		} catch (e) {
@@ -163,7 +162,7 @@ class Action {
 			(0, utils_1.safeLog)(
 				(err === null || err === void 0 ? void 0 : err.stack) ||
 					(err === null || err === void 0 ? void 0 : err.message) ||
-					String(e)
+					String(e),
 			);
 			try {
 				await this.error(err);

@@ -4,14 +4,14 @@
  *--------------------------------------------------------------------------------------------*/
 
 import { OctoKit, OctoKitIssue } from "../api/octokit";
+import { Action } from "../common/Action";
 import { getInput, getRequiredInput } from "../common/utils";
 import {
 	FeatureRequestConfig,
 	FeatureRequestOnLabel,
-	FeatureRequestQueryer,
 	FeatureRequestOnMilestone,
+	FeatureRequestQueryer,
 } from "./FeatureRequest";
-import { Action } from "../common/Action";
 
 const config: FeatureRequestConfig = {
 	milestones: {
@@ -51,7 +51,7 @@ class FeatureRequest extends Action {
 				github,
 				+getRequiredInput("milestoneDelaySeconds"),
 				config.milestones.candidateID,
-				config.featureRequestLabel
+				config.featureRequestLabel,
 			).run();
 		}
 	}
@@ -60,7 +60,7 @@ class FeatureRequest extends Action {
 		await new FeatureRequestOnMilestone(
 			github,
 			config.comments.init!,
-			config.milestones.candidateID
+			config.milestones.candidateID,
 		).run();
 	}
 }

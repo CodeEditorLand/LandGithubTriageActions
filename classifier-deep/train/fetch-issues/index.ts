@@ -3,12 +3,12 @@
  *  Licensed under the MIT License. See LICENSE in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { context } from "@actions/github";
-import { getRequiredInput, getInput } from "../../../common/utils";
+import { execSync } from "child_process";
 import { statSync } from "fs";
 import { join } from "path";
+import { context } from "@actions/github";
 import { Action } from "../../../common/Action";
-import { execSync } from "child_process";
+import { getInput, getRequiredInput } from "../../../common/utils";
 import { uploadBlobFile } from "../../blobStorage";
 import { download } from "./download";
 
@@ -38,8 +38,8 @@ class FetchIssues extends Action {
 				"..",
 				"..",
 				"blobStorage",
-				"issues.json.zip"
-			)} ${join(__dirname, "issues.json")}`
+				"issues.json.zip",
+			)} ${join(__dirname, "issues.json")}`,
 		);
 
 		await uploadBlobFile("issues.json.zip", blobContainer, blobStorageKey);

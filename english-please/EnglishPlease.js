@@ -1,4 +1,3 @@
-"use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.LanguageSpecificLabeler = exports.EnglishPleaseLabler = void 0;
 const axios_1 = require("axios");
@@ -36,7 +35,7 @@ class LanguageSpecificLabeler {
 		translatorRequestedLabelColor,
 		englishPleaseLabel,
 		needsMoreInfoLabel,
-		cognitiveServicesAPIKey
+		cognitiveServicesAPIKey,
 	) {
 		this.issue = issue;
 		this.translatorRequestedLabelPrefix = translatorRequestedLabelPrefix;
@@ -51,7 +50,7 @@ class LanguageSpecificLabeler {
 		(0, utils_1.safeLog)(
 			"attempting to detect language...",
 			chunk.slice(0, 30),
-			hashedKey
+			hashedKey,
 		);
 		const result = await axios_1.default
 			.post(
@@ -63,21 +62,21 @@ class LanguageSpecificLabeler {
 							this.cognitiveServicesAPIKey,
 						"Content-type": "application/json",
 					},
-				}
+				},
 			)
 			.catch((error) => {
 				if (error.response) {
 					// The request was made and the server responded with a status code
 					// that falls out of the range of 2xx
 					(0, utils_1.safeLog)(
-						"DATA: " + JSON.stringify(error.response.data)
+						"DATA: " + JSON.stringify(error.response.data),
 					);
 				} else if (error.request) {
 					// The request was made but no response was received
 					// `error.request` is an instance of XMLHttpRequest in the browser and an instance of
 					// http.ClientRequest in node.js
 					(0, utils_1.safeLog)(
-						"REQUEST: " + JSON.stringify(error.request)
+						"REQUEST: " + JSON.stringify(error.request),
 					);
 				} else {
 					// Something happened in setting up the request that triggered an Error
@@ -101,7 +100,7 @@ class LanguageSpecificLabeler {
 			"attempting to translate...",
 			hashedKey,
 			text.slice(0, 20),
-			to
+			to,
 		);
 		const result = await axios_1.default
 			.post(
@@ -114,7 +113,7 @@ class LanguageSpecificLabeler {
 							this.cognitiveServicesAPIKey,
 						"Content-type": "application/json",
 					},
-				}
+				},
 			)
 			.catch((e) => {
 				(0, utils_1.safeLog)("error translating language", e);
@@ -142,7 +141,7 @@ class LanguageSpecificLabeler {
 			for (const comment of page) {
 				if (
 					comment.body.includes(
-						"<!-- translation_requested_comment -->"
+						"<!-- translation_requested_comment -->",
 					)
 				) {
 					return;
@@ -156,7 +155,7 @@ class LanguageSpecificLabeler {
 				: _a.toLowerCase();
 		if (!language || language === "en") {
 			const languagelabel = issue.labels.find((label) =>
-				label.startsWith(this.translatorRequestedLabelPrefix)
+				label.startsWith(this.translatorRequestedLabelPrefix),
 			);
 			if (languagelabel) await this.issue.removeLabel(languagelabel);
 			await this.issue.removeLabel(this.englishPleaseLabel);
@@ -169,7 +168,7 @@ class LanguageSpecificLabeler {
 				await this.issue.createLabel(
 					label,
 					this.translatorRequestedLabelColor,
-					""
+					"",
 				);
 			}
 			await this.issue.addLabel(label);
@@ -181,8 +180,8 @@ class LanguageSpecificLabeler {
 						? _b
 						: await this.translate(
 								translation_data_json_1.baseString,
-								language
-							)) !== null && _c !== void 0
+								language,
+						  )) !== null && _c !== void 0
 					? _c
 					: "ERR_TRANSLATION_FAILED";
 			const englishComment = knownTranslations["en"];
@@ -191,7 +190,7 @@ class LanguageSpecificLabeler {
 				for (const comment of page) {
 					if (
 						comment.body.includes(
-							"<!-- translation_requested_comment -->"
+							"<!-- translation_requested_comment -->",
 						)
 					) {
 						return;
@@ -199,7 +198,7 @@ class LanguageSpecificLabeler {
 				}
 			}
 			await this.issue.postComment(
-				`${targetLanguageComment}\n\n---\n${englishComment}\n<!-- translation_requested_comment -->`
+				`${targetLanguageComment}\n\n---\n${englishComment}\n<!-- translation_requested_comment -->`,
 			);
 		}
 	}

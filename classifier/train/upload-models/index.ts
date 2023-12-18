@@ -3,9 +3,9 @@
  *  Licensed under the MIT License. See LICENSE in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
+import { Action } from "../../../common/Action";
 import { getRequiredInput, safeLog } from "../../../common/utils";
 import { uploadBlobFile } from "../../blobStorage";
-import { Action } from "../../../common/Action";
 
 const blobContainer = getRequiredInput("blobContainerName");
 const blobStorageKey = getRequiredInput("blobStoragekey");
@@ -18,7 +18,7 @@ class UploadModels extends Action {
 		await uploadBlobFile(
 			"area-model.pickle",
 			blobContainer,
-			blobStorageKey
+			blobStorageKey,
 		);
 		safeLog("done");
 
@@ -26,7 +26,7 @@ class UploadModels extends Action {
 		await uploadBlobFile(
 			"area-model-config.json",
 			blobContainer,
-			blobStorageKey
+			blobStorageKey,
 		);
 		safeLog("done");
 
@@ -34,7 +34,7 @@ class UploadModels extends Action {
 		await uploadBlobFile(
 			"assignee-model.pickle",
 			blobContainer,
-			blobStorageKey
+			blobStorageKey,
 		);
 		safeLog("done");
 
@@ -42,7 +42,7 @@ class UploadModels extends Action {
 		await uploadBlobFile(
 			"assignee-model-config.json",
 			blobContainer,
-			blobStorageKey
+			blobStorageKey,
 		);
 		safeLog("done");
 	}
