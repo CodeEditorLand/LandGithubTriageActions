@@ -10,7 +10,7 @@ import { Readable } from "stream";
 export async function downloadBlobFile(
 	name: string,
 	container: string,
-	key: string,
+	key: string
 ) {
 	const blobServiceClient = BlobServiceClient.fromConnectionString(key);
 	const containerClient = blobServiceClient.getContainerClient(container);
@@ -22,7 +22,7 @@ export async function downloadBlobFile(
 export async function uploadBlobFile(
 	name: string,
 	container: string,
-	key: string,
+	key: string
 ) {
 	const blobServiceClient = BlobServiceClient.fromConnectionString(key);
 	const containerClient = blobServiceClient.getContainerClient(container);
@@ -36,7 +36,7 @@ export async function uploadBlobText(
 	name: string,
 	text: string,
 	container: string,
-	key: string,
+	key: string
 ) {
 	const blobServiceClient = BlobServiceClient.fromConnectionString(key);
 	const containerClient = blobServiceClient.getContainerClient(container);
@@ -49,7 +49,7 @@ export async function uploadBlobText(
 export async function downloadBlobText(
 	name: string,
 	container: string,
-	key: string,
+	key: string
 ) {
 	const blobServiceClient = BlobServiceClient.fromConnectionString(key);
 	const containerClient = blobServiceClient.getContainerClient(container);

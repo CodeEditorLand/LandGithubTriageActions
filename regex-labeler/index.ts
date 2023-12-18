@@ -19,7 +19,7 @@ class RegexFlaggerActon extends Action {
 			getInput("label"),
 			getInput("comment"),
 			getInput("mustMatch"),
-			getInput("mustNotMatch"),
+			getInput("mustNotMatch")
 		).run();
 	}
 }

@@ -12,7 +12,7 @@ class AuthorVerifiedLabeler {
 		comment,
 		releasedLabel,
 		authorVerificationRequestedLabel,
-		verifiedLabel,
+		verifiedLabel
 	) {
 		this.github = github;
 		this.comment = comment;
@@ -28,7 +28,7 @@ class AuthorVerifiedLabeler {
 				if (
 					comment.body.includes(key) ||
 					comment.body.includes(
-						"you can help us out by commenting `/verified`",
+						"you can help us out by commenting `/verified`"
 					) // legacy
 				) {
 					return;
@@ -45,7 +45,7 @@ class AuthorVerifiedLabeler {
 			issue.labels.includes(this.releasedLabel)
 		) {
 			const latestRelease = await (0, utils_1.loadLatestRelease)(
-				"insider",
+				"insider"
 			);
 			if (!latestRelease) throw Error("Error loading latest release");
 			if (!issue.labels.includes(this.verifiedLabel)) {
@@ -55,7 +55,7 @@ class AuthorVerifiedLabeler {
 				await this.commentVerficationRequest(
 					this.comment
 						.replace("${commit}", latestRelease.version)
-						.replace("${author}", issue.author.name),
+						.replace("${author}", issue.author.name)
 				);
 			}
 		}

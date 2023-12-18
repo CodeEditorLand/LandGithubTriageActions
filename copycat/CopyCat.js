@@ -16,7 +16,7 @@ class CopyCat {
 		var _a;
 		const issue = await this.github.getIssue();
 		(0, utils_1.safeLog)(
-			`Mirroring issue \`${issue.number}\` to ${this.owner}/${this.repo}`,
+			`Mirroring issue \`${issue.number}\` to ${this.owner}/${this.repo}`
 		);
 		await this.github.createIssue(
 			this.owner,
@@ -24,7 +24,7 @@ class CopyCat {
 			issue.title,
 			((_a = issue.body) !== null && _a !== void 0 ? _a : "")
 				.replace(/@|#|issues/g, "-")
-				.replace(/\/github.com\//g, "/github-com/"),
+				.replace(/\/github.com\//g, "/github-com/")
 		);
 	}
 }

@@ -12,7 +12,7 @@ class DeepClassifierMonitor extends Action {
 
 	protected async onAssigned(
 		issue: OctoKitIssue,
-		assignee: string,
+		assignee: string
 	): Promise<void> {
 		const assigner = await issue.getAssigner(assignee);
 		if (assigner !== getRequiredInput("botName")) {

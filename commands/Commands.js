@@ -41,8 +41,8 @@ class Commands {
 				!!this.action.comment.match(
 					new RegExp(
 						`(/|\\\\)${escapeRegExp(command.name)}(\\s|$)`,
-						"i",
-					),
+						"i"
+					)
 				) &&
 				((await this.github.hasWriteAccess(this.action.user.name)) ||
 					((_a = command.allowUsers) === null || _a === void 0
@@ -72,8 +72,8 @@ class Commands {
 				(_b =
 					(_a = this.action.comment.match(
 						new RegExp(
-							String.raw`(?:^|\s)(?:\\|/)${command.name}(.*)(?:\r)?(?:\n|$)`,
-						),
+							String.raw`(?:^|\s)(?:\\|/)${command.name}(.*)(?:\r)?(?:\n|$)`
+						)
 					)) === null || _a === void 0
 						? void 0
 						: _a[1]) !== null && _b !== void 0
@@ -87,7 +87,7 @@ class Commands {
 					const endIndex = argList.indexOf('"', 1);
 					if (endIndex === -1)
 						throw Error(
-							"Unable to parse arglist. Could not find matching double quote",
+							"Unable to parse arglist. Could not find matching double quote"
 						);
 					args.push({ task, name: argList.slice(1, endIndex) });
 					argList = argList.slice(endIndex + 1).trim();
@@ -107,8 +107,8 @@ class Commands {
 					...args.map((arg) =>
 						arg.task === "add"
 							? this.github.addLabel(arg.name)
-							: this.github.removeLabel(arg.name),
-					),
+							: this.github.removeLabel(arg.name)
+					)
 				);
 			}
 			if (command.name === "assign") {
@@ -118,14 +118,14 @@ class Commands {
 							? this.github.addAssignee(
 									arg.name[0] === "@"
 										? arg.name.slice(1)
-										: arg.name,
-							  )
+										: arg.name
+								)
 							: this.github.removeAssignee(
 									arg.name[0] === "@"
 										? arg.name.slice(1)
-										: arg.name,
-							  ),
-					),
+										: arg.name
+								)
+					)
 				);
 			}
 		}
@@ -134,13 +134,13 @@ class Commands {
 				this.github.closeIssue(
 					(_c = command.reason) !== null && _c !== void 0
 						? _c
-						: "completed",
-				),
+						: "completed"
+				)
 			);
 		}
 		if (command.comment && (command.action !== "close" || issue.open)) {
 			tasks.push(
-				this.github.postComment(this.hydrate(command.comment, issue)),
+				this.github.postComment(this.hydrate(command.comment, issue))
 			);
 		}
 		if (command.addLabel) {
@@ -149,8 +149,8 @@ class Commands {
 		if (command.assign) {
 			tasks.push(
 				...command.assign.map((assignee) =>
-					this.github.addAssignee(assignee),
-				),
+					this.github.addAssignee(assignee)
+				)
 			);
 		}
 		if (command.removeLabel) {
@@ -161,7 +161,7 @@ class Commands {
 	async run() {
 		const issue = await this.github.getIssue();
 		return Promise.all(
-			this.config.map((command) => this.perform(command, issue)),
+			this.config.map((command) => this.perform(command, issue))
 		);
 	}
 }

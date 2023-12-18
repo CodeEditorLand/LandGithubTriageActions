@@ -8,12 +8,12 @@ const utils_1 = require("../common/utils");
 const AuthorVerified_1 = require("./AuthorVerified");
 const Action_1 = require("../common/Action");
 const requestVerificationComment = (0, utils_1.getRequiredInput)(
-	"requestVerificationComment",
+	"requestVerificationComment"
 );
 const releasedLabel = (0, utils_1.getRequiredInput)("releasedLabel");
 const verifiedLabel = (0, utils_1.getRequiredInput)("verifiedLabel");
 const authorVerificationRequestedLabel = (0, utils_1.getRequiredInput)(
-	"authorVerificationRequestedLabel",
+	"authorVerificationRequestedLabel"
 );
 class AuthorVerified extends Action_1.Action {
 	constructor() {
@@ -26,7 +26,7 @@ class AuthorVerified extends Action_1.Action {
 			requestVerificationComment,
 			releasedLabel,
 			authorVerificationRequestedLabel,
-			verifiedLabel,
+			verifiedLabel
 		).run();
 	}
 	async onClosed(issue) {

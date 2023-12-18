@@ -25,7 +25,7 @@ class NeedsMoreInfo extends Action_1.Action {
 			_a !== void 0
 				? _a
 				: ""
-			).split("|"),
+			).split("|")
 		).run();
 	}
 }

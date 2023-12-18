@@ -26,7 +26,7 @@ class ReleasePipelineAction extends Action {
 		await new ReleasePipeline(
 			github,
 			notYetReleasedLabel,
-			insidersReleasedLabel,
+			insidersReleasedLabel
 		).run();
 	}
 

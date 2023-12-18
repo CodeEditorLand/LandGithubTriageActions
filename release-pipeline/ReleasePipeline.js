@@ -27,7 +27,7 @@ class ReleasePipeline {
 					await new Promise((resolve) => setTimeout(resolve, 1000));
 				} else {
 					(0, utils_1.safeLog)(
-						"Query returned an invalid issue:" + issueData.number,
+						"Query returned an invalid issue:" + issueData.number
 					);
 				}
 			}
@@ -100,7 +100,7 @@ exports.enrollIssue = enrollIssue;
 const unenrollIssue = async (
 	issue,
 	notYetReleasedLabel,
-	insidersReleasedLabel,
+	insidersReleasedLabel
 ) => {
 	await issue.removeLabel(insidersReleasedLabel);
 	await issue.removeLabel(notYetReleasedLabel);

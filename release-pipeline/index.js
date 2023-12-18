@@ -8,10 +8,10 @@ const utils_1 = require("../common/utils");
 const ReleasePipeline_1 = require("./ReleasePipeline");
 const Action_1 = require("../common/Action");
 const notYetReleasedLabel = (0, utils_1.getRequiredInput)(
-	"notYetReleasedLabel",
+	"notYetReleasedLabel"
 );
 const insidersReleasedLabel = (0, utils_1.getRequiredInput)(
-	"insidersReleasedLabel",
+	"insidersReleasedLabel"
 );
 class ReleasePipelineAction extends Action_1.Action {
 	constructor() {
@@ -22,7 +22,7 @@ class ReleasePipelineAction extends Action_1.Action {
 		await (0, ReleasePipeline_1.unenrollIssue)(
 			issue,
 			notYetReleasedLabel,
-			insidersReleasedLabel,
+			insidersReleasedLabel
 		);
 	}
 	async onClosed(issue) {
@@ -32,14 +32,14 @@ class ReleasePipelineAction extends Action_1.Action {
 		await new ReleasePipeline_1.ReleasePipeline(
 			github,
 			notYetReleasedLabel,
-			insidersReleasedLabel,
+			insidersReleasedLabel
 		).run();
 	}
 	async onCommented(issue, comment) {
 		if (comment.includes("closedWith")) {
 			await (0, ReleasePipeline_1.enrollIssue)(
 				issue,
-				notYetReleasedLabel,
+				notYetReleasedLabel
 			);
 		}
 	}

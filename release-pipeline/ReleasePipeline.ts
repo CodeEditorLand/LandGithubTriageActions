@@ -10,7 +10,7 @@ export class ReleasePipeline {
 	constructor(
 		private github: GitHub,
 		private notYetReleasedLabel: string,
-		private insidersReleasedLabel: string,
+		private insidersReleasedLabel: string
 	) {}
 
 	async run() {
@@ -30,7 +30,7 @@ export class ReleasePipeline {
 					await new Promise((resolve) => setTimeout(resolve, 1000));
 				} else {
 					safeLog(
-						"Query returned an invalid issue:" + issueData.number,
+						"Query returned an invalid issue:" + issueData.number
 					);
 				}
 			}
@@ -39,7 +39,7 @@ export class ReleasePipeline {
 
 	private async commentUnableToFindCommitMessage(
 		issue: GitHubIssue,
-		location: "repo" | "issue",
+		location: "repo" | "issue"
 	) {
 		const key = `<!-- UNABLE_TO_LOCATE_COMMIT_MESSAGE ${location} -->`;
 
@@ -90,7 +90,7 @@ Issue marked as unreleased but unable to locate closing commit in issue timeline
 
 export const enrollIssue = async (
 	issue: GitHubIssue,
-	notYetReleasedLabel: string,
+	notYetReleasedLabel: string
 ) => {
 	const closingHash = (await issue.getClosingInfo())?.hash;
 	if (closingHash) {
@@ -108,7 +108,7 @@ export const enrollIssue = async (
 export const unenrollIssue = async (
 	issue: GitHubIssue,
 	notYetReleasedLabel: string,
-	insidersReleasedLabel: string,
+	insidersReleasedLabel: string
 ) => {
 	await issue.removeLabel(insidersReleasedLabel);
 	await issue.removeLabel(notYetReleasedLabel);

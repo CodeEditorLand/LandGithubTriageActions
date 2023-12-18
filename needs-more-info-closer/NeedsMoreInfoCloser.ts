@@ -18,7 +18,7 @@ export class NeedsMoreInfoCloser {
 		private pingDays: number,
 		private closeComment: string,
 		private pingComment: string,
-		private additionalTeam: string[],
+		private additionalTeam: string[]
 	) {}
 
 	async run() {
@@ -52,11 +52,11 @@ export class NeedsMoreInfoCloser {
 					) {
 						if (lastComment) {
 							safeLog(
-								`Last comment on ${hydrated.number} by team. Closing.`,
+								`Last comment on ${hydrated.number} by team. Closing.`
 							);
 						} else {
 							safeLog(
-								`No comments on ${hydrated.number}. Closing.`,
+								`No comments on ${hydrated.number}. Closing.`
 							);
 						}
 						if (this.closeComment) {
@@ -69,7 +69,7 @@ export class NeedsMoreInfoCloser {
 							hydrated.assignee
 						) {
 							safeLog(
-								`Last comment on ${hydrated.number} by rando. Pinging @${hydrated.assignee}`,
+								`Last comment on ${hydrated.number} by rando. Pinging @${hydrated.assignee}`
 							);
 							if (this.pingComment) {
 								await issue.postComment(
@@ -77,12 +77,12 @@ export class NeedsMoreInfoCloser {
 										.replace(
 											"${assignee}",
 											hydrated.assignees?.join(" @") ||
-												hydrated.assignee,
+												hydrated.assignee
 										)
 										.replace(
 											"${author}",
-											hydrated.author.name,
-										),
+											hydrated.author.name
+										)
 								);
 							}
 						} else {
@@ -93,13 +93,13 @@ export class NeedsMoreInfoCloser {
 									hydrated.assignee
 										? " cc @" + hydrated.assignee
 										: ""
-								}`,
+								}`
 							);
 						}
 					}
 				} else {
 					safeLog(
-						"Query returned an invalid issue:" + hydrated.number,
+						"Query returned an invalid issue:" + hydrated.number
 					);
 				}
 			}

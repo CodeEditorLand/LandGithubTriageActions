@@ -33,7 +33,7 @@ class BuildChatAction extends Action_1.Action {
 				notificationChannel:
 					(0, utils_1.getInput)("notification_channel") || undefined,
 				logChannel: (0, utils_1.getInput)("log_channel") || undefined,
-			},
+			}
 		);
 	}
 }

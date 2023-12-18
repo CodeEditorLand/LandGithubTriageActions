@@ -18,7 +18,7 @@ export async function downloadBlob(name: string, container: string) {
 	const createContainerResponse = containerClient.getBlockBlobClient(name);
 
 	await createContainerResponse.downloadToFile(
-		join(__dirname, "blobs", name),
+		join(__dirname, "blobs", name)
 	);
 }
 

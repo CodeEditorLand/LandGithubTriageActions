@@ -32,7 +32,7 @@ describe("Commands", () => {
 					comment: "/hello",
 					user: { name: "NotJacksonKearl" },
 				},
-				dummyHydrate,
+				dummyHydrate
 			).run();
 			expect((await testbed.getIssue()).open).to.equal(true);
 			await new Commands(
@@ -42,7 +42,7 @@ describe("Commands", () => {
 					comment: "/hello",
 					user: { name: "JacksonKearl" },
 				},
-				dummyHydrate,
+				dummyHydrate
 			).run();
 			expect((await testbed.getIssue()).open).to.equal(false);
 		});
@@ -66,7 +66,7 @@ describe("Commands", () => {
 					comment: "/hello",
 					user: { name: "NotJacksonKearl" },
 				},
-				dummyHydrate,
+				dummyHydrate
 			).run();
 			expect((await testbed.getIssue()).open).to.equal(true);
 			await new Commands(
@@ -76,7 +76,7 @@ describe("Commands", () => {
 					comment: "/hello",
 					user: { name: "JacksonKearl" },
 				},
-				dummyHydrate,
+				dummyHydrate
 			).run();
 			expect((await testbed.getIssue()).open).to.equal(false);
 		});
@@ -100,7 +100,7 @@ describe("Commands", () => {
 					comment: "/hello",
 					user: { name: "Rando" },
 				},
-				dummyHydrate,
+				dummyHydrate
 			).run();
 			expect((await testbed.getIssue()).open).to.equal(false);
 		});
@@ -124,7 +124,7 @@ describe("Commands", () => {
 					comment: "/hello",
 					user: { name: "NotJacksonKearl" },
 				},
-				dummyHydrate,
+				dummyHydrate
 			).run();
 			expect((await testbed.getIssue()).open).to.equal(true);
 			await new Commands(
@@ -134,7 +134,7 @@ describe("Commands", () => {
 					comment: "/hello",
 					user: { name: "JacksonKearl" },
 				},
-				dummyHydrate,
+				dummyHydrate
 			).run();
 			expect((await testbed.getIssue()).open).to.equal(false);
 		});
@@ -159,7 +159,7 @@ describe("Commands", () => {
 					comment: "/hello",
 					user: { name: "JacksonKearl" },
 				},
-				dummyHydrate,
+				dummyHydrate
 			).run();
 			expect((await testbed.getIssue()).open).to.equal(true);
 		});
@@ -184,7 +184,7 @@ describe("Commands", () => {
 					comment: "/hello",
 					user: { name: "JacksonKearl" },
 				},
-				dummyHydrate,
+				dummyHydrate
 			).run();
 			expect((await testbed.getIssue()).open).to.equal(true);
 		});
@@ -192,7 +192,7 @@ describe("Commands", () => {
 		it("Update Labels", async () => {
 			const testbed = new TestbedIssue(
 				{ writers: ["JacksonKearl"] },
-				{ labels: ["old", "veryOld"] },
+				{ labels: ["old", "veryOld"] }
 			);
 			const commands: Command[] = [
 				{
@@ -214,7 +214,7 @@ describe("Commands", () => {
 					comment: "/hello",
 					user: { name: "NotJacksonKearl" },
 				},
-				dummyHydrate,
+				dummyHydrate
 			).run();
 			expect((await testbed.getIssue()).labels).to.contain("old");
 			expect((await testbed.getIssue()).labels).not.to.contain("new");
@@ -226,7 +226,7 @@ describe("Commands", () => {
 					comment: "/hello",
 					user: { name: "JacksonKearl" },
 				},
-				dummyHydrate,
+				dummyHydrate
 			).run();
 			expect((await testbed.getIssue()).labels).not.to.contain("old");
 			expect((await testbed.getIssue()).labels).to.contain("new");
@@ -251,7 +251,7 @@ describe("Commands", () => {
 					comment: "/helloworld",
 					user: { name: "JacksonKearl" },
 				},
-				dummyHydrate,
+				dummyHydrate
 			).run();
 			expect((await testbed.getIssue()).open).to.equal(true);
 			await new Commands(
@@ -261,7 +261,7 @@ describe("Commands", () => {
 					comment: "\\hello",
 					user: { name: "JacksonKearl" },
 				},
-				dummyHydrate,
+				dummyHydrate
 			).run();
 			expect((await testbed.getIssue()).open).to.equal(false);
 		});
@@ -285,7 +285,7 @@ describe("Commands", () => {
 					comment: "/c++iscool",
 					user: { name: "JacksonKearl" },
 				},
-				dummyHydrate,
+				dummyHydrate
 			).run();
 			expect((await testbed.getIssue()).open).to.equal(false);
 		});
@@ -302,7 +302,7 @@ describe("Commands", () => {
 					comment: '/label hello "hello world"',
 					user: { name: "JacksonKearl" },
 				},
-				dummyHydrate,
+				dummyHydrate
 			).run();
 			expect((await testbed.getIssue()).labels).to.include("hello");
 			expect((await testbed.getIssue()).labels).to.include("hello world");
@@ -320,7 +320,7 @@ describe("Commands", () => {
 					comment: "/assign Jackso \r\n",
 					user: { name: "JacksonKearl" },
 				},
-				dummyHydrate,
+				dummyHydrate
 			).run();
 			expect((await testbed.getIssue()).assignee).to.equal("Jackso");
 		});
@@ -328,7 +328,7 @@ describe("Commands", () => {
 		it("removes labels with - prefix in /label comment", async () => {
 			const testbed = new TestbedIssue(
 				{ writers: ["JacksonKearl"] },
-				{ labels: ["hello", "hello world"] },
+				{ labels: ["hello", "hello world"] }
 			);
 			const commands: Command[] = [
 				{ type: "comment", allowUsers: [], name: "label" },
@@ -340,11 +340,11 @@ describe("Commands", () => {
 					comment: '/label -hello -"hello world" "-hello"',
 					user: { name: "JacksonKearl" },
 				},
-				dummyHydrate,
+				dummyHydrate
 			).run();
 			expect((await testbed.getIssue()).labels).not.to.include("hello");
 			expect((await testbed.getIssue()).labels).not.to.include(
-				"hello world",
+				"hello world"
 			);
 			expect((await testbed.getIssue()).labels).to.include("-hello");
 		});
@@ -352,7 +352,7 @@ describe("Commands", () => {
 		it("removes assignees with - prefix in /assign comment", async () => {
 			const testbed = new TestbedIssue(
 				{ writers: ["JacksonKearl"] },
-				{ issue: { assignee: "JacksonKearl" } },
+				{ issue: { assignee: "JacksonKearl" } }
 			);
 			const commands: Command[] = [
 				{ type: "comment", allowUsers: [], name: "assign" },
@@ -364,7 +364,7 @@ describe("Commands", () => {
 					comment: "/assign -JacksonKearl \r\n",
 					user: { name: "JacksonKearl" },
 				},
-				dummyHydrate,
+				dummyHydrate
 			).run();
 			expect((await testbed.getIssue()).assignee).to.equal(undefined);
 		});
@@ -384,7 +384,7 @@ describe("Commands", () => {
 					label: "hello",
 					user: { name: "JacksonKearl" },
 				},
-				dummyHydrate,
+				dummyHydrate
 			).run();
 			expect((await testbed.getIssue()).open).to.equal(false);
 		});
@@ -407,7 +407,7 @@ describe("Commands", () => {
 					label: "hello",
 					user: { name: "JacksonKearl" },
 				},
-				dummyHydrate,
+				dummyHydrate
 			).run();
 			expect((await testbed.getIssue()).open).to.equal(false);
 			const comments = [];
@@ -436,7 +436,7 @@ describe("Commands", () => {
 					label: "hello-world",
 					user: { name: "JacksonKearl" },
 				},
-				dummyHydrate,
+				dummyHydrate
 			).run();
 
 			expect((await testbed.getIssue()).open).to.equal(false);
@@ -450,7 +450,7 @@ describe("Commands", () => {
 		it("But doesnt comment when the issue was closed", async () => {
 			const testbed = new TestbedIssue(
 				{ writers: ["JacksonKearl"] },
-				{ issue: { open: false } },
+				{ issue: { open: false } }
 			);
 			const commands: Command[] = [
 				{
@@ -468,7 +468,7 @@ describe("Commands", () => {
 					label: "hello",
 					user: { name: "JacksonKearl" },
 				},
-				dummyHydrate,
+				dummyHydrate
 			).run();
 			expect((await testbed.getIssue()).open).to.equal(false);
 			const comments = [];

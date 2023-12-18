@@ -18,7 +18,7 @@ async function downloadBlobFile(name, container, key) {
 	const containerClient = blobServiceClient.getContainerClient(container);
 	const createContainerResponse = containerClient.getBlockBlobClient(name);
 	await createContainerResponse.downloadToFile(
-		(0, path_1.join)(__dirname, name),
+		(0, path_1.join)(__dirname, name)
 	);
 }
 exports.downloadBlobFile = downloadBlobFile;

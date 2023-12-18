@@ -45,7 +45,7 @@ class Chatter {
 		const web = new web_api_1.WebClient(this.slackToken);
 		if (!this.notificationChannelID) {
 			throw Error(
-				`Slack channel not provided: ${this.notificationChannelID}`,
+				`Slack channel not provided: ${this.notificationChannelID}`
 			);
 		}
 		return { client: web, channel: this.notificationChannelID };
@@ -56,7 +56,7 @@ class CodeReviewChatDeleter extends Chatter {
 		slackToken,
 		slackElevatedUserToken,
 		notificationChannelId,
-		prUrl,
+		prUrl
 	) {
 		super(slackToken, notificationChannelId);
 		this.prUrl = prUrl;
@@ -86,13 +86,13 @@ class CodeReviewChatDeleter extends Chatter {
 				(_a = message.reactions) === null || _a === void 0
 					? void 0
 					: _a.some(
-							(reaction) => reaction.name === "white_check_mark",
-					  );
+							(reaction) => reaction.name === "white_check_mark"
+						);
 			// Extract PR URL from the chat message. It is in the form https://https://github.com/{repo}/pull/{number}
 			const prUrl =
 				(_c =
 					(_b = message.text.match(
-						/https:\/\/github.com\/.*\/pull\/\d+/,
+						/https:\/\/github.com\/.*\/pull\/\d+/
 					)) === null || _b === void 0
 						? void 0
 						: _b[0]) !== null && _c !== void 0
@@ -100,13 +100,13 @@ class CodeReviewChatDeleter extends Chatter {
 					: "";
 			if (isCodeReviewMessage) {
 				(0, utils_1.safeLog)(
-					`${prUrl} was closed or met review threshold. Deleting the message.`,
+					`${prUrl} was closed or met review threshold. Deleting the message.`
 				);
 			}
 			if (this.elevatedClient && message.reactions) {
 				if (hasWhiteCheckMark) {
 					(0, utils_1.safeLog)(
-						`Message ${prUrl} has a check mark reaction, deleting it.`,
+						`Message ${prUrl} has a check mark reaction, deleting it.`
 					);
 				}
 				// If we have an elevated client we can delete the message as long it has a "white_check_mark" reaction
@@ -170,7 +170,7 @@ class CodeReviewChat extends Chatter {
 		issue,
 		options,
 		pullRequestNumber,
-		_externalContributorPR,
+		_externalContributorPR
 	) {
 		super(options.slackToken, options.codereviewChannelId);
 		this.octokit = octokit;
@@ -196,11 +196,11 @@ class CodeReviewChat extends Chatter {
 				pull_number: this.options.payload.pr.number,
 			});
 		const requestedReviewers = requestedReviewersAPIResponse.data.users.map(
-			(user) => user.login,
+			(user) => user.login
 		);
 		if (requestedReviewers.length !== 0) {
 			(0, utils_1.safeLog)(
-				"A secondary reviewer has been requested for this PR, skipping",
+				"A secondary reviewer has been requested for this PR, skipping"
 			);
 			return;
 		}
@@ -222,7 +222,7 @@ class CodeReviewChat extends Chatter {
 		const githubUrl = `${pr.url}/files`;
 		const vscodeDevUrl = pr.url.replace(
 			"https://",
-			"https://insiders.vscode.dev/",
+			"https://insiders.vscode.dev/"
 		);
 		const externalPrefix = this._externalContributorPR
 			? "External PR: "
@@ -269,7 +269,7 @@ class CodeReviewChat extends Chatter {
 			return;
 		}
 		const teamMembers = new Set(
-			(await this.toolsAPI.getTeamMembers()).map((t) => t.id),
+			(await this.toolsAPI.getTeamMembers()).map((t) => t.id)
 		);
 		const author = data.author;
 		// Author must have write access to the repo or be a bot
@@ -291,7 +291,7 @@ class CodeReviewChat extends Chatter {
 				if (!data.milestone && currentMilestone) {
 					await this.issue.setMilestone(currentMilestone);
 				}
-			})(),
+			})()
 		);
 		tasks.push(
 			(async () => {
@@ -304,14 +304,14 @@ class CodeReviewChat extends Chatter {
 							this.options.payload.pr.number,
 							this.options.payload.repo,
 							this.options.payload.owner,
-							this.issue,
+							this.issue
 						),
 						this.octokit.pulls.listRequestedReviewers({
 							owner: this.options.payload.owner,
 							repo: this.options.payload.repo,
 							pull_number: this.options.payload.pr.number,
 						}),
-					],
+					]
 				);
 				// Check to see if there is an existing review or review request. We don't check if the author is part of the review request as that isn't possible
 				const hasExisting =
@@ -329,14 +329,14 @@ class CodeReviewChat extends Chatter {
 						: _b.length);
 				if (hasExisting) {
 					(0, utils_1.safeLog)(
-						"had existing review requests, exiting",
+						"had existing review requests, exiting"
 					);
 					process.exit(0);
 				}
 				const message = this.getSlackMessage(pr);
 				(0, utils_1.safeLog)(message);
 				await this.postMessage(message);
-			})(),
+			})()
 		);
 		await Promise.all(tasks);
 	}
@@ -348,7 +348,7 @@ async function getTeamMemberReviews(
 	prNumber,
 	repo,
 	owner,
-	ghIssue,
+	ghIssue
 ) {
 	var _a, _b, _c;
 	const reviews = await octokit.pulls.listReviews({
@@ -419,7 +419,7 @@ async function meetsReviewThreshold(
 	prNumber,
 	repo,
 	owner,
-	ghIssue,
+	ghIssue
 ) {
 	// Get author of PR
 	const author = (await ghIssue.getIssue()).author.name;
@@ -429,7 +429,7 @@ async function meetsReviewThreshold(
 		prNumber,
 		repo,
 		owner,
-		ghIssue,
+		ghIssue
 	);
 	// While more expensive to convert from Array -> Set -> Array, we want to ensure the same name isn't double counted if a user has multiple reviews
 	const reviewerNames = Array.from(
@@ -444,8 +444,8 @@ async function meetsReviewThreshold(
 								: _a.login) !== null && _b !== void 0
 							? _b
 							: "Unknown";
-				  }),
-		),
+					})
+		)
 	);
 	let meetsReviewThreshold = false;
 	// Team members require 1 review, external requires two
@@ -457,7 +457,7 @@ async function meetsReviewThreshold(
 	// Some more logging to help diagnose issues
 	if (meetsReviewThreshold) {
 		(0, utils_1.safeLog)(
-			`Met review threshold: ${reviewerNames.join(", ")}`,
+			`Met review threshold: ${reviewerNames.join(", ")}`
 		);
 	}
 	return meetsReviewThreshold;

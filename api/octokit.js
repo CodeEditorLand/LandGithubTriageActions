@@ -53,7 +53,7 @@ class OctoKit {
 		};
 		for await (const pageResponse of this.octokit.paginate.iterator(
 			this.octokit.rest.search.issuesAndPullRequests,
-			options,
+			options
 		)) {
 			await timeout();
 			numRequests++;
@@ -61,7 +61,7 @@ class OctoKit {
 			(0, utils_1.safeLog)(
 				`Page ${++pageNum}: ${page
 					.map(({ number }) => number)
-					.join(" ")}`,
+					.join(" ")}`
 			);
 			yield page.map(
 				(issue) =>
@@ -69,8 +69,8 @@ class OctoKit {
 						this.token,
 						this.params,
 						this.octokitIssueToIssue(issue),
-						this.options,
-					),
+						this.options
+					)
 			);
 		}
 	}
@@ -106,8 +106,8 @@ class OctoKit {
 				return typeof label === "string"
 					? label
 					: (_a = label.name) !== null && _a !== void 0
-					  ? _a
-					  : "";
+						? _a
+						: "";
 			}),
 			open: issue.state === "open",
 			locked: issue.locked,
@@ -123,8 +123,8 @@ class OctoKit {
 								(_h = issue.assignees) === null || _h === void 0
 									? void 0
 									: _h[0]) === null || _j === void 0
-					  ? void 0
-					  : _j.login,
+						? void 0
+						: _j.login,
 			assignees:
 				(_l =
 					(_k = issue.assignees) === null || _k === void 0
@@ -244,23 +244,23 @@ class OctoKit {
 			if ("type" in data && data.type === "file" && "content" in data) {
 				if (data.encoding === "base64" && data.content) {
 					return JSON.parse(
-						Buffer.from(data.content, "base64").toString("utf-8"),
+						Buffer.from(data.content, "base64").toString("utf-8")
 					);
 				}
 				throw Error(
-					`Could not read contents "${data.content}" in encoding "${data.encoding}"`,
+					`Could not read contents "${data.content}" in encoding "${data.encoding}"`
 				);
 			}
 			throw Error(
 				"Found directory at config path when expecting file" +
-					JSON.stringify(data),
+					JSON.stringify(data)
 			);
 		} catch (e) {
 			throw Error(
 				"Error with config file at " +
 					repoPath +
 					": " +
-					JSON.stringify(e),
+					JSON.stringify(e)
 			);
 		}
 	}
@@ -275,14 +275,14 @@ class OctoKit {
 						resolve(!err ? "yes" : "no");
 					} else if (
 						err.message.includes(
-							`Not a valid commit name ${release}`,
+							`Not a valid commit name ${release}`
 						)
 					) {
 						// release branch is forked. Probably in endgame. Not released.
 						resolve("no");
 					} else if (
 						err.message.includes(
-							`Not a valid commit name ${commit}`,
+							`Not a valid commit name ${commit}`
 						)
 					) {
 						// commit is probably in a different repo.
@@ -290,13 +290,13 @@ class OctoKit {
 					} else {
 						reject(err);
 					}
-				},
-			),
+				}
+			)
 		);
 	}
 	async getCurrentRepoMilestone() {
 		(0, utils_1.safeLog)(
-			`Getting repo milestone for ${this.params.owner}/${this.params.repo}`,
+			`Getting repo milestone for ${this.params.owner}/${this.params.repo}`
 		);
 		// Fetch all milestones open for this repo
 		const allMilestones = (
@@ -315,10 +315,10 @@ class OctoKit {
 					new Date(
 						milestone.due_on === null
 							? currentDate
-							: milestone.due_on,
+							: milestone.due_on
 					) > currentDate &&
 					currentDate > new Date(milestone.created_at) &&
-					!milestone.title.includes("Recovery"),
+					!milestone.title.includes("Recovery")
 			)
 			.sort((a, b) => {
 				var _a, _b;
@@ -326,12 +326,12 @@ class OctoKit {
 					+new Date(
 						(_a = a.due_on) !== null && _a !== void 0
 							? _a
-							: currentDate,
+							: currentDate
 					) -
 					+new Date(
 						(_b = b.due_on) !== null && _b !== void 0
 							? _b
-							: currentDate,
+							: currentDate
 					)
 				);
 			});
@@ -359,7 +359,7 @@ class OctoKitIssue extends OctoKit {
 	}
 	async addAssignee(assignee) {
 		(0, utils_1.safeLog)(
-			"Adding assignee " + assignee + " to " + this.issueData.number,
+			"Adding assignee " + assignee + " to " + this.issueData.number
 		);
 		if (!this.options.readonly) {
 			await this.octokit.rest.issues.addAssignees({
@@ -371,7 +371,7 @@ class OctoKitIssue extends OctoKit {
 	}
 	async removeAssignee(assignee) {
 		(0, utils_1.safeLog)(
-			"Removing assignee " + assignee + " to " + this.issueData.number,
+			"Removing assignee " + assignee + " to " + this.issueData.number
 		);
 		if (!this.options.readonly) {
 			await this.octokit.rest.issues.removeAssignees({
@@ -423,7 +423,7 @@ class OctoKitIssue extends OctoKit {
 	async getIssue() {
 		if (isIssue(this.issueData)) {
 			(0, utils_1.safeLog)(
-				"Got issue data from query result " + this.issueData.number,
+				"Got issue data from query result " + this.issueData.number
 			);
 			return this.issueData;
 		}
@@ -448,7 +448,7 @@ class OctoKitIssue extends OctoKit {
 	}
 	async deleteComment(id) {
 		(0, utils_1.safeLog)(
-			`Deleting comment ${id} on ${this.issueData.number}`,
+			`Deleting comment ${id} on ${this.issueData.number}`
 		);
 		if (!this.options.readonly)
 			await this.octokit.rest.issues.deleteComment({
@@ -459,7 +459,7 @@ class OctoKitIssue extends OctoKit {
 	}
 	async setMilestone(milestoneId) {
 		(0, utils_1.safeLog)(
-			`Setting milestone for ${this.issueData.number} to ${milestoneId}`,
+			`Setting milestone for ${this.issueData.number} to ${milestoneId}`
 		);
 		if (!this.options.readonly)
 			await this.octokit.rest.issues.update({
@@ -479,7 +479,7 @@ class OctoKitIssue extends OctoKit {
 				...(last
 					? { per_page: 1, page: (await this.getIssue()).numComments }
 					: {}),
-			},
+			}
 		);
 		for await (const page of response) {
 			numRequests++;
@@ -509,11 +509,11 @@ class OctoKitIssue extends OctoKit {
 	}
 	async addLabel(name) {
 		(0, utils_1.safeLog)(
-			`Adding label ${name} to ${this.issueData.number}`,
+			`Adding label ${name} to ${this.issueData.number}`
 		);
 		if (!(await this.repoHasLabel(name))) {
 			throw Error(
-				`Action could not execute becuase label ${name} is not defined.`,
+				`Action could not execute becuase label ${name} is not defined.`
 			);
 		}
 		if (!this.options.readonly)
@@ -532,7 +532,7 @@ class OctoKitIssue extends OctoKit {
 		let assigner;
 		for await (const event of this.octokit.paginate.iterator(
 			this.octokit.rest.issues.listEventsForTimeline,
-			options,
+			options
 		)) {
 			numRequests++;
 			const timelineEvents = event.data;
@@ -557,14 +557,14 @@ class OctoKitIssue extends OctoKit {
 			throw Error(
 				"Expected to find " +
 					assignee +
-					" in issue timeline but did not.",
+					" in issue timeline but did not."
 			);
 		}
 		return assigner;
 	}
 	async removeLabel(name) {
 		(0, utils_1.safeLog)(
-			`Removing label ${name} from ${this.issueData.number}`,
+			`Removing label ${name} from ${this.issueData.number}`
 		);
 		try {
 			if (!this.options.readonly)
@@ -601,7 +601,7 @@ class OctoKitIssue extends OctoKit {
 		const crossReferencing = [];
 		for await (const event of this.octokit.paginate.iterator(
 			this.octokit.rest.issues.listEventsForTimeline,
-			options,
+			options
 		)) {
 			numRequests++;
 			const timelineEvents = event.data;
@@ -616,7 +616,7 @@ class OctoKitIssue extends OctoKit {
 						: _a
 								.toLowerCase()
 								.includes(
-									`/${this.params.owner}/${this.params.repo}/`.toLowerCase(),
+									`/${this.params.owner}/${this.params.repo}/`.toLowerCase()
 								))
 				) {
 					closingCommit = {
@@ -658,8 +658,8 @@ class OctoKitIssue extends OctoKit {
 							: _f.pull_request) === null || _g === void 0
 						? void 0
 						: _g.url.includes(
-								`/${this.params.owner}/${this.params.repo}/`.toLowerCase(),
-						  ))
+								`/${this.params.owner}/${this.params.repo}/`.toLowerCase()
+							))
 				) {
 					crossReferencing.push(timelineEvent.source.issue.number);
 				}
@@ -679,7 +679,7 @@ class OctoKitIssue extends OctoKit {
 								((_h = (await this.getIssue()).closedAt) !==
 									null && _h !== void 0
 									? _h
-									: 0),
+									: 0)
 						) < 5000
 					) {
 						closingCommit = closed;
@@ -691,7 +691,7 @@ class OctoKitIssue extends OctoKit {
 		(0, utils_1.safeLog)(
 			`Got ${JSON.stringify(closingCommit)} as closing commit of ${
 				this.issueData.number
-			}`,
+			}`
 		);
 		return closingCommit;
 	}

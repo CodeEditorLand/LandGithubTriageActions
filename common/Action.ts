@@ -27,7 +27,7 @@ export abstract class Action {
 			.rest.users.getAuthenticated()
 			.then(
 				(v) => v.data.name ?? "unknown",
-				() => "unknown",
+				() => "unknown"
 			);
 	}
 
@@ -40,7 +40,7 @@ export abstract class Action {
 				context.payload.issue?.number === issue
 			) {
 				return safeLog(
-					"refusing to run on error logging issue to prevent cascading errors",
+					"refusing to run on error logging issue to prevent cascading errors"
 				);
 			}
 		}
@@ -55,13 +55,13 @@ export abstract class Action {
 					token,
 					context.repo,
 					{ number: issue },
-					{ readonly },
+					{ readonly }
 				);
 				if (context.eventName === "issue_comment") {
 					await this.onCommented(
 						octokit,
 						context.payload.comment?.body,
-						context.actor,
+						context.actor
 					);
 				} else if (
 					context.eventName === "issues" ||
@@ -82,19 +82,19 @@ export abstract class Action {
 						case "labeled":
 							await this.onLabeled(
 								octokit,
-								context.payload.label.name,
+								context.payload.label.name
 							);
 							break;
 						case "assigned":
 							await this.onAssigned(
 								octokit,
-								context.payload.assignee.login,
+								context.payload.assignee.login
 							);
 							break;
 						case "unassigned":
 							await this.onUnassigned(
 								octokit,
-								context.payload.assignee.login,
+								context.payload.assignee.login
 							);
 							break;
 						case "edited":
@@ -106,12 +106,12 @@ export abstract class Action {
 						case "converted_to_draft":
 							await this.onConvertedToDraft(
 								octokit,
-								context.payload,
+								context.payload
 							);
 							break;
 						default:
 							throw Error(
-								"Unexpected action: " + context.payload.action,
+								"Unexpected action: " + context.payload.action
 							);
 					}
 				}
@@ -119,11 +119,11 @@ export abstract class Action {
 				await this.onCreated(
 					new OctoKit(token, context.repo, { readonly }),
 					context?.payload?.ref,
-					context?.payload?.sender?.login,
+					context?.payload?.sender?.login
 				);
 			} else {
 				await this.onTriggered(
-					new OctoKit(token, context.repo, { readonly }),
+					new OctoKit(token, context.repo, { readonly })
 				);
 			}
 		} catch (e) {
@@ -165,7 +165,7 @@ ID: ${details.id}
 	protected async onCreated(
 		_octokit: OctoKit,
 		_ref: string,
-		_creator: string,
+		_creator: string
 	): Promise<void> {
 		throw Error("not implemented");
 	}
@@ -174,25 +174,25 @@ ID: ${details.id}
 	}
 	protected async onLabeled(
 		_issue: OctoKitIssue,
-		_label: string,
+		_label: string
 	): Promise<void> {
 		throw Error("not implemented");
 	}
 	protected async onAssigned(
 		_issue: OctoKitIssue,
-		_assignee: string,
+		_assignee: string
 	): Promise<void> {
 		throw Error("not implemented");
 	}
 	protected async onUnassigned(
 		_issue: OctoKitIssue,
-		_assignee: string,
+		_assignee: string
 	): Promise<void> {
 		throw Error("not implemented");
 	}
 	protected async onOpened(
 		_issue: OctoKitIssue,
-		_payload: WebhookPayload,
+		_payload: WebhookPayload
 	): Promise<void> {
 		throw Error("not implemented");
 	}
@@ -201,13 +201,13 @@ ID: ${details.id}
 	}
 	protected async onClosed(
 		_issue: OctoKitIssue,
-		_payload: WebhookPayload,
+		_payload: WebhookPayload
 	): Promise<void> {
 		throw Error("not implemented");
 	}
 	protected async onConvertedToDraft(
 		_issue: OctoKitIssue,
-		_payload: WebhookPayload,
+		_payload: WebhookPayload
 	): Promise<void> {
 		throw Error("not implemented");
 	}
@@ -217,7 +217,7 @@ ID: ${details.id}
 	protected async onCommented(
 		_issue: OctoKitIssue,
 		_comment: string,
-		_actor: string,
+		_actor: string
 	): Promise<void> {
 		throw Error("not implemented");
 	}

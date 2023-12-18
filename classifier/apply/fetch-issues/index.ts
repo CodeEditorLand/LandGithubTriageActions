@@ -41,29 +41,29 @@ class FetchIssues extends Action {
 
 		writeFileSync(
 			join(__dirname, "../issue_data.json"),
-			JSON.stringify(data),
+			JSON.stringify(data)
 		);
 
 		await downloadBlobFile(
 			"area-model.pickle",
 			blobContainer,
-			blobStorageKey,
+			blobStorageKey
 		);
 		await downloadBlobFile(
 			"area-model-config.json",
 			blobContainer,
-			blobStorageKey,
+			blobStorageKey
 		);
 
 		await downloadBlobFile(
 			"assignee-model.pickle",
 			blobContainer,
-			blobStorageKey,
+			blobStorageKey
 		);
 		await downloadBlobFile(
 			"assignee-model-config.json",
 			blobContainer,
-			blobStorageKey,
+			blobStorageKey
 		);
 	}
 }

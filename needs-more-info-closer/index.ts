@@ -19,7 +19,7 @@ class NeedsMoreInfo extends Action {
 			+getRequiredInput("pingDays"),
 			getInput("closeComment") || "",
 			getInput("pingComment") || "",
-			(getInput("additionalTeam") ?? "").split("|"),
+			(getInput("additionalTeam") ?? "").split("|")
 		).run();
 	}
 }

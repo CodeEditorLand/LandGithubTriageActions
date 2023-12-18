@@ -43,15 +43,15 @@ const createDataDirectories = async (areas, assignees) => {
 				? categoryPriority
 				: (categories) =>
 						categoryPriority.find(
-							(candidate) => categories.indexOf(candidate) !== -1,
+							(candidate) => categories.indexOf(candidate) !== -1
 						);
 		const seen = {};
 		const ignoredLabels = Object.entries(
 			issues
 				.map((issue) =>
 					issue.labels.map(
-						(label) => labelToCategoryFn(label) || label,
-					),
+						(label) => labelToCategoryFn(label) || label
+					)
 				)
 				.map((labels) => categoryPriorityFn(labels))
 				.filter((x) => !!x)
@@ -62,7 +62,7 @@ const createDataDirectories = async (areas, assignees) => {
 							? _a
 							: 0) + 1;
 					return record;
-				}, {}),
+				}, {})
 		)
 			.filter(([_, count]) => count < 5)
 			.map(([label]) => label);
@@ -70,18 +70,18 @@ const createDataDirectories = async (areas, assignees) => {
 			const category =
 				(_a = categoryPriorityFn(
 					categoriesExtractor(issue).map(
-						(label) => labelToCategoryFn(label) || label,
-					),
+						(label) => labelToCategoryFn(label) || label
+					)
 				)) !== null && _a !== void 0
 					? _a
 					: ["*caused-by-extension", "info-needed", "*question"].find(
 								(otherLabel) =>
-									issue.labels.includes(otherLabel),
+									issue.labels.includes(otherLabel)
 						  )
-					  ? name === "area" && Math.random() < 0.2
+						? name === "area" && Math.random() < 0.2
 							? "__OTHER__"
 							: undefined
-					  : undefined;
+						: undefined;
 			const isDuplicate = issue.labels.includes("*duplicate");
 			const isHumanLabeled = !!issue.labelEvents.find(
 				(event) =>
@@ -92,7 +92,7 @@ const createDataDirectories = async (areas, assignees) => {
 						"github-actions",
 						"vscode-triage-bot",
 						"VSCodeTriageBot",
-					].includes(event.actor),
+					].includes(event.actor)
 			);
 			if (
 				category &&
@@ -110,11 +110,11 @@ const createDataDirectories = async (areas, assignees) => {
 							DATA_DIR,
 							name,
 							"train",
-							category,
+							category
 						),
 						{
 							recursive: true,
-						},
+						}
 					);
 					fs.mkdirSync(
 						path.join(
@@ -123,11 +123,11 @@ const createDataDirectories = async (areas, assignees) => {
 							DATA_DIR,
 							name,
 							"test",
-							category,
+							category
 						),
 						{
 							recursive: true,
-						},
+						}
 					);
 					await new Promise((resolve) => setTimeout(resolve, 100)); // ?
 				}
@@ -139,7 +139,7 @@ const createDataDirectories = async (areas, assignees) => {
 					Math.random() < 0.8 || seen[category] == 0
 						? "train"
 						: "test",
-					category,
+					category
 				);
 				const { title, body } = (0, utils_1.normalizeIssue)(issue);
 				const filename = `${issue.number}.txt`;

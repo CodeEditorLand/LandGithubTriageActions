@@ -15,7 +15,7 @@ class CopyCatAction extends Action {
 		await new CopyCat(
 			issue,
 			getRequiredInput("owner"),
-			getRequiredInput("repo"),
+			getRequiredInput("repo")
 		).run();
 	}
 }

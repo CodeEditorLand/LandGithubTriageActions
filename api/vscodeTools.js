@@ -10,7 +10,7 @@ class VSCodeToolsAPIManager {
 		const credential = new identity_1.ClientSecretCredential(
 			config.tenantId,
 			config.clientId,
-			config.clientSecret,
+			config.clientSecret
 		);
 		this.serviceClient = new core_http_1.ServiceClient(credential, {
 			credentialScopes: [config.clientScope],

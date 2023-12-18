@@ -66,7 +66,7 @@ const normalizeIssue = (issue: {
 			.replace(/steps to reproduce:/gu, "")
 			.replace(
 				/does this issue occur when all extensions are disabled.*/gu,
-				"",
+				""
 			)
 			.replace(/!?\[[^\]]*\]\([^)]*\)/gu, "")
 			.replace(/\s+/gu, " ")
@@ -91,8 +91,8 @@ const normalizeIssue = (issue: {
 		issueType: isBug
 			? "bug"
 			: isFeatureRequest
-			  ? "feature_request"
-			  : "unknown",
+				? "feature_request"
+				: "unknown",
 	};
 };
 //#endregion
@@ -127,7 +127,7 @@ const createDataDirectories = async (areas: string[], assignees: string[]) => {
 
 		const categoryPriorityFn = (categories: string[]) =>
 			categoryPriority.find(
-				(candidate) => categories.indexOf(candidate) !== -1,
+				(candidate) => categories.indexOf(candidate) !== -1
 			);
 
 		const seen: Record<string, number> = {};
@@ -139,7 +139,7 @@ const createDataDirectories = async (areas: string[], assignees: string[]) => {
 				.reduce((record: Record<string, number>, label) => {
 					record[label] = (record[label] ?? 0) + 1;
 					return record;
-				}, {}),
+				}, {})
 		)
 			.filter(([_, count]) => count < 5)
 			.map(([label]) => label);
@@ -156,7 +156,7 @@ const createDataDirectories = async (areas: string[], assignees: string[]) => {
 						"github-actions",
 						"vscode-triage-bot",
 						"VSCodeTriageBot",
-					].includes(event.actor),
+					].includes(event.actor)
 			);
 
 			if (
@@ -170,7 +170,7 @@ const createDataDirectories = async (areas: string[], assignees: string[]) => {
 						path.join(__dirname, DATA_DIR, name, category),
 						{
 							recursive: true,
-						},
+						}
 					);
 
 					await new Promise((resolve) => setTimeout(resolve, 100)); // ?
@@ -197,5 +197,5 @@ createDataDirectories(
 	],
 	[
 		// Persons to assign
-	],
+	]
 );

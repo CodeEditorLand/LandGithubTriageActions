@@ -9,12 +9,12 @@ import { AuthorVerifiedLabeler } from "./AuthorVerified";
 import { Action } from "../common/Action";
 
 const requestVerificationComment = getRequiredInput(
-	"requestVerificationComment",
+	"requestVerificationComment"
 );
 const releasedLabel = getRequiredInput("releasedLabel");
 const verifiedLabel = getRequiredInput("verifiedLabel");
 const authorVerificationRequestedLabel = getRequiredInput(
-	"authorVerificationRequestedLabel",
+	"authorVerificationRequestedLabel"
 );
 
 class AuthorVerified extends Action {
@@ -26,7 +26,7 @@ class AuthorVerified extends Action {
 			requestVerificationComment,
 			releasedLabel,
 			authorVerificationRequestedLabel,
-			verifiedLabel,
+			verifiedLabel
 		).run();
 	}
 

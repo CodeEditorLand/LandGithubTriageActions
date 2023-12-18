@@ -36,7 +36,7 @@ class CodeReviewChatAction extends Action {
 
 	private async closedOrDraftHandler(
 		_issue: OctoKitIssue,
-		payload: WebhookPayload,
+		payload: WebhookPayload
 	) {
 		if (
 			!payload.pull_request ||
@@ -49,31 +49,31 @@ class CodeReviewChatAction extends Action {
 			slackToken,
 			elevatedUserToken,
 			channelId,
-			payload.pull_request.html_url,
+			payload.pull_request.html_url
 		).run();
 	}
 
 	protected override async onClosed(
 		_issue: OctoKitIssue,
-		payload: WebhookPayload,
+		payload: WebhookPayload
 	): Promise<void> {
 		await this.closedOrDraftHandler(_issue, payload);
 	}
 
 	protected override async onConvertedToDraft(
 		_issue: OctoKitIssue,
-		payload: WebhookPayload,
+		payload: WebhookPayload
 	): Promise<void> {
 		await this.closedOrDraftHandler(_issue, payload);
 	}
 
 	protected override async onOpened(
 		issue: OctoKitIssue,
-		payload: WebhookPayload,
+		payload: WebhookPayload
 	): Promise<void> {
 		if (!payload.pull_request || !payload.repository) {
 			throw Error(
-				"expected payload to contain pull request and repository",
+				"expected payload to contain pull request and repository"
 			);
 		}
 
@@ -88,11 +88,11 @@ class CodeReviewChatAction extends Action {
 		github: Octokit,
 		issue: OctoKitIssue,
 		payload: WebhookPayload,
-		external: boolean,
+		external: boolean
 	) {
 		if (!payload.pull_request || !payload.repository) {
 			throw Error(
-				"expected payload to contain pull request and repository",
+				"expected payload to contain pull request and repository"
 			);
 		}
 		return new CodeReviewChat(
@@ -113,7 +113,7 @@ class CodeReviewChatAction extends Action {
 				},
 			},
 			payload.pull_request.number,
-			external,
+			external
 		).run();
 	}
 
@@ -122,14 +122,14 @@ class CodeReviewChatAction extends Action {
 	 */
 	private async onSubmitReview(
 		issue: OctoKitIssue,
-		payload: WebhookPayload,
+		payload: WebhookPayload
 	): Promise<void> {
 		if (!payload.pull_request || !payload.repository) {
 			throw Error("expected payload to contain pull request url");
 		}
 		const toolsAPI = new VSCodeToolsAPIManager(apiConfig);
 		const teamMembers = new Set(
-			(await toolsAPI.getTeamMembers()).map((t) => t.id),
+			(await toolsAPI.getTeamMembers()).map((t) => t.id)
 		);
 		const github = new Octokit({ auth });
 		const meetsThreshold = await meetsReviewThreshold(
@@ -138,12 +138,12 @@ class CodeReviewChatAction extends Action {
 			payload.pull_request.number,
 			payload.repository.name,
 			payload.repository.owner.login,
-			issue,
+			issue
 		);
 		// Only delete this message if the review threshold has been met
 		if (meetsThreshold) {
 			safeLog(
-				`Review threshold met, deleting ${payload.pull_request.html_url}}`,
+				`Review threshold met, deleting ${payload.pull_request.html_url}}`
 			);
 			await this.closedOrDraftHandler(issue, payload);
 		}
@@ -157,7 +157,7 @@ class CodeReviewChatAction extends Action {
 			payload.pull_request.user?.type !== "Bot"
 		) {
 			safeLog(
-				"PR author is not in the team, checking if they need to be posted for another review",
+				"PR author is not in the team, checking if they need to be posted for another review"
 			);
 			const teamMemberReviews = await getTeamMemberReviews(
 				github,
@@ -165,12 +165,12 @@ class CodeReviewChatAction extends Action {
 				payload.pull_request.number,
 				payload.repository.name,
 				payload.repository.owner.login,
-				issue,
+				issue
 			);
 			safeLog(
 				`Found ${
 					teamMemberReviews?.length ?? 0
-				} reviews from team members`,
+				} reviews from team members`
 			);
 			// Get only the approving reviews from team members
 			const approvingReviews = teamMemberReviews?.filter((review) => {
@@ -179,7 +179,7 @@ class CodeReviewChatAction extends Action {
 			});
 			if (approvingReviews && approvingReviews.length === 1) {
 				safeLog(
-					`External PR with one review received, posting to receive a second`,
+					`External PR with one review received, posting to receive a second`
 				);
 				await this.executeCodeReviewChat(github, issue, payload, true);
 			}
@@ -192,14 +192,14 @@ class CodeReviewChatAction extends Action {
 		const action = getRequiredInput("action");
 		const pull_request = JSON.parse(getRequiredInput("pull_request"));
 		const repository: PayloadRepository = JSON.parse(
-			getRequiredInput("repository"),
+			getRequiredInput("repository")
 		);
 		const pr_number: number = parseInt(getRequiredInput("pr_number"));
 
 		const octokitIssue = new OctoKitIssue(
 			auth,
 			{ owner: repository.owner.login, repo: repository.name },
-			{ number: pr_number },
+			{ number: pr_number }
 		);
 
 		const payload: WebhookPayload = { repository, pull_request };

@@ -32,13 +32,13 @@ class ApplyLabels extends Action {
 
 	async onTriggered(github: OctoKit) {
 		const config: ClassifierConfig = await github.readConfig(
-			getRequiredInput("config-path"),
+			getRequiredInput("config-path")
 		);
 		const labelings: { number: number; area: string; assignee: string }[] =
 			JSON.parse(
 				readFileSync(join(__dirname, "../issue_labels.json"), {
 					encoding: "utf8",
-				}),
+				})
 			);
 
 		for (const labeling of labelings) {
@@ -50,7 +50,7 @@ class ApplyLabels extends Action {
 				!debug &&
 				(issueData.assignee ||
 					issueData.labels.some(
-						(label) => !allowLabels.includes(label),
+						(label) => !allowLabels.includes(label)
 					))
 			) {
 				safeLog("skipping");
@@ -103,8 +103,8 @@ class ApplyLabels extends Action {
 						: Promise.resolve(),
 					...(labelConfig?.assign
 						? labelConfig.assign.map((assignee) =>
-								issue.addAssignee(assignee),
-						  )
+								issue.addAssignee(assignee)
+							)
 						: []),
 				]);
 			}

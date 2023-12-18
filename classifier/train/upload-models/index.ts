@@ -18,7 +18,7 @@ class UploadModels extends Action {
 		await uploadBlobFile(
 			"area-model.pickle",
 			blobContainer,
-			blobStorageKey,
+			blobStorageKey
 		);
 		safeLog("done");
 
@@ -26,7 +26,7 @@ class UploadModels extends Action {
 		await uploadBlobFile(
 			"area-model-config.json",
 			blobContainer,
-			blobStorageKey,
+			blobStorageKey
 		);
 		safeLog("done");
 
@@ -34,7 +34,7 @@ class UploadModels extends Action {
 		await uploadBlobFile(
 			"assignee-model.pickle",
 			blobContainer,
-			blobStorageKey,
+			blobStorageKey
 		);
 		safeLog("done");
 
@@ -42,7 +42,7 @@ class UploadModels extends Action {
 		await uploadBlobFile(
 			"assignee-model-config.json",
 			blobContainer,
-			blobStorageKey,
+			blobStorageKey
 		);
 		safeLog("done");
 	}

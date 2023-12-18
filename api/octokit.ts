@@ -32,7 +32,7 @@ export class OctoKit implements GitHub {
 	constructor(
 		protected token: string,
 		protected params: { repo: string; owner: string },
-		protected options: { readonly: boolean } = { readonly: false },
+		protected options: { readonly: boolean } = { readonly: false }
 	) {
 		this._octokit = getOctokit(token);
 		this.repoName = params.repo;
@@ -70,7 +70,7 @@ export class OctoKit implements GitHub {
 
 		for await (const pageResponse of this.octokit.paginate.iterator(
 			this.octokit.rest.search.issuesAndPullRequests,
-			options,
+			options
 		)) {
 			await timeout();
 			numRequests++;
@@ -78,7 +78,7 @@ export class OctoKit implements GitHub {
 			safeLog(
 				`Page ${++pageNum}: ${page
 					.map(({ number }) => number)
-					.join(" ")}`,
+					.join(" ")}`
 			);
 			yield page.map(
 				(issue) =>
@@ -86,8 +86,8 @@ export class OctoKit implements GitHub {
 						this.token,
 						this.params,
 						this.octokitIssueToIssue(issue),
-						this.options,
-					),
+						this.options
+					)
 			);
 		}
 	}
@@ -96,7 +96,7 @@ export class OctoKit implements GitHub {
 		owner: string,
 		repo: string,
 		title: string,
-		body: string,
+		body: string
 	): Promise<void> {
 		safeLog(`Creating issue \`${title}\` on ${owner}/${repo}`);
 		if (!this.options.readonly)
@@ -114,7 +114,7 @@ export class OctoKit implements GitHub {
 			title: issue.title,
 			isPr: !!issue.pull_request?.html_url,
 			labels: issue.labels.map((label) =>
-				typeof label === "string" ? label : label.name ?? "",
+				typeof label === "string" ? label : label.name ?? ""
 			),
 			open: issue.state === "open",
 			locked: (issue as any).locked,
@@ -125,7 +125,7 @@ export class OctoKit implements GitHub {
 				(issue as IssueGetResponse).assignees?.[0]?.login,
 			assignees:
 				(issue as IssueGetResponse).assignees?.map(
-					(assignee) => assignee.login,
+					(assignee) => assignee.login
 				) ?? [],
 			milestone: issue.milestone
 				? this.octokitMilestoneToMilestone(issue.milestone)
@@ -139,7 +139,7 @@ export class OctoKit implements GitHub {
 	}
 
 	protected octokitMilestoneToMilestone(
-		milestone: IssuesGetResponseMilestone,
+		milestone: IssuesGetResponseMilestone
 	): Milestone | null {
 		if (milestone?.number === undefined) {
 			return null;
@@ -202,7 +202,7 @@ export class OctoKit implements GitHub {
 	async createLabel(
 		name: string,
 		color: string,
-		description: string,
+		description: string
 	): Promise<void> {
 		safeLog("Creating label " + name);
 		if (!this.options.readonly)
@@ -245,30 +245,30 @@ export class OctoKit implements GitHub {
 			if ("type" in data && data.type === "file" && "content" in data) {
 				if (data.encoding === "base64" && data.content) {
 					return JSON.parse(
-						Buffer.from(data.content, "base64").toString("utf-8"),
+						Buffer.from(data.content, "base64").toString("utf-8")
 					);
 				}
 				throw Error(
-					`Could not read contents "${data.content}" in encoding "${data.encoding}"`,
+					`Could not read contents "${data.content}" in encoding "${data.encoding}"`
 				);
 			}
 			throw Error(
 				"Found directory at config path when expecting file" +
-					JSON.stringify(data),
+					JSON.stringify(data)
 			);
 		} catch (e) {
 			throw Error(
 				"Error with config file at " +
 					repoPath +
 					": " +
-					JSON.stringify(e),
+					JSON.stringify(e)
 			);
 		}
 	}
 
 	async releaseContainsCommit(
 		release: string,
-		commit: string,
+		commit: string
 	): Promise<"yes" | "no" | "unknown"> {
 		const isHash = (s: string) => /^[a-fA-F0-9]*$/.test(s);
 		if (!isHash(release) || !isHash(commit)) return "unknown";
@@ -280,14 +280,14 @@ export class OctoKit implements GitHub {
 						resolve(!err ? "yes" : "no");
 					} else if (
 						err.message.includes(
-							`Not a valid commit name ${release}`,
+							`Not a valid commit name ${release}`
 						)
 					) {
 						// release branch is forked. Probably in endgame. Not released.
 						resolve("no");
 					} else if (
 						err.message.includes(
-							`Not a valid commit name ${commit}`,
+							`Not a valid commit name ${commit}`
 						)
 					) {
 						// commit is probably in a different repo.
@@ -295,14 +295,14 @@ export class OctoKit implements GitHub {
 					} else {
 						reject(err);
 					}
-				},
-			),
+				}
+			)
 		);
 	}
 
 	async getCurrentRepoMilestone(): Promise<number | undefined> {
 		safeLog(
-			`Getting repo milestone for ${this.params.owner}/${this.params.repo}`,
+			`Getting repo milestone for ${this.params.owner}/${this.params.repo}`
 		);
 		// Fetch all milestones open for this repo
 		const allMilestones = (
@@ -321,15 +321,15 @@ export class OctoKit implements GitHub {
 					new Date(
 						milestone.due_on === null
 							? currentDate
-							: milestone.due_on,
+							: milestone.due_on
 					) > currentDate &&
 					currentDate > new Date(milestone.created_at) &&
-					!milestone.title.includes("Recovery"),
+					!milestone.title.includes("Recovery")
 			)
 			.sort(
 				(a, b) =>
 					+new Date(a.due_on ?? currentDate) -
-					+new Date(b.due_on ?? currentDate),
+					+new Date(b.due_on ?? currentDate)
 			);
 		if (possibleMilestones.length === 0) {
 			return undefined;
@@ -352,7 +352,7 @@ export class OctoKitIssue extends OctoKit implements GitHubIssue {
 		token: string,
 		protected params: { repo: string; owner: string },
 		private issueData: { number: number } | Issue,
-		options: { readonly: boolean } = { readonly: false },
+		options: { readonly: boolean } = { readonly: false }
 	) {
 		super(token, params, options);
 		safeLog("running bot on issue", issueData.number);
@@ -371,7 +371,7 @@ export class OctoKitIssue extends OctoKit implements GitHubIssue {
 
 	async removeAssignee(assignee: string): Promise<void> {
 		safeLog(
-			"Removing assignee " + assignee + " to " + this.issueData.number,
+			"Removing assignee " + assignee + " to " + this.issueData.number
 		);
 		if (!this.options.readonly) {
 			await this.octokit.rest.issues.removeAssignees({
@@ -427,7 +427,7 @@ export class OctoKitIssue extends OctoKit implements GitHubIssue {
 	async getIssue(): Promise<Issue> {
 		if (isIssue(this.issueData)) {
 			safeLog(
-				"Got issue data from query result " + this.issueData.number,
+				"Got issue data from query result " + this.issueData.number
 			);
 			return this.issueData;
 		}
@@ -465,7 +465,7 @@ export class OctoKitIssue extends OctoKit implements GitHubIssue {
 
 	async setMilestone(milestoneId: number) {
 		safeLog(
-			`Setting milestone for ${this.issueData.number} to ${milestoneId}`,
+			`Setting milestone for ${this.issueData.number} to ${milestoneId}`
 		);
 		if (!this.options.readonly)
 			await this.octokit.rest.issues.update({
@@ -487,7 +487,7 @@ export class OctoKitIssue extends OctoKit implements GitHubIssue {
 				...(last
 					? { per_page: 1, page: (await this.getIssue()).numComments }
 					: {}),
-			},
+			}
 		);
 
 		for await (const page of response) {
@@ -508,7 +508,7 @@ export class OctoKitIssue extends OctoKit implements GitHubIssue {
 		safeLog(`Adding label ${name} to ${this.issueData.number}`);
 		if (!(await this.repoHasLabel(name))) {
 			throw Error(
-				`Action could not execute becuase label ${name} is not defined.`,
+				`Action could not execute becuase label ${name} is not defined.`
 			);
 		}
 		if (!this.options.readonly)
@@ -529,7 +529,7 @@ export class OctoKitIssue extends OctoKit implements GitHubIssue {
 
 		for await (const event of this.octokit.paginate.iterator(
 			this.octokit.rest.issues.listEventsForTimeline,
-			options,
+			options
 		)) {
 			numRequests++;
 			const timelineEvents = event.data;
@@ -550,7 +550,7 @@ export class OctoKitIssue extends OctoKit implements GitHubIssue {
 			throw Error(
 				"Expected to find " +
 					assignee +
-					" in issue timeline but did not.",
+					" in issue timeline but did not."
 			);
 		}
 
@@ -577,7 +577,7 @@ export class OctoKitIssue extends OctoKit implements GitHubIssue {
 	}
 
 	async getClosingInfo(
-		alreadyChecked: number[] = [],
+		alreadyChecked: number[] = []
 	): Promise<{ hash: string | undefined; timestamp: number } | undefined> {
 		if (alreadyChecked.includes(this.issueData.number)) {
 			return undefined;
@@ -601,7 +601,7 @@ export class OctoKitIssue extends OctoKit implements GitHubIssue {
 		const crossReferencing: number[] = [];
 		for await (const event of this.octokit.paginate.iterator(
 			this.octokit.rest.issues.listEventsForTimeline,
-			options,
+			options
 		)) {
 			numRequests++;
 
@@ -615,7 +615,7 @@ export class OctoKitIssue extends OctoKit implements GitHubIssue {
 					timelineEvent.commit_url
 						?.toLowerCase()
 						.includes(
-							`/${this.params.owner}/${this.params.repo}/`.toLowerCase(),
+							`/${this.params.owner}/${this.params.repo}/`.toLowerCase()
 						)
 				) {
 					closingCommit = {
@@ -630,13 +630,13 @@ export class OctoKitIssue extends OctoKit implements GitHubIssue {
 					timelineEvent.created_at &&
 					timelineEvent.event === "commented" &&
 					!((timelineEvent as any).body as string)?.includes(
-						"UNABLE_TO_LOCATE_COMMIT_MESSAGE",
+						"UNABLE_TO_LOCATE_COMMIT_MESSAGE"
 					) &&
 					closingHashComment.test((timelineEvent as any).body)
 				) {
 					closingCommit = {
 						hash: closingHashComment.exec(
-							(timelineEvent as any).body,
+							(timelineEvent as any).body
 						)![1],
 						timestamp: +new Date(timelineEvent.created_at),
 					};
@@ -647,11 +647,11 @@ export class OctoKitIssue extends OctoKit implements GitHubIssue {
 					(
 						timelineEvent as any
 					).source?.issue?.pull_request?.url.includes(
-						`/${this.params.owner}/${this.params.repo}/`.toLowerCase(),
+						`/${this.params.owner}/${this.params.repo}/`.toLowerCase()
 					)
 				) {
 					crossReferencing.push(
-						(timelineEvent as any).source.issue.number,
+						(timelineEvent as any).source.issue.number
 					);
 				}
 			}
@@ -669,7 +669,7 @@ export class OctoKitIssue extends OctoKit implements GitHubIssue {
 					if (
 						Math.abs(
 							closed.timestamp -
-								((await this.getIssue()).closedAt ?? 0),
+								((await this.getIssue()).closedAt ?? 0)
 						) < 5000
 					) {
 						closingCommit = closed;
@@ -682,7 +682,7 @@ export class OctoKitIssue extends OctoKit implements GitHubIssue {
 		safeLog(
 			`Got ${JSON.stringify(closingCommit)} as closing commit of ${
 				this.issueData.number
-			}`,
+			}`
 		);
 		return closingCommit;
 	}

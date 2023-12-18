@@ -31,7 +31,7 @@ conda init
 echo "Creating and activating anaconda environment"
 conda create -n transformers python pandas tqdm
 conda activate transformers
-echo 'conda activate transformers' >>.bashrc
+echo 'conda activate transformers' >> .bashrc
 
 echo "Installing anaconda libraries"
 conda install pytorch cudatoolkit=10.2 -c pytorch

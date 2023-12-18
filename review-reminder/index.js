@@ -25,7 +25,7 @@ class ReviewReminderAction extends Action_1.Action {
 		await new ReviewReminder_1.ReviewReminder(
 			auth,
 			slackToken,
-			new vscodeTools_1.VSCodeToolsAPIManager(apiConfig),
+			new vscodeTools_1.VSCodeToolsAPIManager(apiConfig)
 		).run();
 	}
 }

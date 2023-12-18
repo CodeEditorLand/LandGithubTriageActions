@@ -18,7 +18,7 @@ describe("NewRelease", () => {
 		setup({ productVersion: "1.43.0", timestamp: Date.now() });
 		const testbed = new TestbedIssue(
 			{},
-			{ issue: { body: "VS Code Version: 1.43.0" } },
+			{ issue: { body: "VS Code Version: 1.43.0" } }
 		);
 		await new NewRelease(testbed, "new-release", "121212", "desc", 3).run();
 		expect((await testbed.getIssue()).labels).contains("new-release");
@@ -31,7 +31,7 @@ describe("NewRelease", () => {
 		});
 		const testbed = new TestbedIssue(
 			{},
-			{ issue: { body: "VS Code Version: 1.43.0" } },
+			{ issue: { body: "VS Code Version: 1.43.0" } }
 		);
 		await new NewRelease(testbed, "new-release", "121212", "desc", 3).run();
 		expect((await testbed.getIssue()).labels).not.contains("new-release");
@@ -41,7 +41,7 @@ describe("NewRelease", () => {
 		setup({ productVersion: "1.43.0", timestamp: Date.now() });
 		const testbed = new TestbedIssue(
 			{},
-			{ issue: { body: "VS Code Version: 1.42.0" } },
+			{ issue: { body: "VS Code Version: 1.42.0" } }
 		);
 		await new NewRelease(testbed, "new-release", "121212", "desc", 3).run();
 		expect((await testbed.getIssue()).labels).not.contains("new-release");
@@ -51,7 +51,7 @@ describe("NewRelease", () => {
 		setup({ productVersion: "1.43.0", timestamp: Date.now() });
 		const testbed = new TestbedIssue(
 			{},
-			{ issue: { body: "VS Code Version: 1.43.0 - Insiders" } },
+			{ issue: { body: "VS Code Version: 1.43.0 - Insiders" } }
 		);
 		await new NewRelease(testbed, "new-release", "121212", "desc", 3).run();
 		expect((await testbed.getIssue()).labels).not.contains("new-release");
@@ -61,7 +61,7 @@ describe("NewRelease", () => {
 		setup({ productVersion: "1.43.0", timestamp: Date.now() });
 		const testbed = new TestbedIssue(
 			{},
-			{ issue: { body: "VS Code Version: 1.43.0" } },
+			{ issue: { body: "VS Code Version: 1.43.0" } }
 		);
 		expect(await testbed.repoHasLabel("new-release")).to.be.false;
 		await new NewRelease(testbed, "new-release", "121212", "desc", 3).run();
@@ -75,7 +75,7 @@ describe("NewRelease", () => {
 		});
 		const testbed = new TestbedIssue(
 			{ globalLabels: ["new-release"] },
-			{ issue: { body: "VS Code Version: 1.43.0" } },
+			{ issue: { body: "VS Code Version: 1.43.0" } }
 		);
 		expect(await testbed.repoHasLabel("new-release")).to.be.true;
 		await new NewRelease(testbed, "new-release", "121212", "desc", 3).run();

@@ -45,13 +45,13 @@ const main = async () => {
 			args.token,
 			{ repo, owner },
 			{ number: args.number },
-			{ readonly: !args.write },
+			{ readonly: !args.write }
 		),
 		"translation-required-",
 		"c29cff",
 		"*english-please",
 		"info-needed",
-		args.key,
+		args.key
 	).run();
 };
 main().catch(console.error);

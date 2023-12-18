@@ -51,7 +51,7 @@ class FeatureRequest extends Action {
 				github,
 				+getRequiredInput("milestoneDelaySeconds"),
 				config.milestones.candidateID,
-				config.featureRequestLabel,
+				config.featureRequestLabel
 			).run();
 		}
 	}
@@ -60,7 +60,7 @@ class FeatureRequest extends Action {
 		await new FeatureRequestOnMilestone(
 			github,
 			config.comments.init!,
-			config.milestones.candidateID,
+			config.milestones.candidateID
 		).run();
 	}
 }

@@ -13,7 +13,7 @@ class Locker {
 		daysSinceUpdate,
 		label,
 		ignoreLabelUntil,
-		labelUntil,
+		labelUntil
 	) {
 		this.github = github;
 		this.daysSinceClose = daysSinceClose;
@@ -24,10 +24,10 @@ class Locker {
 	}
 	async run() {
 		const closedTimestamp = (0, utils_1.daysAgoToHumanReadbleDate)(
-			this.daysSinceClose,
+			this.daysSinceClose
 		);
 		const updatedTimestamp = (0, utils_1.daysAgoToHumanReadbleDate)(
-			this.daysSinceUpdate,
+			this.daysSinceUpdate
 		);
 		const query =
 			`closed:<${closedTimestamp} updated:<${updatedTimestamp} is:unlocked` +
@@ -49,27 +49,27 @@ class Locker {
 							!hydrated.labels.includes(this.labelUntil);
 						if (!skipDueToIgnoreLabel) {
 							(0, utils_1.safeLog)(
-								`Locking issue ${hydrated.number}`,
+								`Locking issue ${hydrated.number}`
 							);
 							await issue.lockIssue();
 						} else {
 							(0, utils_1.safeLog)(
-								`Not locking issue as it has ignoreLabelUntil but not labelUntil`,
+								`Not locking issue as it has ignoreLabelUntil but not labelUntil`
 							);
 						}
 					} else {
 						if (hydrated.locked) {
 							(0, utils_1.safeLog)(
-								`Issue ${hydrated.number} is already locked. Ignoring`,
+								`Issue ${hydrated.number} is already locked. Ignoring`
 							);
 						} else {
 							(0, utils_1.safeLog)(
 								"Query returned an invalid issue:" +
-									hydrated.number,
+									hydrated.number
 							);
 						}
 					}
-				}),
+				})
 			);
 		}
 	}

@@ -38,8 +38,8 @@ class FetchIssues extends Action {
 				"..",
 				"..",
 				"blobStorage",
-				"issues.json.zip",
-			)} ${join(__dirname, "issues.json")}`,
+				"issues.json.zip"
+			)} ${join(__dirname, "issues.json")}`
 		);
 
 		await uploadBlobFile("issues.json.zip", blobContainer, blobStorageKey);

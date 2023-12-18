@@ -79,7 +79,7 @@ export function createPRObject(pullRequestFromApi: any): PR {
 class Chatter {
 	constructor(
 		protected slackToken: string,
-		protected notificationChannelID: string,
+		protected notificationChannelID: string
 	) {}
 
 	async getChat(): Promise<{ client: WebClient; channel: string }> {
@@ -87,7 +87,7 @@ class Chatter {
 
 		if (!this.notificationChannelID) {
 			throw Error(
-				`Slack channel not provided: ${this.notificationChannelID}`,
+				`Slack channel not provided: ${this.notificationChannelID}`
 			);
 		}
 		return { client: web, channel: this.notificationChannelID };
@@ -100,7 +100,7 @@ export class CodeReviewChatDeleter extends Chatter {
 		slackToken: string,
 		slackElevatedUserToken: string | undefined,
 		notificationChannelId: string,
-		private prUrl: string,
+		private prUrl: string
 	) {
 		super(slackToken, notificationChannelId);
 		this.elevatedClient = slackElevatedUserToken
@@ -127,22 +127,22 @@ export class CodeReviewChatDeleter extends Chatter {
 				return true;
 			}
 			const hasWhiteCheckMark = message.reactions?.some(
-				(reaction) => reaction.name === "white_check_mark",
+				(reaction) => reaction.name === "white_check_mark"
 			);
 			// Extract PR URL from the chat message. It is in the form https://https://github.com/{repo}/pull/{number}
 			const prUrl =
 				message.text.match(
-					/https:\/\/github.com\/.*\/pull\/\d+/,
+					/https:\/\/github.com\/.*\/pull\/\d+/
 				)?.[0] ?? "";
 			if (isCodeReviewMessage) {
 				safeLog(
-					`${prUrl} was closed or met review threshold. Deleting the message.`,
+					`${prUrl} was closed or met review threshold. Deleting the message.`
 				);
 			}
 			if (this.elevatedClient && message.reactions) {
 				if (hasWhiteCheckMark) {
 					safeLog(
-						`Message ${prUrl} has a check mark reaction, deleting it.`,
+						`Message ${prUrl} has a check mark reaction, deleting it.`
 					);
 				}
 				// If we have an elevated client we can delete the message as long it has a "white_check_mark" reaction
@@ -165,7 +165,7 @@ export class CodeReviewChatDeleter extends Chatter {
 				} else {
 					// Pushback everything but the first reply since the first reply is the original message
 					replies.push(
-						...(replyThread.messages as SlackMessage[]).slice(1),
+						...(replyThread.messages as SlackMessage[]).slice(1)
 					);
 				}
 			}
@@ -210,7 +210,7 @@ export class CodeReviewChat extends Chatter {
 		private issue: GitHubIssue,
 		private options: Options,
 		private readonly pullRequestNumber: number,
-		private readonly _externalContributorPR?: boolean,
+		private readonly _externalContributorPR?: boolean
 	) {
 		super(options.slackToken, options.codereviewChannelId);
 	}
@@ -233,11 +233,11 @@ export class CodeReviewChat extends Chatter {
 				pull_number: this.options.payload.pr.number,
 			});
 		const requestedReviewers = requestedReviewersAPIResponse.data.users.map(
-			(user) => user.login,
+			(user) => user.login
 		);
 		if (requestedReviewers.length !== 0) {
 			safeLog(
-				"A secondary reviewer has been requested for this PR, skipping",
+				"A secondary reviewer has been requested for this PR, skipping"
 			);
 			return;
 		}
@@ -261,7 +261,7 @@ export class CodeReviewChat extends Chatter {
 		const githubUrl = `${pr.url}/files`;
 		const vscodeDevUrl = pr.url.replace(
 			"https://",
-			"https://insiders.vscode.dev/",
+			"https://insiders.vscode.dev/"
 		);
 
 		const externalPrefix = this._externalContributorPR
@@ -314,7 +314,7 @@ export class CodeReviewChat extends Chatter {
 		}
 
 		const teamMembers = new Set(
-			(await this.toolsAPI.getTeamMembers()).map((t) => t.id),
+			(await this.toolsAPI.getTeamMembers()).map((t) => t.id)
 		);
 		const author = data.author;
 		// Author must have write access to the repo or be a bot
@@ -338,7 +338,7 @@ export class CodeReviewChat extends Chatter {
 				if (!data.milestone && currentMilestone) {
 					await this.issue.setMilestone(currentMilestone);
 				}
-			})(),
+			})()
 		);
 
 		tasks.push(
@@ -351,14 +351,14 @@ export class CodeReviewChat extends Chatter {
 							this.options.payload.pr.number,
 							this.options.payload.repo,
 							this.options.payload.owner,
-							this.issue,
+							this.issue
 						),
 						this.octokit.pulls.listRequestedReviewers({
 							owner: this.options.payload.owner,
 							repo: this.options.payload.repo,
 							pull_number: this.options.payload.pr.number,
 						}),
-					],
+					]
 				);
 
 				// Check to see if there is an existing review or review request. We don't check if the author is part of the review request as that isn't possible
@@ -372,7 +372,7 @@ export class CodeReviewChat extends Chatter {
 				const message = this.getSlackMessage(pr);
 				safeLog(message);
 				await this.postMessage(message);
-			})(),
+			})()
 		);
 
 		await Promise.all(tasks);
@@ -385,7 +385,7 @@ export async function getTeamMemberReviews(
 	prNumber: number,
 	repo: string,
 	owner: string,
-	ghIssue: GitHubIssue | OctoKitIssue,
+	ghIssue: GitHubIssue | OctoKitIssue
 ) {
 	const reviews = await octokit.pulls.listReviews({
 		pull_number: prNumber,
@@ -448,7 +448,7 @@ export async function meetsReviewThreshold(
 	prNumber: number,
 	repo: string,
 	owner: string,
-	ghIssue: GitHubIssue | OctoKitIssue,
+	ghIssue: GitHubIssue | OctoKitIssue
 ) {
 	// Get author of PR
 	const author = (await ghIssue.getIssue()).author.name;
@@ -458,11 +458,11 @@ export async function meetsReviewThreshold(
 		prNumber,
 		repo,
 		owner,
-		ghIssue,
+		ghIssue
 	);
 	// While more expensive to convert from Array -> Set -> Array, we want to ensure the same name isn't double counted if a user has multiple reviews
 	const reviewerNames = Array.from(
-		new Set(teamMemberReviews?.map((r) => r.user?.login ?? "Unknown")),
+		new Set(teamMemberReviews?.map((r) => r.user?.login ?? "Unknown"))
 	);
 	let meetsReviewThreshold = false;
 	// Team members require 1 review, external requires two

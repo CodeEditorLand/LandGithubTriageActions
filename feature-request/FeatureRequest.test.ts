@@ -44,7 +44,7 @@ const testConfig: FeatureRequestConfig = {
 const initalizeTestbed = (
 	issueConfig: TestbedIssueConstructorArgs,
 	milestoneId: number,
-	comments: { body: string; daysAgo: number }[],
+	comments: { body: string; daysAgo: number }[]
 ): { testbed: Testbed; issueTestbed: TestbedIssue } => {
 	const issue = new TestbedIssue(
 		{},
@@ -57,7 +57,7 @@ const initalizeTestbed = (
 				id: index,
 				timestamp: Date.now() - comment.daysAgo * 24 * 60 * 60 * 1000,
 			})),
-		},
+		}
 	);
 
 	void issue.setMilestone(milestoneId);
@@ -85,7 +85,7 @@ describe("FeatureRequest", () => {
 				const { testbed, issueTestbed } = initalizeTestbed(
 					{ issue: {} },
 					testConfig.milestones.candidateID,
-					[],
+					[]
 				);
 				await new FeatureRequestQueryer(testbed, testConfig).run();
 				expect((await getAllComments(issueTestbed)).length).equal(0);
@@ -99,7 +99,7 @@ describe("FeatureRequest", () => {
 					},
 					testConfig.milestones.candidateID,
 
-					[],
+					[]
 				);
 				await new FeatureRequestQueryer(testbed, testConfig).run();
 				expect((await getAllComments(issueTestbed)).length).equal(0);
@@ -113,15 +113,15 @@ describe("FeatureRequest", () => {
 					},
 					testConfig.milestones.candidateID,
 
-					[],
+					[]
 				);
 				await new FeatureRequestQueryer(testbed, testConfig).run();
 				expect((await getAllComments(issueTestbed)).length).equal(1);
 				expect((await getAllComments(issueTestbed))[0].body).contains(
-					CREATE_MARKER,
+					CREATE_MARKER
 				);
 				expect((await getAllComments(issueTestbed))[0].body).contains(
-					"initComment",
+					"initComment"
 				);
 			});
 
@@ -133,7 +133,7 @@ describe("FeatureRequest", () => {
 					},
 					testConfig.milestones.candidateID,
 
-					[],
+					[]
 				);
 				await new FeatureRequestQueryer(testbed, testConfig).run();
 				await new FeatureRequestQueryer(testbed, testConfig).run();
@@ -150,15 +150,15 @@ describe("FeatureRequest", () => {
 					},
 					testConfig.milestones.candidateID,
 
-					[{ body: CREATE_MARKER + "initComment", daysAgo: 2 }],
+					[{ body: CREATE_MARKER + "initComment", daysAgo: 2 }]
 				);
 				await new FeatureRequestQueryer(testbed, testConfig).run();
 				expect((await getAllComments(issueTestbed)).length).equal(2);
 				expect((await getAllComments(issueTestbed))[1].body).contains(
-					WARN_MARKER,
+					WARN_MARKER
 				);
 				expect((await getAllComments(issueTestbed))[1].body).contains(
-					"warnComment",
+					"warnComment"
 				);
 			});
 
@@ -176,7 +176,7 @@ describe("FeatureRequest", () => {
 						{ body: "cruel", daysAgo: 1.5 },
 						{ body: "cruel", daysAgo: 1.3 },
 						{ body: "world", daysAgo: 1 },
-					],
+					]
 				);
 				await new FeatureRequestQueryer(testbed, testConfig).run();
 				expect((await getAllComments(issueTestbed)).length).equal(5);
@@ -190,16 +190,16 @@ describe("FeatureRequest", () => {
 					},
 					testConfig.milestones.candidateID,
 
-					[{ body: CREATE_MARKER + "initComment", daysAgo: 2 }],
+					[{ body: CREATE_MARKER + "initComment", daysAgo: 2 }]
 				);
 				await new FeatureRequestQueryer(testbed, testConfig).run();
 				await new FeatureRequestQueryer(testbed, testConfig).run();
 				expect((await getAllComments(issueTestbed)).length).equal(2);
 				expect((await getAllComments(issueTestbed))[1].body).contains(
-					WARN_MARKER,
+					WARN_MARKER
 				);
 				expect((await getAllComments(issueTestbed))[1].body).contains(
-					"warnComment",
+					"warnComment"
 				);
 			});
 		});
@@ -217,7 +217,7 @@ describe("FeatureRequest", () => {
 						{ body: CREATE_MARKER + "initComment", daysAgo: 7 },
 						// warnComment delayed for wahtever reason. Issue should be closed until N days have passed, as thats that the warn comment says.
 						{ body: WARN_MARKER + "warnComment", daysAgo: 1 },
-					],
+					]
 				);
 				await new FeatureRequestQueryer(testbed, testConfig).run();
 				expect((await getAllComments(issueTestbed)).length).equal(2);
@@ -234,15 +234,15 @@ describe("FeatureRequest", () => {
 					[
 						{ body: CREATE_MARKER + "initComment", daysAgo: 7 },
 						{ body: WARN_MARKER + "warnComment", daysAgo: 6 },
-					],
+					]
 				);
 				await new FeatureRequestQueryer(testbed, testConfig).run();
 				expect((await getAllComments(issueTestbed)).length).equal(3);
 				expect((await getAllComments(issueTestbed))[2].body).contains(
-					REJECT_MARKER,
+					REJECT_MARKER
 				);
 				expect((await getAllComments(issueTestbed))[2].body).contains(
-					"rejectComment",
+					"rejectComment"
 				);
 				expect(issueTestbed.issueConfig.issue.open).false;
 			});
@@ -262,7 +262,7 @@ describe("FeatureRequest", () => {
 						{ body: "cruel", daysAgo: 1.5 },
 						{ body: "cruel", daysAgo: 1.3 },
 						{ body: "world", daysAgo: 1 },
-					],
+					]
 				);
 				await new FeatureRequestQueryer(testbed, testConfig).run();
 				expect((await getAllComments(issueTestbed)).length).equal(6);
@@ -297,19 +297,19 @@ describe("FeatureRequest", () => {
 						{ body: "cruel", daysAgo: 1.5 },
 						{ body: "cruel", daysAgo: 1.3 },
 						{ body: "world", daysAgo: 1 },
-					],
+					]
 				);
 				await new FeatureRequestQueryer(testbed, testConfig).run();
 				expect((await getAllComments(issueTestbed)).length).equal(7);
 				expect(issueTestbed.issueConfig.issue.open).true;
 				expect(
-					issueTestbed.issueConfig.issue.milestone?.milestoneId,
+					issueTestbed.issueConfig.issue.milestone?.milestoneId
 				).equal(2);
 				expect((await getAllComments(issueTestbed))[6].body).contains(
-					ACCEPT_MARKER,
+					ACCEPT_MARKER
 				);
 				expect((await getAllComments(issueTestbed))[6].body).contains(
-					"acceptComment",
+					"acceptComment"
 				);
 			});
 
@@ -331,7 +331,7 @@ describe("FeatureRequest", () => {
 						labels: ["featureRequestLabel"],
 					},
 					testConfig.milestones.candidateID,
-					[{ body: CREATE_MARKER + "initComment", daysAgo: 0 }],
+					[{ body: CREATE_MARKER + "initComment", daysAgo: 0 }]
 				);
 				await new FeatureRequestQueryer(testbed, testConfig).run();
 				expect((await getAllComments(issueTestbed)).length).equal(1);

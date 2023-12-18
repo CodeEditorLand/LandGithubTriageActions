@@ -6,10 +6,10 @@ import { Action } from "../common/Action";
 const nonEnglishLabel = getRequiredInput("nonEnglishLabel");
 const needsMoreInfoLabel = getRequiredInput("needsMoreInfoLabel");
 const translatorRequestedLabelPrefix = getRequiredInput(
-	"translatorRequestedLabelPrefix",
+	"translatorRequestedLabelPrefix"
 );
 const translatorRequestedLabelColor = getRequiredInput(
-	"translatorRequestedLabelColor",
+	"translatorRequestedLabelColor"
 );
 const cognitiveServicesAPIKey = getRequiredInput("cognitiveServicesAPIKey");
 
@@ -27,7 +27,7 @@ class EnglishPlease extends Action {
 			translatorRequestedLabelColor,
 			nonEnglishLabel,
 			needsMoreInfoLabel,
-			cognitiveServicesAPIKey,
+			cognitiveServicesAPIKey
 		).run();
 	}
 

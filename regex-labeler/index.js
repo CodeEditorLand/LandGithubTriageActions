@@ -19,12 +19,12 @@ class RegexFlaggerActon extends Action_1.Action {
 			new octokit_1.OctoKitIssue(
 				(0, utils_1.getRequiredInput)("token"),
 				github_1.context.repo,
-				{ number: github_1.context.issue.number },
+				{ number: github_1.context.issue.number }
 			),
 			(0, utils_1.getInput)("label"),
 			(0, utils_1.getInput)("comment"),
 			(0, utils_1.getInput)("mustMatch"),
-			(0, utils_1.getInput)("mustNotMatch"),
+			(0, utils_1.getInput)("mustNotMatch")
 		).run();
 	}
 }

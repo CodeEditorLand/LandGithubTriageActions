@@ -12,7 +12,7 @@ type TestbedConfig = {
 	writers: string[];
 	releasedCommits: string[];
 	queryRunner: (
-		query: Query,
+		query: Query
 	) => AsyncIterableIterator<(TestbedIssueConstructorArgs | TestbedIssue)[]>;
 };
 
@@ -43,7 +43,7 @@ export class Testbed implements GitHub {
 			yield page.map((issue) =>
 				issue instanceof TestbedIssue
 					? issue
-					: new TestbedIssue(this.config, issue),
+					: new TestbedIssue(this.config, issue)
 			);
 		}
 	}
@@ -52,7 +52,7 @@ export class Testbed implements GitHub {
 		_owner: string,
 		_repo: string,
 		_title: string,
-		_body: string,
+		_body: string
 	): Promise<void> {
 		// pass...
 	}
@@ -72,20 +72,20 @@ export class Testbed implements GitHub {
 	async createLabel(
 		label: string,
 		_color: string,
-		_description: string,
+		_description: string
 	): Promise<void> {
 		this.config.globalLabels.push(label);
 	}
 
 	async deleteLabel(labelToDelete: string): Promise<void> {
 		this.config.globalLabels = this.config.globalLabels.filter(
-			(label) => label !== labelToDelete,
+			(label) => label !== labelToDelete
 		);
 	}
 
 	async releaseContainsCommit(
 		_release: string,
-		commit: string,
+		commit: string
 	): Promise<"yes" | "no" | "unknown"> {
 		return this.config.releasedCommits.includes(commit) ? "yes" : "no";
 	}
@@ -118,7 +118,7 @@ export class TestbedIssue extends Testbed implements GitHubIssue {
 
 	constructor(
 		globalConfig?: TestbedConstructorArgs,
-		issueConfig?: TestbedIssueConstructorArgs,
+		issueConfig?: TestbedIssueConstructorArgs
 	) {
 		super(globalConfig);
 		issueConfig = issueConfig ?? {};
@@ -194,7 +194,7 @@ export class TestbedIssue extends Testbed implements GitHubIssue {
 
 	async deleteComment(id: number): Promise<void> {
 		this.issueConfig.comments = this.issueConfig.comments.filter(
-			(comment) => comment.id !== id,
+			(comment) => comment.id !== id
 		);
 	}
 
@@ -210,7 +210,7 @@ export class TestbedIssue extends Testbed implements GitHubIssue {
 
 	async removeLabel(labelToDelete: string): Promise<void> {
 		this.issueConfig.labels = this.issueConfig.labels.filter(
-			(label) => label !== labelToDelete,
+			(label) => label !== labelToDelete
 		);
 	}
 

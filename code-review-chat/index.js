@@ -37,7 +37,7 @@ class CodeReviewChatAction extends Action_1.Action {
 			slackToken,
 			elevatedUserToken,
 			channelId,
-			payload.pull_request.html_url,
+			payload.pull_request.html_url
 		).run();
 	}
 	async onClosed(_issue, payload) {
@@ -49,7 +49,7 @@ class CodeReviewChatAction extends Action_1.Action {
 	async onOpened(issue, payload) {
 		if (!payload.pull_request || !payload.repository) {
 			throw Error(
-				"expected payload to contain pull request and repository",
+				"expected payload to contain pull request and repository"
 			);
 		}
 		const github = new rest_1.Octokit({ auth });
@@ -60,7 +60,7 @@ class CodeReviewChatAction extends Action_1.Action {
 		var _a;
 		if (!payload.pull_request || !payload.repository) {
 			throw Error(
-				"expected payload to contain pull request and repository",
+				"expected payload to contain pull request and repository"
 			);
 		}
 		return new CodeReviewChat_1.CodeReviewChat(
@@ -81,12 +81,12 @@ class CodeReviewChatAction extends Action_1.Action {
 							: payload.repository.name,
 					// https://docs.github.com/en/developers/webhooks-and-events/webhooks/webhook-events-and-payloads#pull_request
 					pr: (0, CodeReviewChat_1.createPRObject)(
-						payload.pull_request,
+						payload.pull_request
 					),
 				},
 			},
 			payload.pull_request.number,
-			external,
+			external
 		).run();
 	}
 	/**
@@ -99,7 +99,7 @@ class CodeReviewChatAction extends Action_1.Action {
 		}
 		const toolsAPI = new vscodeTools_1.VSCodeToolsAPIManager(apiConfig);
 		const teamMembers = new Set(
-			(await toolsAPI.getTeamMembers()).map((t) => t.id),
+			(await toolsAPI.getTeamMembers()).map((t) => t.id)
 		);
 		const github = new rest_1.Octokit({ auth });
 		const meetsThreshold = await (0, CodeReviewChat_1.meetsReviewThreshold)(
@@ -108,12 +108,12 @@ class CodeReviewChatAction extends Action_1.Action {
 			payload.pull_request.number,
 			payload.repository.name,
 			payload.repository.owner.login,
-			issue,
+			issue
 		);
 		// Only delete this message if the review threshold has been met
 		if (meetsThreshold) {
 			(0, utils_1.safeLog)(
-				`Review threshold met, deleting ${payload.pull_request.html_url}}`,
+				`Review threshold met, deleting ${payload.pull_request.html_url}}`
 			);
 			await this.closedOrDraftHandler(issue, payload);
 		}
@@ -127,7 +127,7 @@ class CodeReviewChatAction extends Action_1.Action {
 				: _a.type) !== "Bot"
 		) {
 			(0, utils_1.safeLog)(
-				"PR author is not in the team, checking if they need to be posted for another review",
+				"PR author is not in the team, checking if they need to be posted for another review"
 			);
 			const teamMemberReviews = await (0,
 			CodeReviewChat_1.getTeamMemberReviews)(
@@ -136,7 +136,7 @@ class CodeReviewChatAction extends Action_1.Action {
 				payload.pull_request.number,
 				payload.repository.name,
 				payload.repository.owner.login,
-				issue,
+				issue
 			);
 			(0, utils_1.safeLog)(
 				`Found ${
@@ -148,7 +148,7 @@ class CodeReviewChatAction extends Action_1.Action {
 					_b !== void 0
 						? _b
 						: 0
-				} reviews from team members`,
+				} reviews from team members`
 			);
 			// Get only the approving reviews from team members
 			const approvingReviews =
@@ -165,13 +165,13 @@ class CodeReviewChatAction extends Action_1.Action {
 									_a === void 0
 										? void 0
 										: _a.login
-								} - ${review.state}`,
+								} - ${review.state}`
 							);
 							return review.state === "APPROVED";
-					  });
+						});
 			if (approvingReviews && approvingReviews.length === 1) {
 				(0, utils_1.safeLog)(
-					`External PR with one review received, posting to receive a second`,
+					`External PR with one review received, posting to receive a second`
 				);
 				await this.executeCodeReviewChat(github, issue, payload, true);
 			}
@@ -182,16 +182,16 @@ class CodeReviewChatAction extends Action_1.Action {
 		// caused by a webhook, so we know to expect some inputs.
 		const action = (0, utils_1.getRequiredInput)("action");
 		const pull_request = JSON.parse(
-			(0, utils_1.getRequiredInput)("pull_request"),
+			(0, utils_1.getRequiredInput)("pull_request")
 		);
 		const repository = JSON.parse(
-			(0, utils_1.getRequiredInput)("repository"),
+			(0, utils_1.getRequiredInput)("repository")
 		);
 		const pr_number = parseInt((0, utils_1.getRequiredInput)("pr_number"));
 		const octokitIssue = new octokit_1.OctoKitIssue(
 			auth,
 			{ owner: repository.owner.login, repo: repository.name },
-			{ number: pr_number },
+			{ number: pr_number }
 		);
 		const payload = { repository, pull_request };
 		switch (action) {

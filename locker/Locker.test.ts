@@ -18,7 +18,7 @@ describe("Locker", () => {
 		};
 
 		const queryRunner = async function* (
-			query: Query,
+			query: Query
 		): AsyncIterableIterator<TestbedIssueConstructorArgs[]> {
 			expect(query.q).to.contain("closed");
 			yield [issue];
@@ -32,7 +32,7 @@ describe("Locker", () => {
 
 	it("observes the exclude label if present", async () => {
 		const queryRunner = async function* (
-			query: Query,
+			query: Query
 		): AsyncIterableIterator<TestbedIssueConstructorArgs[]> {
 			expect(query.q).to.contain("-label:exclude");
 			yield [];
@@ -65,7 +65,7 @@ describe("Locker", () => {
 			1,
 			"exclude",
 			"authorVerificationRequested",
-			"verify",
+			"verify"
 		).run();
 		expect(issue?.issue?.locked).to.be.false;
 		issue.labels?.push("verify");
@@ -75,7 +75,7 @@ describe("Locker", () => {
 			1,
 			"exclude",
 			"authorVerificationRequested",
-			"verify",
+			"verify"
 		).run();
 		expect(issue?.issue?.locked).to.be.true;
 	});
@@ -103,7 +103,7 @@ describe("Locker", () => {
 			1,
 			"exclude",
 			"authorVerificationRequested",
-			"verify",
+			"verify"
 		).run();
 		expect(issue?.issue?.locked).to.be.true;
 	});

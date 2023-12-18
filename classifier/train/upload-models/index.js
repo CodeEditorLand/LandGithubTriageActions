@@ -19,28 +19,28 @@ class UploadModels extends Action_1.Action {
 		await (0, blobStorage_1.uploadBlobFile)(
 			"area-model.pickle",
 			blobContainer,
-			blobStorageKey,
+			blobStorageKey
 		);
 		(0, utils_1.safeLog)("done");
 		(0, utils_1.safeLog)("uploading area-model-config.json");
 		await (0, blobStorage_1.uploadBlobFile)(
 			"area-model-config.json",
 			blobContainer,
-			blobStorageKey,
+			blobStorageKey
 		);
 		(0, utils_1.safeLog)("done");
 		(0, utils_1.safeLog)("uploading assignee-model.pickle");
 		await (0, blobStorage_1.uploadBlobFile)(
 			"assignee-model.pickle",
 			blobContainer,
-			blobStorageKey,
+			blobStorageKey
 		);
 		(0, utils_1.safeLog)("done");
 		(0, utils_1.safeLog)("uploading assignee-model-config.json");
 		await (0, blobStorage_1.uploadBlobFile)(
 			"assignee-model-config.json",
 			blobContainer,
-			blobStorageKey,
+			blobStorageKey
 		);
 		(0, utils_1.safeLog)("done");
 	}

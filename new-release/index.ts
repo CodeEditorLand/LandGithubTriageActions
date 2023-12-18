@@ -18,7 +18,7 @@ class NewReleaseAction extends Action {
 			getRequiredInput("labelColor"),
 			getRequiredInput("labelDescription"),
 			+getRequiredInput("days"),
-			getInput("oldVersionMessage"),
+			getInput("oldVersionMessage")
 		).run();
 	}
 }
