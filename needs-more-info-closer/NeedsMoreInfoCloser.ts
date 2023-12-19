@@ -87,14 +87,14 @@ export class NeedsMoreInfoCloser {
 								hydrated.number
 							} by rando. Skipping.${
 								hydrated.assignee
-									? " cc @" + hydrated.assignee
+									? ` cc @${hydrated.assignee}`
 									: ""
 							}`,
 						);
 					}
 				} else {
 					safeLog(
-						"Query returned an invalid issue:" + hydrated.number,
+						`Query returned an invalid issue:${hydrated.number}`,
 					);
 				}
 			}

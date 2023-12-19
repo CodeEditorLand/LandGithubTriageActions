@@ -24,7 +24,7 @@ class NeedsMoreInfoCloser {
 		this.additionalTeam = additionalTeam;
 	}
 	async run() {
-		var _a;
+		let _a;
 		const updatedTimestamp = (0, utils_1.daysAgoToHumanReadbleDate)(
 			this.closeDays,
 		);
@@ -92,14 +92,14 @@ class NeedsMoreInfoCloser {
 								hydrated.number
 							} by rando. Skipping.${
 								hydrated.assignee
-									? " cc @" + hydrated.assignee
+									? ` cc @${hydrated.assignee}`
 									: ""
 							}`,
 						);
 					}
 				} else {
 					(0, utils_1.safeLog)(
-						"Query returned an invalid issue:" + hydrated.number,
+						`Query returned an invalid issue:${hydrated.number}`,
 					);
 				}
 			}

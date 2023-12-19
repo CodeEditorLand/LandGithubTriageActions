@@ -25,8 +25,8 @@ class TriageInfoNeeded extends Action {
 			repo: context.repo.repo,
 			issue_number: context.issue.number,
 		});
-		const commentAuthor = context.payload.comment!.user.login;
-		const commentBody = context.payload.comment!.body;
+		const commentAuthor = context.payload.comment?.user.login;
+		const commentBody = context.payload.comment?.body;
 		const isTeamMember = JSON.parse(getRequiredInput("triagers")).includes(
 			commentAuthor,
 		);
@@ -38,7 +38,7 @@ class TriageInfoNeeded extends Action {
 
 		const shouldAddLabel =
 			isTeamMember &&
-			commentAuthor !== issue.data.user!.login &&
+			commentAuthor !== issue.data.user?.login &&
 			isRequestForInfo;
 
 		if (shouldAddLabel) {
@@ -57,8 +57,8 @@ class TriageInfoNeeded extends Action {
 			repo: context.repo.repo,
 			issue_number: context.issue.number,
 		});
-		const commentAuthor = context.payload.comment!.user.login;
-		const issueAuthor = issue.data.user!.login;
+		const commentAuthor = context.payload.comment?.user.login;
+		const issueAuthor = issue.data.user?.login;
 		if (commentAuthor === issueAuthor) {
 			await github.rest.issues.removeLabel({
 				owner: context.repo.owner,
@@ -82,12 +82,12 @@ class TriageInfoNeeded extends Action {
 		for (const comment of comments.data.slice().reverse()) {
 			if (
 				!JSON.parse(getRequiredInput("triagers")).includes(
-					comment.user!.login,
+					comment.user?.login,
 				)
 			) {
 				continue;
 			}
-			const matches = comment.body!.match(/@\w+/g) || [];
+			const matches = comment.body?.match(/@\w+/g) || [];
 			const mentionedUsernames = matches.map((match) =>
 				match.replace("@", ""),
 			);

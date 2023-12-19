@@ -75,7 +75,7 @@ const download = async (token, repo, endCursor) => {
 				headers: {
 					"Content-Type": "application/json",
 					Accept: "application/json",
-					Authorization: "bearer " + token,
+					Authorization: `bearer ${token}`,
 				},
 			},
 		)
@@ -94,7 +94,8 @@ const download = async (token, repo, endCursor) => {
 		assignees: issue.assignees.nodes.map((assignee) => assignee.login),
 		labelEvents: extractLabelEvents(issue),
 		closedWithCode: !!issue.timelineItems.nodes.find((event) => {
-			var _a, _b;
+			let _a;
+			let _b;
 			return (
 				event.__typename === "ClosedEvent" &&
 				(((_a = event.closer) === null || _a === void 0
@@ -108,7 +109,7 @@ const download = async (token, repo, endCursor) => {
 	}));
 	(0, fs_1.writeFileSync)(
 		(0, path_1.join)(__dirname, "issues.json"),
-		issues.map((issue) => JSON.stringify(issue)).join("\n") + "\n",
+		`${issues.map((issue) => JSON.stringify(issue)).join("\n")}\n`,
 		{
 			flag: "a",
 		},
@@ -132,7 +133,10 @@ const download = async (token, repo, endCursor) => {
 };
 exports.download = download;
 const extractLabelEvents = (_issue) => {
-	var _a, _b, _c, _d;
+	let _a;
+	let _b;
+	let _c;
+	let _d;
 	const issue = _issue;
 	const events = [];
 	events.push(
@@ -147,7 +151,8 @@ const extractLabelEvents = (_issue) => {
 			.filter((node) => node.__typename === "LabeledEvent")
 			.map((node) => ({ ...node, issue }))
 			.map((node) => {
-				var _a, _b;
+				let _a;
+				let _b;
 				return {
 					timestamp: +new Date(node.createdAt),
 					type: "labeled",

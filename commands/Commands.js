@@ -14,7 +14,9 @@ class Commands {
 		this.hydrate = hydrate;
 	}
 	async matches(command, issue) {
-		var _a, _b, _c;
+		let _a;
+		let _b;
+		let _c;
 		if (
 			command.requireLabel &&
 			!issue.labels.includes(command.requireLabel)
@@ -28,7 +30,9 @@ class Commands {
 			return false;
 		}
 		if ("label" in this.action) {
-			if (!(command.type === "label")) return false;
+			if (!(command.type === "label")) {
+				return false;
+			}
 			const regexMatch =
 				command.regex &&
 				new RegExp(command.regex).test(this.action.label);
@@ -58,8 +62,12 @@ class Commands {
 		}
 	}
 	async perform(command, issue) {
-		var _a, _b, _c;
-		if (!(await this.matches(command, issue))) return;
+		let _a;
+		let _b;
+		let _c;
+		if (!(await this.matches(command, issue))) {
+			return;
+		}
 		(0, utils_1.safeLog)(`Running command ${command.name}:`);
 		const tasks = [];
 		if (
@@ -81,13 +89,16 @@ class Commands {
 			).trim();
 			while (argList) {
 				const task = argList[0] === "-" ? "remove" : "add";
-				if (task === "remove") argList = argList.slice(1);
+				if (task === "remove") {
+					argList = argList.slice(1);
+				}
 				if (argList[0] === '"') {
 					const endIndex = argList.indexOf('"', 1);
-					if (endIndex === -1)
+					if (endIndex === -1) {
 						throw Error(
 							"Unable to parse arglist. Could not find matching double quote",
 						);
+					}
 					args.push({ task, name: argList.slice(1, endIndex) });
 					argList = argList.slice(endIndex + 1).trim();
 				} else {

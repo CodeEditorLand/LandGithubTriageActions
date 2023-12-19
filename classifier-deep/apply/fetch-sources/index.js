@@ -22,7 +22,7 @@ const from = fromInput
 const until = (0, utils_1.daysAgoToHumanReadbleDate)(
 	+(0, utils_1.getRequiredInput)("until") * minToDay,
 );
-const createdQuery = `created:` + (from ? `${from}..${until}` : `<${until}`);
+const createdQuery = `created:${from ? `${from}..${until}` : `<${until}`}`;
 const blobContainer = (0, utils_1.getRequiredInput)("blobContainerName");
 const blobStorageKey = (0, utils_1.getRequiredInput)("blobStorageKey");
 class FetchIssues extends Action_1.Action {
@@ -31,7 +31,7 @@ class FetchIssues extends Action_1.Action {
 		this.id = "Clasifier-Deep/Apply/FetchIssues";
 	}
 	async onTriggered(github) {
-		var _a;
+		let _a;
 		const query = `${createdQuery} is:open no:assignee ${excludeLabels}`;
 		const data = [];
 		for await (const page of github.query({ q: query })) {

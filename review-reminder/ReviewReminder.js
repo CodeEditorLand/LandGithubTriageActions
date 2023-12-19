@@ -90,7 +90,15 @@ class ReviewReminder {
 		teamMembers,
 		numberOfDays = 30,
 	) {
-		var _a, _b, _c, _d, _e, _f, _g, _h, _j;
+		let _a;
+		let _b;
+		let _c;
+		let _d;
+		let _e;
+		let _f;
+		let _g;
+		let _h;
+		let _j;
 		const data = [];
 		const durations = [];
 		console.log(
@@ -254,7 +262,12 @@ class ReviewReminder {
 	 * @returns A set of review stats regarding reviews completed
 	 */
 	async processAllRepositories(teamMembers) {
-		var _a, _b, _c, _d, _e, _f;
+		let _a;
+		let _b;
+		let _c;
+		let _d;
+		let _e;
+		let _f;
 		let data = [];
 		for await (const repository of this.getRepositories(this.octokit)) {
 			const owner = repository.owner.login;
@@ -368,7 +381,7 @@ class ReviewReminder {
 	 * @param timestampToSend An otpional timestamp to schedule the message for
 	 */
 	async sendSlackDM(slackId, preview, blocks, timestampToSend, skipCooldown) {
-		var _a;
+		let _a;
 		// If user isn't populated and we didn't return early in the error handler, return now
 		if (!slackId) {
 			return;
@@ -384,7 +397,7 @@ class ReviewReminder {
 				? void 0
 				: _a.find((c) => c.user === slackId);
 		// If we have an existing conversation with that user then make sure we're not spamming them
-		if (conversation && conversation.id) {
+		if (conversation?.id) {
 			// Get last message in DM from user and ensure it's been at least 10 days
 			const history = await this.slackClient.conversations.history({
 				channel: conversation.id,
@@ -393,7 +406,7 @@ class ReviewReminder {
 			const lastMessage = history.messages
 				? history.messages[0]
 				: undefined;
-			if (lastMessage && lastMessage.ts) {
+			if (lastMessage?.ts) {
 				const lastMessageDate = new Date(
 					parseInt(lastMessage.ts) * 1000,
 				);
@@ -427,7 +440,7 @@ class ReviewReminder {
 	 * The main function executed when the action is triggered
 	 */
 	async run() {
-		var _a;
+		let _a;
 		console.time("Review Reminder Action");
 		const accounts = await this.toolsAPI.getTeamMembers();
 		// Mapping of GitHub accounts to entry in blob storage
@@ -450,7 +463,7 @@ class ReviewReminder {
 		for (const reviewer of stats.topReviewers) {
 			const account = teamMembers.get(reviewer.reviewer);
 			if (!account) {
-				console.log(`Could not find account this is definitely a bug!`);
+				console.log("Could not find account this is definitely a bug!");
 				continue;
 			}
 			if (!account.slack) {
@@ -475,7 +488,7 @@ class ReviewReminder {
 			const account = teamMembers.get(reviewer.reviewer);
 			if (!account) {
 				(0, utils_1.safeLog)(
-					`Could not find account this is definitely a bug!`,
+					"Could not find account this is definitely a bug!",
 				);
 				continue;
 			}

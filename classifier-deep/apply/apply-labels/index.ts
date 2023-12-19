@@ -114,7 +114,7 @@ class ApplyLabels extends Action {
 				if (debug) {
 					if (confident) {
 						if (!(await github.repoHasLabel(category))) {
-							safeLog(`creating label`);
+							safeLog("creating label");
 							await github.createLabel(category, "f1d9ff", "");
 						}
 						await issue.addLabel(category);
@@ -149,7 +149,7 @@ class ApplyLabels extends Action {
 				if (debug) {
 					if (confident) {
 						if (!(await github.repoHasLabel(category))) {
-							safeLog(`creating assignee label`);
+							safeLog("creating assignee label");
 							await github.createLabel(category, "ffa5a1", "");
 						}
 						await issue.addLabel(category);

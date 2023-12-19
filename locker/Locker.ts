@@ -34,7 +34,7 @@ export class Locker {
 					if (
 						!hydrated.locked &&
 						hydrated.open === false &&
-						(!this.label || !hydrated.labels.includes(this.label))
+						!(this.label && hydrated.labels.includes(this.label))
 						// TODO: Verify closed and updated timestamps
 					) {
 						const skipDueToIgnoreLabel =
@@ -45,7 +45,7 @@ export class Locker {
 
 						if (skipDueToIgnoreLabel) {
 							safeLog(
-								`Not locking issue as it has ignoreLabelUntil but not labelUntil`,
+								"Not locking issue as it has ignoreLabelUntil but not labelUntil",
 							);
 						} else {
 							safeLog(`Locking issue ${hydrated.number}`);
@@ -57,8 +57,7 @@ export class Locker {
 						);
 					} else {
 						safeLog(
-							"Query returned an invalid issue:" +
-								hydrated.number,
+							`Query returned an invalid issue:${hydrated.number}`,
 						);
 					}
 				}),

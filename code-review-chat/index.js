@@ -26,9 +26,11 @@ class CodeReviewChatAction extends Action_1.Action {
 	}
 	async closedOrDraftHandler(_issue, payload) {
 		if (
-			!payload.pull_request ||
-			!payload.repository ||
-			!payload.pull_request.html_url
+			!(
+				payload.pull_request &&
+				payload.repository &&
+				payload.pull_request.html_url
+			)
 		) {
 			throw Error("expected payload to contain pull request url");
 		}
@@ -46,7 +48,7 @@ class CodeReviewChatAction extends Action_1.Action {
 		await this.closedOrDraftHandler(_issue, payload);
 	}
 	async onOpened(issue, payload) {
-		if (!payload.pull_request || !payload.repository) {
+		if (!(payload.pull_request && payload.repository)) {
 			throw Error(
 				"expected payload to contain pull request and repository",
 			);
@@ -56,8 +58,8 @@ class CodeReviewChatAction extends Action_1.Action {
 		await this.executeCodeReviewChat(github, issue, payload, false);
 	}
 	async executeCodeReviewChat(github, issue, payload, external) {
-		var _a;
-		if (!payload.pull_request || !payload.repository) {
+		let _a;
+		if (!(payload.pull_request && payload.repository)) {
 			throw Error(
 				"expected payload to contain pull request and repository",
 			);
@@ -92,8 +94,9 @@ class CodeReviewChatAction extends Action_1.Action {
 	 * TODO @lramos15 Extend support possibly to the base action
 	 */
 	async onSubmitReview(issue, payload) {
-		var _a, _b;
-		if (!payload.pull_request || !payload.repository) {
+		let _a;
+		let _b;
+		if (!(payload.pull_request && payload.repository)) {
 			throw Error("expected payload to contain pull request url");
 		}
 		const toolsAPI = new vscodeTools_1.VSCodeToolsAPIManager(apiConfig);
@@ -154,7 +157,7 @@ class CodeReviewChatAction extends Action_1.Action {
 				teamMemberReviews === null || teamMemberReviews === void 0
 					? void 0
 					: teamMemberReviews.filter((review) => {
-							var _a;
+							let _a;
 							(0, utils_1.safeLog)(
 								`Reviewer: ${
 									(_a =
@@ -170,7 +173,7 @@ class CodeReviewChatAction extends Action_1.Action {
 					  });
 			if (approvingReviews && approvingReviews.length === 1) {
 				(0, utils_1.safeLog)(
-					`External PR with one review received, posting to receive a second`,
+					"External PR with one review received, posting to receive a second",
 				);
 				await this.executeCodeReviewChat(github, issue, payload, true);
 			}
@@ -195,18 +198,22 @@ class CodeReviewChatAction extends Action_1.Action {
 		const payload = { repository, pull_request };
 		switch (action) {
 			case "opened":
-			case "ready_for_review":
+			case "ready_for_review": {
 				await this.onOpened(octokitIssue, payload);
 				break;
-			case "submitted":
+			}
+			case "submitted": {
 				await this.onSubmitReview(octokitIssue, payload);
 				break;
-			case "closed":
+			}
+			case "closed": {
 				await this.onClosed(octokitIssue, payload);
 				break;
-			case "converted_to_draft":
+			}
+			case "converted_to_draft": {
 				await this.onConvertedToDraft(octokitIssue, payload);
 				break;
+			}
 			// These are part of the webhook chain, let's no-op but allow the CI to pass
 			case "dismissed":
 			case "synchronize":

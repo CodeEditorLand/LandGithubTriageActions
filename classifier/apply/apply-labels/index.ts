@@ -63,7 +63,7 @@ class ApplyLabels extends Action {
 
 				if (debug) {
 					if (!(await github.repoHasLabel(assignee))) {
-						safeLog(`creating assignee label`);
+						safeLog("creating assignee label");
 						await github.createLabel(assignee, "ffa5a1", "");
 					}
 					await issue.addLabel(assignee);
@@ -88,7 +88,7 @@ class ApplyLabels extends Action {
 
 				if (debug) {
 					if (!(await github.repoHasLabel(label))) {
-						safeLog(`creating label`);
+						safeLog("creating label");
 						await github.createLabel(label, "f1d9ff", "");
 					}
 				}

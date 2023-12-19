@@ -68,7 +68,7 @@ export function createPRObject(pullRequestFromApi: any): PR {
 		changed_files: pullRequestFromApi.changed_files,
 		url: pullRequestFromApi.html_url || "",
 		owner: pullRequestFromApi.user.login,
-		draft: pullRequestFromApi.draft || false,
+		draft: pullRequestFromApi.draft,
 		baseBranchName: pullRequestFromApi.base.ref ?? "",
 		headBranchName: pullRequestFromApi.head.ref ?? "",
 		title: pullRequestFromApi.title,
@@ -115,7 +115,7 @@ export class CodeReviewChatDeleter extends Chatter {
 			channel,
 			limit: 20,
 		});
-		if (!response.ok || !response.messages) {
+		if (!(response.ok && response.messages)) {
 			throw Error("Error getting channel history");
 		}
 		const messages = response.messages as SlackMessage[];
@@ -160,13 +160,13 @@ export class CodeReviewChatDeleter extends Chatter {
 					channel,
 					ts: message.ts,
 				});
-				if (!replyThread.ok || !replyThread.messages) {
-					safeLog("Error getting messages replies");
-				} else {
+				if (replyThread.ok && replyThread.messages) {
 					// Pushback everything but the first reply since the first reply is the original message
 					replies.push(
 						...(replyThread.messages as SlackMessage[]).slice(1),
 					);
+				} else {
+					safeLog("Error getting messages replies");
 				}
 			}
 		}
@@ -319,7 +319,7 @@ export class CodeReviewChat extends Chatter {
 		const author = data.author;
 		// Author must have write access to the repo or be a bot
 		if (
-			(!teamMembers.has(author.name) && !author.isGitHubApp) ||
+			!(teamMembers.has(author.name) || author.isGitHubApp) ||
 			author.name.includes("dependabot")
 		) {
 			safeLog("Issue author not team member, ignoring");
@@ -327,7 +327,7 @@ export class CodeReviewChat extends Chatter {
 		}
 		const tasks = [];
 
-		if (!data.assignee && !author.isGitHubApp) {
+		if (!(data.assignee || author.isGitHubApp)) {
 			tasks.push(this.issue.addAssignee(author.name));
 		}
 

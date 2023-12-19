@@ -39,9 +39,11 @@ class CodeReviewChatAction extends Action {
 		payload: WebhookPayload,
 	) {
 		if (
-			!payload.pull_request ||
-			!payload.repository ||
-			!payload.pull_request.html_url
+			!(
+				payload.pull_request &&
+				payload.repository &&
+				payload.pull_request.html_url
+			)
 		) {
 			throw Error("expected payload to contain pull request url");
 		}
@@ -71,7 +73,7 @@ class CodeReviewChatAction extends Action {
 		issue: OctoKitIssue,
 		payload: WebhookPayload,
 	): Promise<void> {
-		if (!payload.pull_request || !payload.repository) {
+		if (!(payload.pull_request && payload.repository)) {
 			throw Error(
 				"expected payload to contain pull request and repository",
 			);
@@ -90,7 +92,7 @@ class CodeReviewChatAction extends Action {
 		payload: WebhookPayload,
 		external: boolean,
 	) {
-		if (!payload.pull_request || !payload.repository) {
+		if (!(payload.pull_request && payload.repository)) {
 			throw Error(
 				"expected payload to contain pull request and repository",
 			);
@@ -124,7 +126,7 @@ class CodeReviewChatAction extends Action {
 		issue: OctoKitIssue,
 		payload: WebhookPayload,
 	): Promise<void> {
-		if (!payload.pull_request || !payload.repository) {
+		if (!(payload.pull_request && payload.repository)) {
 			throw Error("expected payload to contain pull request url");
 		}
 		const toolsAPI = new VSCodeToolsAPIManager(apiConfig);
@@ -179,7 +181,7 @@ class CodeReviewChatAction extends Action {
 			});
 			if (approvingReviews && approvingReviews.length === 1) {
 				safeLog(
-					`External PR with one review received, posting to receive a second`,
+					"External PR with one review received, posting to receive a second",
 				);
 				await this.executeCodeReviewChat(github, issue, payload, true);
 			}
@@ -205,18 +207,22 @@ class CodeReviewChatAction extends Action {
 		const payload: WebhookPayload = { repository, pull_request };
 		switch (action) {
 			case "opened":
-			case "ready_for_review":
+			case "ready_for_review": {
 				await this.onOpened(octokitIssue, payload);
 				break;
-			case "submitted":
+			}
+			case "submitted": {
 				await this.onSubmitReview(octokitIssue, payload);
 				break;
-			case "closed":
+			}
+			case "closed": {
 				await this.onClosed(octokitIssue, payload);
 				break;
-			case "converted_to_draft":
+			}
+			case "converted_to_draft": {
 				await this.onConvertedToDraft(octokitIssue, payload);
 				break;
+			}
 			// These are part of the webhook chain, let's no-op but allow the CI to pass
 			case "dismissed":
 			case "synchronize":

@@ -12,12 +12,12 @@ const uuid_1 = require("uuid");
 class Action {
 	constructor() {
 		this.token = (0, utils_1.getRequiredInput)("token");
-		console.log("::stop-commands::" + (0, uuid_1.v4)());
+		console.log(`::stop-commands::${(0, uuid_1.v4)()}`);
 		this.username = (0, github_1.getOctokit)(this.token)
 			.rest.users.getAuthenticated()
 			.then(
 				(v) => {
-					var _a;
+					let _a;
 					return (_a = v.data.name) !== null && _a !== void 0
 						? _a
 						: "unknown";
@@ -26,7 +26,12 @@ class Action {
 			);
 	}
 	async run() {
-		var _a, _b, _c, _d, _e, _f;
+		let _a;
+		let _b;
+		let _c;
+		let _d;
+		let _e;
+		let _f;
 		if (utils_1.errorLoggingIssue) {
 			const { repo, issue, owner } = utils_1.errorLoggingIssue;
 			if (
@@ -74,55 +79,63 @@ class Action {
 				) {
 					switch (github_1.context.payload.action) {
 						case "opened":
-						case "ready_for_review":
+						case "ready_for_review": {
 							await this.onOpened(
 								octokit,
 								github_1.context.payload,
 							);
 							break;
-						case "reopened":
+						}
+						case "reopened": {
 							await this.onReopened(octokit);
 							break;
-						case "closed":
+						}
+						case "closed": {
 							await this.onClosed(
 								octokit,
 								github_1.context.payload,
 							);
 							break;
-						case "labeled":
+						}
+						case "labeled": {
 							await this.onLabeled(
 								octokit,
 								github_1.context.payload.label.name,
 							);
 							break;
-						case "assigned":
+						}
+						case "assigned": {
 							await this.onAssigned(
 								octokit,
 								github_1.context.payload.assignee.login,
 							);
 							break;
-						case "unassigned":
+						}
+						case "unassigned": {
 							await this.onUnassigned(
 								octokit,
 								github_1.context.payload.assignee.login,
 							);
 							break;
-						case "edited":
+						}
+						case "edited": {
 							await this.onEdited(octokit);
 							break;
-						case "milestoned":
+						}
+						case "milestoned": {
 							await this.onMilestoned(octokit);
 							break;
-						case "converted_to_draft":
+						}
+						case "converted_to_draft": {
 							await this.onConvertedToDraft(
 								octokit,
 								github_1.context.payload,
 							);
 							break;
+						}
 						default:
 							throw Error(
-								"Unexpected action: " +
-									github_1.context.payload.action,
+								`Unexpected action: ${github_1.context.payload.action}`,
 							);
 					}
 				}
@@ -173,7 +186,7 @@ class Action {
 		}
 	}
 	async error(error) {
-		var _a;
+		let _a;
 		const details = {
 			message: `${error.message}\n${error.stack}`,
 			id: this.id,
@@ -183,8 +196,9 @@ class Action {
 			(_a = github_1.context.issue) === null || _a === void 0
 				? void 0
 				: _a.number
-		)
+		) {
 			details.issue = github_1.context.issue.number;
+		}
 		const rendered = `
 Message: ${details.message}
 

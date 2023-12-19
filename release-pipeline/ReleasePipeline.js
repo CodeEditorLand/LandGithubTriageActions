@@ -13,7 +13,9 @@ class ReleasePipeline {
 	}
 	async run() {
 		const latestRelease = await (0, utils_1.loadLatestRelease)("insider");
-		if (!latestRelease) throw Error("Error loading latest release");
+		if (!latestRelease) {
+			throw Error("Error loading latest release");
+		}
 		const query = `is:closed label:${this.notYetReleasedLabel}`;
 		for await (const page of this.github.query({ q: query })) {
 			for (const issue of page) {
@@ -26,7 +28,7 @@ class ReleasePipeline {
 					await new Promise((resolve) => setTimeout(resolve, 1000));
 				} else {
 					(0, utils_1.safeLog)(
-						"Query returned an invalid issue:" + issueData.number,
+						`Query returned an invalid issue:${issueData.number}`,
 					);
 				}
 			}
@@ -50,7 +52,7 @@ Issue marked as unreleased but unable to locate closing commit in issue timeline
 		}
 	}
 	async update(issue, latestRelease) {
-		var _a;
+		let _a;
 		const closingHash =
 			(_a = await issue.getClosingInfo()) === null || _a === void 0
 				? void 0
@@ -79,7 +81,7 @@ Issue marked as unreleased but unable to locate closing commit in issue timeline
 }
 exports.ReleasePipeline = ReleasePipeline;
 const enrollIssue = async (issue, notYetReleasedLabel) => {
-	var _a;
+	let _a;
 	const closingHash =
 		(_a = await issue.getClosingInfo()) === null || _a === void 0
 			? void 0

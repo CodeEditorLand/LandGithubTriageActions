@@ -12,7 +12,7 @@ class NeedsMoreInfo extends Action_1.Action {
 		this.id = "NeedsMoreInfo";
 	}
 	async onTriggered(github) {
-		var _a;
+		let _a;
 		await new NeedsMoreInfoCloser_1.NeedsMoreInfoCloser(
 			github,
 			(0, utils_1.getRequiredInput)("label"),

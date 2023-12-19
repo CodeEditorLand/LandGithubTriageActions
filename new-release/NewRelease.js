@@ -23,8 +23,9 @@ class NewRelease {
 	}
 	async run() {
 		const release = await (0, utils_1.loadLatestRelease)("stable");
-		if (!(release && release.timestamp))
+		if (!release?.timestamp) {
 			throw Error("Could not load latest release");
+		}
 		const daysSinceRelease =
 			(Date.now() - release.timestamp) / (24 * 60 * 60 * 1000);
 		const issue = await this.github.getIssue();
@@ -47,8 +48,7 @@ class NewRelease {
 		if (daysSinceRelease > this.days) {
 			// delete the label from the repo as a whole to remove it from all issues
 			(0, utils_1.safeLog)(
-				"New release window passed. Globally deleting label " +
-					this.label,
+				`New release window passed. Globally deleting label ${this.label}`,
 			);
 			return this.github.deleteLabel(this.label);
 		}
@@ -64,8 +64,7 @@ class NewRelease {
 		) {
 			if (!(await this.github.repoHasLabel(this.label))) {
 				(0, utils_1.safeLog)(
-					"First release issue found. Globally creating label " +
-						this.label,
+					`First release issue found. Globally creating label ${this.label}`,
 				);
 				await this.github.createLabel(
 					this.label,
@@ -74,7 +73,7 @@ class NewRelease {
 				);
 			}
 			(0, utils_1.safeLog)(
-				"New release issue found. Adding label " + this.label,
+				`New release issue found. Adding label ${this.label}`,
 			);
 			await this.github.addLabel(this.label);
 		}

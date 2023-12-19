@@ -12,7 +12,7 @@ class CopyCat {
 		this.repo = repo;
 	}
 	async run() {
-		var _a;
+		let _a;
 		const issue = await this.github.getIssue();
 		(0, utils_1.safeLog)(
 			`Mirroring issue \`${issue.number}\` to ${this.owner}/${this.repo}`,

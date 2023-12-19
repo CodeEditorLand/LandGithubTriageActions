@@ -12,7 +12,8 @@ exports.meetsReviewThreshold =
 const web_api_1 = require("@slack/web-api");
 const utils_1 = require("../common/utils");
 function createPRObject(pullRequestFromApi) {
-	var _a, _b;
+	let _a;
+	let _b;
 	const pr = {
 		number: pullRequestFromApi.number,
 		body: pullRequestFromApi.body || "",
@@ -21,7 +22,7 @@ function createPRObject(pullRequestFromApi) {
 		changed_files: pullRequestFromApi.changed_files,
 		url: pullRequestFromApi.html_url || "",
 		owner: pullRequestFromApi.user.login,
-		draft: pullRequestFromApi.draft || false,
+		draft: pullRequestFromApi.draft,
 		baseBranchName:
 			(_a = pullRequestFromApi.base.ref) !== null && _a !== void 0
 				? _a
@@ -70,12 +71,14 @@ class CodeReviewChatDeleter extends Chatter {
 			channel,
 			limit: 20,
 		});
-		if (!response.ok || !response.messages) {
+		if (!(response.ok && response.messages)) {
 			throw Error("Error getting channel history");
 		}
 		const messages = response.messages;
 		const messagesToDelete = messages.filter((message) => {
-			var _a, _b, _c;
+			let _a;
+			let _b;
+			let _c;
 			const isCodeReviewMessage = message.text.includes(this.prUrl);
 			// If it has a subtype it means its a special slack message which we want to delete
 			if (message.subtype) {
@@ -122,11 +125,11 @@ class CodeReviewChatDeleter extends Chatter {
 					channel,
 					ts: message.ts,
 				});
-				if (!replyThread.ok || !replyThread.messages) {
-					(0, utils_1.safeLog)("Error getting messages replies");
-				} else {
+				if (replyThread.ok && replyThread.messages) {
 					// Pushback everything but the first reply since the first reply is the original message
 					replies.push(...replyThread.messages.slice(1));
+				} else {
+					(0, utils_1.safeLog)("Error getting messages replies");
 				}
 			}
 		}
@@ -273,14 +276,14 @@ class CodeReviewChat extends Chatter {
 		const author = data.author;
 		// Author must have write access to the repo or be a bot
 		if (
-			(!teamMembers.has(author.name) && !author.isGitHubApp) ||
+			!(teamMembers.has(author.name) || author.isGitHubApp) ||
 			author.name.includes("dependabot")
 		) {
 			(0, utils_1.safeLog)("Issue author not team member, ignoring");
 			return;
 		}
 		const tasks = [];
-		if (!data.assignee && !author.isGitHubApp) {
+		if (!(data.assignee || author.isGitHubApp)) {
 			tasks.push(this.issue.addAssignee(author.name));
 		}
 		tasks.push(
@@ -294,7 +297,8 @@ class CodeReviewChat extends Chatter {
 		);
 		tasks.push(
 			(async () => {
-				var _a, _b;
+				let _a;
+				let _b;
 				const [hasExistingReview, existingRequests] = await Promise.all(
 					[
 						meetsReviewThreshold(
@@ -349,7 +353,9 @@ async function getTeamMemberReviews(
 	owner,
 	ghIssue,
 ) {
-	var _a, _b, _c;
+	let _a;
+	let _b;
+	let _c;
 	const reviews = await octokit.pulls.listReviews({
 		pull_number: prNumber,
 		owner,
@@ -436,7 +442,8 @@ async function meetsReviewThreshold(
 			teamMemberReviews === null || teamMemberReviews === void 0
 				? void 0
 				: teamMemberReviews.map((r) => {
-						var _a, _b;
+						let _a;
+						let _b;
 						return (_b =
 							(_a = r.user) === null || _a === void 0
 								? void 0

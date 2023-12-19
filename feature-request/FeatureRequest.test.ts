@@ -74,7 +74,9 @@ const initalizeTestbed = (
 
 const getAllComments = async (issue: TestbedIssue): Promise<Comment[]> => {
 	const comments: Comment[] = [];
-	for await (const page of issue.getComments()) comments.push(...page);
+	for await (const page of issue.getComments()) {
+		comments.push(...page);
+	}
 	return comments;
 };
 
@@ -150,7 +152,7 @@ describe("FeatureRequest", () => {
 					},
 					testConfig.milestones.candidateID,
 
-					[{ body: CREATE_MARKER + "initComment", daysAgo: 2 }],
+					[{ body: `${CREATE_MARKER}initComment`, daysAgo: 2 }],
 				);
 				await new FeatureRequestQueryer(testbed, testConfig).run();
 				expect((await getAllComments(issueTestbed)).length).equal(2);
@@ -171,7 +173,7 @@ describe("FeatureRequest", () => {
 					testConfig.milestones.candidateID,
 
 					[
-						{ body: CREATE_MARKER + "initComment", daysAgo: 2 },
+						{ body: `${CREATE_MARKER}initComment`, daysAgo: 2 },
 						{ body: "hello", daysAgo: 1.7 },
 						{ body: "cruel", daysAgo: 1.5 },
 						{ body: "cruel", daysAgo: 1.3 },
@@ -190,7 +192,7 @@ describe("FeatureRequest", () => {
 					},
 					testConfig.milestones.candidateID,
 
-					[{ body: CREATE_MARKER + "initComment", daysAgo: 2 }],
+					[{ body: `${CREATE_MARKER}initComment`, daysAgo: 2 }],
 				);
 				await new FeatureRequestQueryer(testbed, testConfig).run();
 				await new FeatureRequestQueryer(testbed, testConfig).run();
@@ -214,9 +216,9 @@ describe("FeatureRequest", () => {
 					testConfig.milestones.candidateID,
 
 					[
-						{ body: CREATE_MARKER + "initComment", daysAgo: 7 },
+						{ body: `${CREATE_MARKER}initComment`, daysAgo: 7 },
 						// warnComment delayed for wahtever reason. Issue should be closed until N days have passed, as thats that the warn comment says.
-						{ body: WARN_MARKER + "warnComment", daysAgo: 1 },
+						{ body: `${WARN_MARKER}warnComment`, daysAgo: 1 },
 					],
 				);
 				await new FeatureRequestQueryer(testbed, testConfig).run();
@@ -232,8 +234,8 @@ describe("FeatureRequest", () => {
 					testConfig.milestones.candidateID,
 
 					[
-						{ body: CREATE_MARKER + "initComment", daysAgo: 7 },
-						{ body: WARN_MARKER + "warnComment", daysAgo: 6 },
+						{ body: `${CREATE_MARKER}initComment`, daysAgo: 7 },
+						{ body: `${WARN_MARKER}warnComment`, daysAgo: 6 },
 					],
 				);
 				await new FeatureRequestQueryer(testbed, testConfig).run();
@@ -256,8 +258,8 @@ describe("FeatureRequest", () => {
 					testConfig.milestones.candidateID,
 
 					[
-						{ body: CREATE_MARKER + "initComment", daysAgo: 7 },
-						{ body: WARN_MARKER + "warnComment", daysAgo: 6 },
+						{ body: `${CREATE_MARKER}initComment`, daysAgo: 7 },
+						{ body: `${WARN_MARKER}warnComment`, daysAgo: 6 },
 						{ body: "hello", daysAgo: 1.7 },
 						{ body: "cruel", daysAgo: 1.5 },
 						{ body: "cruel", daysAgo: 1.3 },
@@ -291,8 +293,8 @@ describe("FeatureRequest", () => {
 					testConfig.milestones.candidateID,
 
 					[
-						{ body: CREATE_MARKER + "initComment", daysAgo: 7 },
-						{ body: WARN_MARKER + "warnComment", daysAgo: 6 },
+						{ body: `${CREATE_MARKER}initComment`, daysAgo: 7 },
+						{ body: `${WARN_MARKER}warnComment`, daysAgo: 6 },
 						{ body: "hello", daysAgo: 1.7 },
 						{ body: "cruel", daysAgo: 1.5 },
 						{ body: "cruel", daysAgo: 1.3 },
@@ -331,7 +333,7 @@ describe("FeatureRequest", () => {
 						labels: ["featureRequestLabel"],
 					},
 					testConfig.milestones.candidateID,
-					[{ body: CREATE_MARKER + "initComment", daysAgo: 0 }],
+					[{ body: `${CREATE_MARKER}initComment`, daysAgo: 0 }],
 				);
 				await new FeatureRequestQueryer(testbed, testConfig).run();
 				expect((await getAllComments(issueTestbed)).length).equal(1);

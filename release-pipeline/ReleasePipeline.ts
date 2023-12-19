@@ -15,7 +15,9 @@ export class ReleasePipeline {
 
 	async run() {
 		const latestRelease = await loadLatestRelease("insider");
-		if (!latestRelease) throw Error("Error loading latest release");
+		if (!latestRelease) {
+			throw Error("Error loading latest release");
+		}
 
 		const query = `is:closed label:${this.notYetReleasedLabel}`;
 
@@ -30,7 +32,7 @@ export class ReleasePipeline {
 					await new Promise((resolve) => setTimeout(resolve, 1000));
 				} else {
 					safeLog(
-						"Query returned an invalid issue:" + issueData.number,
+						`Query returned an invalid issue:${issueData.number}`,
 					);
 				}
 			}

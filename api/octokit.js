@@ -75,11 +75,22 @@ class OctoKit {
 	}
 	async createIssue(owner, repo, title, body) {
 		(0, utils_1.safeLog)(`Creating issue \`${title}\` on ${owner}/${repo}`);
-		if (!this.options.readonly)
+		if (!this.options.readonly) {
 			await this.octokit.rest.issues.create({ owner, repo, title, body });
+		}
 	}
 	octokitIssueToIssue(issue) {
-		var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l;
+		let _a;
+		let _b;
+		let _c;
+		let _d;
+		let _e;
+		let _f;
+		let _g;
+		let _h;
+		let _j;
+		let _k;
+		let _l;
 		return {
 			author: {
 				name:
@@ -101,7 +112,7 @@ class OctoKit {
 				? void 0
 				: _e.html_url),
 			labels: issue.labels.map((label) => {
-				var _a;
+				let _a;
 				return typeof label === "string"
 					? label
 					: (_a = label.name) !== null && _a !== void 0
@@ -141,7 +152,7 @@ class OctoKit {
 		};
 	}
 	octokitMilestoneToMilestone(milestone) {
-		var _a;
+		let _a;
 		if (
 			(milestone === null || milestone === void 0
 				? void 0
@@ -176,10 +187,10 @@ class OctoKit {
 	}
 	async hasWriteAccess(username) {
 		if (username in this.writeAccessCache) {
-			(0, utils_1.safeLog)("Got permissions from cache for " + username);
+			(0, utils_1.safeLog)(`Got permissions from cache for ${username}`);
 			return this.writeAccessCache[username];
 		}
-		(0, utils_1.safeLog)("Fetching permissions for " + username);
+		(0, utils_1.safeLog)(`Fetching permissions for ${username}`);
 		const permissions = (
 			await this.octokit.rest.repos.getCollaboratorPermissionLevel({
 				...this.params,
@@ -204,24 +215,27 @@ class OctoKit {
 		}
 	}
 	async createLabel(name, color, description) {
-		(0, utils_1.safeLog)("Creating label " + name);
-		if (this.options.readonly) this.mockLabels.add(name);
-		else
+		(0, utils_1.safeLog)(`Creating label ${name}`);
+		if (this.options.readonly) {
+			this.mockLabels.add(name);
+		} else {
 			await this.octokit.rest.issues.createLabel({
 				...this.params,
 				color,
 				description,
 				name,
 			});
+		}
 	}
 	async deleteLabel(name) {
-		(0, utils_1.safeLog)("Deleting label " + name);
+		(0, utils_1.safeLog)(`Deleting label ${name}`);
 		try {
-			if (!this.options.readonly)
+			if (!this.options.readonly) {
 				await this.octokit.rest.issues.deleteLabel({
 					...this.params,
 					name,
 				});
+			}
 		} catch (err) {
 			const statusErorr = err;
 			if (statusErorr.status === 404) {
@@ -231,7 +245,7 @@ class OctoKit {
 		}
 	}
 	async readConfig(path) {
-		(0, utils_1.safeLog)("Reading config at " + path);
+		(0, utils_1.safeLog)(`Reading config at ${path}`);
 		const repoPath = `.github/${path}.json`;
 		try {
 			const data = (
@@ -251,21 +265,21 @@ class OctoKit {
 				);
 			}
 			throw Error(
-				"Found directory at config path when expecting file" +
-					JSON.stringify(data),
+				`Found directory at config path when expecting file${JSON.stringify(
+					data,
+				)}`,
 			);
 		} catch (e) {
 			throw Error(
-				"Error with config file at " +
-					repoPath +
-					": " +
-					JSON.stringify(e),
+				`Error with config file at ${repoPath}: ${JSON.stringify(e)}`,
 			);
 		}
 	}
 	async releaseContainsCommit(release, commit) {
 		const isHash = (s) => /^[a-fA-F0-9]*$/.test(s);
-		if (!isHash(release) || !isHash(commit)) return "unknown";
+		if (!(isHash(release) && isHash(commit))) {
+			return "unknown";
+		}
 		return new Promise((resolve, reject) =>
 			(0, child_process_1.exec)(
 				`git -C ./repo merge-base --is-ancestor ${commit} ${release}`,
@@ -320,7 +334,8 @@ class OctoKit {
 					!milestone.title.includes("Recovery"),
 			)
 			.sort((a, b) => {
-				var _a, _b;
+				let _a;
+				let _b;
 				return (
 					+new Date(
 						(_a = a.due_on) !== null && _a !== void 0
@@ -340,12 +355,13 @@ class OctoKit {
 		return possibleMilestones[0].number;
 	}
 	async dispatch(title) {
-		(0, utils_1.safeLog)("Dispatching " + title);
-		if (!this.options.readonly)
+		(0, utils_1.safeLog)(`Dispatching ${title}`);
+		if (!this.options.readonly) {
 			await this.octokit.rest.repos.createDispatchEvent({
 				...this.params,
 				event_type: title,
 			});
+		}
 	}
 }
 exports.OctoKit = OctoKit;
@@ -358,7 +374,7 @@ class OctoKitIssue extends OctoKit {
 	}
 	async addAssignee(assignee) {
 		(0, utils_1.safeLog)(
-			"Adding assignee " + assignee + " to " + this.issueData.number,
+			`Adding assignee ${assignee} to ${this.issueData.number}`,
 		);
 		if (!this.options.readonly) {
 			await this.octokit.rest.issues.addAssignees({
@@ -370,7 +386,7 @@ class OctoKitIssue extends OctoKit {
 	}
 	async removeAssignee(assignee) {
 		(0, utils_1.safeLog)(
-			"Removing assignee " + assignee + " to " + this.issueData.number,
+			`Removing assignee ${assignee} to ${this.issueData.number}`,
 		);
 		if (!this.options.readonly) {
 			await this.octokit.rest.issues.removeAssignees({
@@ -381,7 +397,7 @@ class OctoKitIssue extends OctoKit {
 		}
 	}
 	async closeIssue(reason) {
-		(0, utils_1.safeLog)("Closing issue " + this.issueData.number);
+		(0, utils_1.safeLog)(`Closing issue ${this.issueData.number}`);
 		if (!this.options.readonly) {
 			const issue = await this.octokit.rest.issues.get({
 				...this.params,
@@ -404,29 +420,31 @@ class OctoKitIssue extends OctoKit {
 		}
 	}
 	async lockIssue() {
-		(0, utils_1.safeLog)("Locking issue " + this.issueData.number);
-		if (!this.options.readonly)
+		(0, utils_1.safeLog)(`Locking issue ${this.issueData.number}`);
+		if (!this.options.readonly) {
 			await this.octokit.rest.issues.lock({
 				...this.params,
 				issue_number: this.issueData.number,
 			});
+		}
 	}
 	async unlockIssue() {
-		(0, utils_1.safeLog)("Unlocking issue " + this.issueData.number);
-		if (!this.options.readonly)
+		(0, utils_1.safeLog)(`Unlocking issue ${this.issueData.number}`);
+		if (!this.options.readonly) {
 			await this.octokit.rest.issues.unlock({
 				...this.params,
 				issue_number: this.issueData.number,
 			});
+		}
 	}
 	async getIssue() {
 		if (isIssue(this.issueData)) {
 			(0, utils_1.safeLog)(
-				"Got issue data from query result " + this.issueData.number,
+				`Got issue data from query result ${this.issueData.number}`,
 			);
 			return this.issueData;
 		}
-		(0, utils_1.safeLog)("Fetching issue " + this.issueData.number);
+		(0, utils_1.safeLog)(`Fetching issue ${this.issueData.number}`);
 		const issue = (
 			await this.octokit.rest.issues.get({
 				...this.params,
@@ -438,37 +456,40 @@ class OctoKitIssue extends OctoKit {
 	}
 	async postComment(body) {
 		(0, utils_1.safeLog)(`Posting comment on ${this.issueData.number}`);
-		if (!this.options.readonly)
+		if (!this.options.readonly) {
 			await this.octokit.rest.issues.createComment({
 				...this.params,
 				issue_number: this.issueData.number,
 				body,
 			});
+		}
 	}
 	async deleteComment(id) {
 		(0, utils_1.safeLog)(
 			`Deleting comment ${id} on ${this.issueData.number}`,
 		);
-		if (!this.options.readonly)
+		if (!this.options.readonly) {
 			await this.octokit.rest.issues.deleteComment({
 				owner: this.params.owner,
 				repo: this.params.repo,
 				comment_id: id,
 			});
+		}
 	}
 	async setMilestone(milestoneId) {
 		(0, utils_1.safeLog)(
 			`Setting milestone for ${this.issueData.number} to ${milestoneId}`,
 		);
-		if (!this.options.readonly)
+		if (!this.options.readonly) {
 			await this.octokit.rest.issues.update({
 				...this.params,
 				issue_number: this.issueData.number,
 				milestone: milestoneId,
 			});
+		}
 	}
 	async *getComments(last) {
-		(0, utils_1.safeLog)("Fetching comments for " + this.issueData.number);
+		(0, utils_1.safeLog)(`Fetching comments for ${this.issueData.number}`);
 		const response = this.octokit.paginate.iterator(
 			this.octokit.rest.issues.listComments,
 			{
@@ -483,7 +504,10 @@ class OctoKitIssue extends OctoKit {
 		for await (const page of response) {
 			numRequests++;
 			yield page.data.map((comment) => {
-				var _a, _b, _c, _d;
+				let _a;
+				let _b;
+				let _c;
+				let _d;
 				return {
 					author: {
 						name:
@@ -515,15 +539,17 @@ class OctoKitIssue extends OctoKit {
 				`Action could not execute becuase label ${name} is not defined.`,
 			);
 		}
-		if (!this.options.readonly)
+		if (!this.options.readonly) {
 			await this.octokit.rest.issues.addLabels({
 				...this.params,
 				issue_number: this.issueData.number,
 				labels: [name],
 			});
+		}
 	}
 	async getAssigner(assignee) {
-		var _a, _b;
+		let _a;
+		let _b;
 		const options = {
 			...this.params,
 			issue_number: this.issueData.number,
@@ -554,9 +580,7 @@ class OctoKitIssue extends OctoKit {
 		}
 		if (!assigner) {
 			throw Error(
-				"Expected to find " +
-					assignee +
-					" in issue timeline but did not.",
+				`Expected to find ${assignee} in issue timeline but did not.`,
 			);
 		}
 		return assigner;
@@ -566,12 +590,13 @@ class OctoKitIssue extends OctoKit {
 			`Removing label ${name} from ${this.issueData.number}`,
 		);
 		try {
-			if (!this.options.readonly)
+			if (!this.options.readonly) {
 				await this.octokit.rest.issues.removeLabel({
 					...this.params,
 					issue_number: this.issueData.number,
 					name,
 				});
+			}
 		} catch (err) {
 			const statusErorr = err;
 			if (statusErorr.status === 404) {
@@ -582,7 +607,14 @@ class OctoKitIssue extends OctoKit {
 		}
 	}
 	async getClosingInfo(alreadyChecked = []) {
-		var _a, _b, _c, _d, _e, _f, _g, _h;
+		let _a;
+		let _b;
+		let _c;
+		let _d;
+		let _e;
+		let _f;
+		let _g;
+		let _h;
 		if (alreadyChecked.includes(this.issueData.number)) {
 			return undefined;
 		}

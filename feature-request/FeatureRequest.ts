@@ -68,10 +68,11 @@ export class FeatureRequestQueryer {
 
 	private async actOn(issue: GitHubIssue): Promise<void> {
 		const issueData = await issue.getIssue();
-		if (!issueData.reactions)
+		if (!issueData.reactions) {
 			throw Error(
-				"No reaction data in issue " + JSON.stringify(issueData),
+				`No reaction data in issue ${JSON.stringify(issueData)}`,
 			);
+		}
 
 		if (
 			issueData.reactions["+1"] >= this.config.upvotesRequired &&
@@ -82,7 +83,7 @@ export class FeatureRequestQueryer {
 			await Promise.all([
 				issue.setMilestone(this.config.milestones.backlogID),
 				issue.postComment(
-					ACCEPT_MARKER + "\n" + this.config.comments.accept,
+					`${ACCEPT_MARKER}\n${this.config.comments.accept}`,
 				),
 			]);
 		} else if (issueData.numComments < this.config.numCommentsOverride) {
@@ -115,7 +116,7 @@ export class FeatureRequestQueryer {
 				) {
 					safeLog(`Issue #${issueData.number} nearing rejection`);
 					await issue.postComment(
-						WARN_MARKER + "\n" + this.config.comments.warn,
+						`${WARN_MARKER}\n${this.config.comments.warn}`,
 					);
 				}
 			} else if (
@@ -123,7 +124,7 @@ export class FeatureRequestQueryer {
 			) {
 				safeLog(`Issue #${issueData.number} rejected`);
 				await issue.postComment(
-					REJECT_MARKER + "\n" + this.config.comments.reject,
+					`${REJECT_MARKER}\n${this.config.comments.reject}`,
 				);
 				await issue.closeIssue("not_planned");
 
@@ -177,7 +178,7 @@ export class FeatureRequestOnMilestone {
 	async run(): Promise<void> {
 		const issue = await this.github.getIssue();
 		if (issue.open && issue.milestone?.milestoneId === this.milestone) {
-			await this.github.postComment(CREATE_MARKER + "\n" + this.comment);
+			await this.github.postComment(`${CREATE_MARKER}\n${this.comment}`);
 		}
 	}
 }

@@ -22,7 +22,7 @@ class FeatureRequestQueryer {
 		this.config = config;
 	}
 	async run() {
-		var _a;
+		let _a;
 		let query = `is:open is:issue milestone:"${this.config.milestones.candidateName}" label:"${this.config.featureRequestLabel}"`;
 		query += this.config.labelsToExclude
 			.map((l) => `-label:"${l}"`)
@@ -57,10 +57,11 @@ class FeatureRequestQueryer {
 	}
 	async actOn(issue) {
 		const issueData = await issue.getIssue();
-		if (!issueData.reactions)
+		if (!issueData.reactions) {
 			throw Error(
-				"No reaction data in issue " + JSON.stringify(issueData),
+				`No reaction data in issue ${JSON.stringify(issueData)}`,
 			);
+		}
 		if (
 			issueData.reactions["+1"] >= this.config.upvotesRequired &&
 			this.config.comments.accept &&
@@ -72,7 +73,7 @@ class FeatureRequestQueryer {
 			await Promise.all([
 				issue.setMilestone(this.config.milestones.backlogID),
 				issue.postComment(
-					exports.ACCEPT_MARKER + "\n" + this.config.comments.accept,
+					`${exports.ACCEPT_MARKER}\n${this.config.comments.accept}`,
 				),
 			]);
 		} else if (issueData.numComments < this.config.numCommentsOverride) {
@@ -104,7 +105,7 @@ class FeatureRequestQueryer {
 						`Issue #${issueData.number} nearing rejection`,
 					);
 					await issue.postComment(
-						exports.WARN_MARKER + "\n" + this.config.comments.warn,
+						`${exports.WARN_MARKER}\n${this.config.comments.warn}`,
 					);
 				}
 			} else if (
@@ -112,7 +113,7 @@ class FeatureRequestQueryer {
 			) {
 				(0, utils_1.safeLog)(`Issue #${issueData.number} rejected`);
 				await issue.postComment(
-					exports.REJECT_MARKER + "\n" + this.config.comments.reject,
+					`${exports.REJECT_MARKER}\n${this.config.comments.reject}`,
 				);
 				await issue.closeIssue("not_planned");
 				if (this.config.comments.rejectLabel) {
@@ -138,7 +139,7 @@ class FeatureRequestOnLabel {
 		this.label = label;
 	}
 	async run() {
-		var _a;
+		let _a;
 		await new Promise((resolve) => setTimeout(resolve, this.delay * 1000));
 		const issue = await this.github.getIssue();
 		if (
@@ -162,7 +163,7 @@ class FeatureRequestOnMilestone {
 		this.milestone = milestone;
 	}
 	async run() {
-		var _a;
+		let _a;
 		const issue = await this.github.getIssue();
 		if (
 			issue.open &&
@@ -171,7 +172,7 @@ class FeatureRequestOnMilestone {
 				: _a.milestoneId) === this.milestone
 		) {
 			await this.github.postComment(
-				exports.CREATE_MARKER + "\n" + this.comment,
+				`${exports.CREATE_MARKER}\n${this.comment}`,
 			);
 		}
 	}

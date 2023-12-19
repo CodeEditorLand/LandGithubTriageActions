@@ -16,7 +16,7 @@ export class AuthorVerifiedLabeler {
 	) {}
 
 	private async commentVerficationRequest(comment: string) {
-		const key = `<!-- AUTHOR_VERIFICATION_REQUEST -->`;
+		const key = "<!-- AUTHOR_VERIFICATION_REQUEST -->";
 
 		for await (const page of this.github.getComments()) {
 			for (const comment of page) {
@@ -42,7 +42,9 @@ export class AuthorVerifiedLabeler {
 			issue.labels.includes(this.releasedLabel)
 		) {
 			const latestRelease = await loadLatestRelease("insider");
-			if (!latestRelease) throw Error("Error loading latest release");
+			if (!latestRelease) {
+				throw Error("Error loading latest release");
+			}
 			if (!issue.labels.includes(this.verifiedLabel)) {
 				if (issue.locked) {
 					await this.github.unlockIssue();

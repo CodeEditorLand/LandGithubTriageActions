@@ -9,7 +9,8 @@ const fs_1 = require("fs");
 const path_1 = require("path");
 const utils_1 = require("../../../common/utils");
 const download = async (token, repo, startCursor, isRetry = false) => {
-	var _a, _b;
+	let _a;
+	let _b;
 	const data = await axios_1.default
 		.post(
 			"https://api.github.com/graphql",
@@ -78,7 +79,7 @@ const download = async (token, repo, startCursor, isRetry = false) => {
 				headers: {
 					"Content-Type": "application/json",
 					Accept: "application/json",
-					Authorization: "bearer " + token,
+					Authorization: `bearer ${token}`,
 					"User-Agent":
 						"github-actions://microsoft/vscode-github-triage-actions#fetch-issues",
 				},
@@ -124,7 +125,8 @@ const download = async (token, repo, startCursor, isRetry = false) => {
 		assignees: issue.assignees.nodes.map((assignee) => assignee.login),
 		labelEvents: extractLabelEvents(issue),
 		closedWithCode: !!issue.timelineItems.nodes.find((event) => {
-			var _a, _b;
+			let _a;
+			let _b;
 			return (
 				event.__typename === "ClosedEvent" &&
 				(((_a = event.closer) === null || _a === void 0
@@ -138,7 +140,7 @@ const download = async (token, repo, startCursor, isRetry = false) => {
 	}));
 	(0, fs_1.writeFileSync)(
 		(0, path_1.join)(__dirname, "issues.json"),
-		issues.map((issue) => JSON.stringify(issue)).join("\n") + "\n",
+		`${issues.map((issue) => JSON.stringify(issue)).join("\n")}\n`,
 		{
 			flag: "a",
 		},
@@ -162,7 +164,10 @@ const download = async (token, repo, startCursor, isRetry = false) => {
 };
 exports.download = download;
 const extractLabelEvents = (_issue) => {
-	var _a, _b, _c, _d;
+	let _a;
+	let _b;
+	let _c;
+	let _d;
 	const issue = _issue;
 	const events = [];
 	events.push(
@@ -177,7 +182,8 @@ const extractLabelEvents = (_issue) => {
 			.filter((node) => node.__typename === "LabeledEvent")
 			.map((node) => ({ ...node, issue }))
 			.map((node) => {
-				var _a, _b;
+				let _a;
+				let _b;
 				return {
 					timestamp: +new Date(node.createdAt),
 					type: "labeled",

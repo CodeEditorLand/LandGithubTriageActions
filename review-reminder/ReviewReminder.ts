@@ -418,7 +418,7 @@ export class ReviewReminder {
 		).channels?.find((c) => c.user === slackId);
 
 		// If we have an existing conversation with that user then make sure we're not spamming them
-		if (conversation && conversation.id) {
+		if (conversation?.id) {
 			// Get last message in DM from user and ensure it's been at least 10 days
 			const history = await this.slackClient.conversations.history({
 				channel: conversation.id,
@@ -427,7 +427,7 @@ export class ReviewReminder {
 			const lastMessage = history.messages
 				? history.messages[0]
 				: undefined;
-			if (lastMessage && lastMessage.ts) {
+			if (lastMessage?.ts) {
 				const lastMessageDate = new Date(
 					parseInt(lastMessage.ts) * 1000,
 				);
@@ -487,7 +487,7 @@ export class ReviewReminder {
 		for (const reviewer of stats.topReviewers) {
 			const account = teamMembers.get(reviewer.reviewer);
 			if (!account) {
-				console.log(`Could not find account this is definitely a bug!`);
+				console.log("Could not find account this is definitely a bug!");
 				continue;
 			}
 			if (!account.slack) {
@@ -510,7 +510,7 @@ export class ReviewReminder {
 		for (const reviewer of stats.bottomReviewers) {
 			const account = teamMembers.get(reviewer.reviewer);
 			if (!account) {
-				safeLog(`Could not find account this is definitely a bug!`);
+				safeLog("Could not find account this is definitely a bug!");
 				continue;
 			}
 			if (!account.slack) {

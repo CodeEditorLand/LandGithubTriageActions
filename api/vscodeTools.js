@@ -22,7 +22,7 @@ class VSCodeToolsAPIManager {
 		const members = await this.getTeamMembers();
 		return members
 			.filter((member) => {
-				var _a;
+				let _a;
 				return (
 					((_a = member.duties) === null || _a === void 0
 						? void 0

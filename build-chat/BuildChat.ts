@@ -282,7 +282,7 @@ Result: ${build.data.conclusion} | Repository: ${owner}/${repo} | Branch: ${
 					build.degraded,
 				)
 					.sort()
-					.join(", ") || `None (rebuild)`
+					.join(", ") || "None (rebuild)"
 			}
 <${build.buildHtmlUrl}|Build> | <${createIssueLink}|Create Issue> | <${
 				build.changesHtmlUrl

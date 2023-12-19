@@ -38,7 +38,9 @@ class EnglishPlease extends Action_1.Action {
 		await this.doLanguageSpecific(issue);
 	}
 	async onLabeled(issue, label) {
-		if (label == nonEnglishLabel) await this.doLanguageSpecific(issue);
+		if (label === nonEnglishLabel) {
+			await this.doLanguageSpecific(issue);
+		}
 	}
 }
 new EnglishPlease().run(); // eslint-disable-line

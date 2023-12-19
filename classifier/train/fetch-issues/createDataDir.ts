@@ -150,7 +150,7 @@ export const createDataDirectories = async (
 					"..",
 					DATA_DIR,
 					name,
-					Math.random() < 0.8 || seen[category] == 0
+					Math.random() < 0.8 || seen[category] === 0
 						? "train"
 						: "test",
 					category,

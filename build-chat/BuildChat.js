@@ -239,14 +239,14 @@ Result: ${build.data.conclusion} | Repository: ${owner}/${repo} | Branch: ${
 					build.degraded,
 				)
 					.sort()
-					.join(", ") || `None (rebuild)`
+					.join(", ") || "None (rebuild)"
 			}
 <${build.buildHtmlUrl}|Build> | <${createIssueLink}|Create Issue> | <${
 				build.changesHtmlUrl
 			}|Changes>`,
 			slackAuthors: build.authors
 				.map((a) => {
-					var _a;
+					let _a;
 					return (_a = githubAccountMap[a]) === null || _a === void 0
 						? void 0
 						: _a.slack;
@@ -285,7 +285,8 @@ function githubToAccounts(accounts) {
 	}, {});
 }
 async function listAllMemberships(web) {
-	var _a, _b;
+	let _a;
+	let _b;
 	let groups;
 	const channels = [];
 	do {

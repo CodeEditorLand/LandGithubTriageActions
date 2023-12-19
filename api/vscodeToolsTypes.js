@@ -12,14 +12,14 @@ exports.RotatingMode =
 	exports.Role =
 	exports.Platform =
 		void 0;
-var Platform;
+let Platform;
 ((Platform) => {
 	Platform[(Platform["MAC"] = 1)] = "MAC";
 	Platform[(Platform["WINDOWS"] = 2)] = "WINDOWS";
 	Platform[(Platform["LINUX"] = 3)] = "LINUX";
 	Platform[(Platform["IPAD"] = 4)] = "IPAD";
 })((Platform = exports.Platform || (exports.Platform = {})));
-var Role;
+let Role;
 ((Role) => {
 	Role["CONTENT_DEVELOPER"] = "Content Developer";
 	Role["DEVELOPER"] = "Developer";
@@ -30,7 +30,7 @@ var Role;
 })((Role = exports.Role || (exports.Role = {})));
 // Note: referened by triage bot to find triagers who are not "NOT_AVAILABLE", please make updates there too :)
 // https://github.com/microsoft/vscode-github-triage-actions/blob/c53b3637cd694df982b4a6a048c75ae16500ba1b/classifier-deep/apply/apply-labels/index.ts#L34-L41
-var Availability;
+let Availability;
 ((Availability) => {
 	Availability[(Availability["FULL"] = 1)] = "FULL";
 	Availability[(Availability["HALF"] = 2)] = "HALF";
@@ -43,7 +43,7 @@ exports.TESTING_DUTY = "testing";
 exports.BUILD_DUTY = "build";
 exports.TWITTER_DUTY = "twitter";
 exports.DISCUSSIONS_DUTY = "discussions";
-var RotatingMode;
+let RotatingMode;
 ((RotatingMode) => {
 	RotatingMode[(RotatingMode["NONE"] = 0)] = "NONE";
 	RotatingMode["WEEKLY"] = "weekly";

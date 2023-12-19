@@ -22,7 +22,7 @@ const allowLabels = ((0, utils_1.getInput)("allowLabels") || "").split("|");
 const debug = !!(0, utils_1.getInput)("__debug");
 // Do not modify.
 // Copied from https://github.com/microsoft/vscode-tools/blob/91715fe00caab042b4aab5ed41d0402b0ae2393b/src/common/endgame.ts#L11-L16
-var Availability;
+let Availability;
 ((Availability) => {
 	Availability[(Availability["FULL"] = 1)] = "FULL";
 	Availability[(Availability["HALF"] = 2)] = "HALF";
@@ -35,7 +35,7 @@ class ApplyLabels extends Action_1.Action {
 		this.id = "Classifier-Deep/Apply/ApplyLabels";
 	}
 	async onTriggered(github) {
-		var _a;
+		let _a;
 		const config = await github.readConfig(
 			(0, utils_1.getRequiredInput)("configPath"),
 		);
@@ -53,7 +53,7 @@ class ApplyLabels extends Action_1.Action {
 			);
 			const potentialAssignees = [];
 			const addAssignee = async (assignee) => {
-				var _a;
+				let _a;
 				if (
 					(_a = config.vacation) === null || _a === void 0
 						? void 0
@@ -97,7 +97,7 @@ class ApplyLabels extends Action_1.Action {
 				if (debug) {
 					if (confident) {
 						if (!(await github.repoHasLabel(category))) {
-							(0, utils_1.safeLog)(`creating label`);
+							(0, utils_1.safeLog)("creating label");
 							await github.createLabel(category, "f1d9ff", "");
 						}
 						await issue.addLabel(category);
@@ -136,7 +136,7 @@ class ApplyLabels extends Action_1.Action {
 				if (debug) {
 					if (confident) {
 						if (!(await github.repoHasLabel(category))) {
-							(0, utils_1.safeLog)(`creating assignee label`);
+							(0, utils_1.safeLog)("creating assignee label");
 							await github.createLabel(category, "ffa5a1", "");
 						}
 						await issue.addLabel(category);

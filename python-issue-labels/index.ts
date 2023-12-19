@@ -57,7 +57,7 @@ class IssueLabels extends Action {
 				repo: context.repo.repo,
 				issue_number: context.issue.number,
 			})
-			.then((result) => result.data.assignees!.map((a) => a.login));
+			.then((result) => result.data.assignees?.map((a) => a.login));
 		console.log("Known triagers:", JSON.stringify(knownTriagers));
 		console.log("Current assignees:", JSON.stringify(currentAssignees));
 		const assigneesToRemove = currentAssignees.filter(

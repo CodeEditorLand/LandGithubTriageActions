@@ -45,7 +45,8 @@ class LanguageSpecificLabeler {
 		this.cognitiveServicesAPIKey = cognitiveServicesAPIKey;
 	}
 	async detectLanguage(chunk) {
-		var _a, _b;
+		let _a;
+		let _b;
 		const hashedKey = this.cognitiveServicesAPIKey.replace(/./g, "*");
 		(0, utils_1.safeLog)(
 			"attempting to detect language...",
@@ -69,20 +70,20 @@ class LanguageSpecificLabeler {
 					// The request was made and the server responded with a status code
 					// that falls out of the range of 2xx
 					(0, utils_1.safeLog)(
-						"DATA: " + JSON.stringify(error.response.data),
+						`DATA: ${JSON.stringify(error.response.data)}`,
 					);
 				} else if (error.request) {
 					// The request was made but no response was received
 					// `error.request` is an instance of XMLHttpRequest in the browser and an instance of
 					// http.ClientRequest in node.js
 					(0, utils_1.safeLog)(
-						"REQUEST: " + JSON.stringify(error.request),
+						`REQUEST: ${JSON.stringify(error.request)}`,
 					);
 				} else {
 					// Something happened in setting up the request that triggered an Error
 					(0, utils_1.safeLog)("Error", error.message);
 				}
-				(0, utils_1.safeLog)("CONFIG: " + JSON.stringify(error.config));
+				(0, utils_1.safeLog)(`CONFIG: ${JSON.stringify(error.config)}`);
 			});
 		return (_b =
 			(_a =
@@ -94,7 +95,9 @@ class LanguageSpecificLabeler {
 			: undefined;
 	}
 	async translate(text, to) {
-		var _a, _b, _c;
+		let _a;
+		let _b;
+		let _c;
 		const hashedKey = this.cognitiveServicesAPIKey.replace(/./g, "*");
 		(0, utils_1.safeLog)(
 			"attempting to translate...",
@@ -104,8 +107,7 @@ class LanguageSpecificLabeler {
 		);
 		const result = await axios_1.default
 			.post(
-				"https://api.cognitive.microsofttranslator.com/translate?api-version=3.0&to=" +
-					to,
+				`https://api.cognitive.microsofttranslator.com/translate?api-version=3.0&to=${to}`,
 				[{ text }],
 				{
 					headers: {
@@ -133,7 +135,9 @@ class LanguageSpecificLabeler {
 			: undefined;
 	}
 	async run() {
-		var _a, _b, _c;
+		let _a;
+		let _b;
+		let _c;
 		const issue = await this.issue.getIssue();
 		const { body, title } = (0, utils_1.normalizeIssue)(issue);
 		const translationChunk = `${title} ${body}`;
@@ -157,14 +161,16 @@ class LanguageSpecificLabeler {
 			const languagelabel = issue.labels.find((label) =>
 				label.startsWith(this.translatorRequestedLabelPrefix),
 			);
-			if (languagelabel) await this.issue.removeLabel(languagelabel);
+			if (languagelabel) {
+				await this.issue.removeLabel(languagelabel);
+			}
 			await this.issue.removeLabel(this.englishPleaseLabel);
 			await this.issue.removeLabel(this.needsMoreInfoLabel);
 		} else if (language) {
 			const label =
 				this.translatorRequestedLabelPrefix + commonNames[language];
 			if (!(await this.issue.repoHasLabel(label))) {
-				(0, utils_1.safeLog)("Globally creating label " + label);
+				(0, utils_1.safeLog)(`Globally creating label ${label}`);
 				await this.issue.createLabel(
 					label,
 					this.translatorRequestedLabelColor,
@@ -172,8 +178,9 @@ class LanguageSpecificLabeler {
 				);
 			}
 			await this.issue.addLabel(label);
-			if (this.needsMoreInfoLabel)
+			if (this.needsMoreInfoLabel) {
 				await this.issue.addLabel(this.needsMoreInfoLabel);
+			}
 			const targetLanguageComment =
 				(_c =
 					(_b = knownTranslations[language]) !== null && _b !== void 0

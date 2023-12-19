@@ -9,7 +9,7 @@ const path = require("path");
 const utils_1 = require("../../../common/utils");
 const DATA_DIR = "train_data";
 const createDataDirectories = async (areas, assignees) => {
-	var _a;
+	let _a;
 	const classifications = [
 		{
 			name: "area",
@@ -55,7 +55,7 @@ const createDataDirectories = async (areas, assignees) => {
 				.map((labels) => categoryPriorityFn(labels))
 				.filter((x) => !!x)
 				.reduce((record, label) => {
-					var _a;
+					let _a;
 					record[label] =
 						((_a = record[label]) !== null && _a !== void 0
 							? _a
@@ -135,7 +135,7 @@ const createDataDirectories = async (areas, assignees) => {
 					"..",
 					DATA_DIR,
 					name,
-					Math.random() < 0.8 || seen[category] == 0
+					Math.random() < 0.8 || seen[category] === 0
 						? "train"
 						: "test",
 					category,

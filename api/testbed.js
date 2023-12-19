@@ -7,7 +7,11 @@ exports.TestbedIssue = exports.Testbed = void 0;
 const utils_1 = require("../common/utils");
 class Testbed {
 	constructor(config) {
-		var _a, _b, _c, _d, _e;
+		let _a;
+		let _b;
+		let _c;
+		let _d;
+		let _e;
 		this.repoName = "test-repo";
 		this.repoOwner = "test-owner";
 		this.config = {
@@ -93,7 +97,9 @@ class Testbed {
 exports.Testbed = Testbed;
 class TestbedIssue extends Testbed {
 	constructor(globalConfig, issueConfig) {
-		var _a, _b, _c;
+		let _a;
+		let _b;
+		let _c;
 		super(globalConfig);
 		issueConfig =
 			issueConfig !== null && issueConfig !== void 0 ? issueConfig : {};

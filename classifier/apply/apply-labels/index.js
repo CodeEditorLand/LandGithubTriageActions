@@ -18,7 +18,8 @@ class ApplyLabels extends Action_1.Action {
 		this.id = "Classifier/Apply/ApplyLabels";
 	}
 	async onTriggered(github) {
-		var _a, _b;
+		let _a;
+		let _b;
 		const config = await github.readConfig(
 			(0, utils_1.getRequiredInput)("config-path"),
 		);
@@ -50,7 +51,7 @@ class ApplyLabels extends Action_1.Action {
 				(0, utils_1.safeLog)("has assignee");
 				if (debug) {
 					if (!(await github.repoHasLabel(assignee))) {
-						(0, utils_1.safeLog)(`creating assignee label`);
+						(0, utils_1.safeLog)("creating assignee label");
 						await github.createLabel(assignee, "ffa5a1", "");
 					}
 					await issue.addLabel(assignee);
@@ -84,7 +85,7 @@ class ApplyLabels extends Action_1.Action {
 				);
 				if (debug) {
 					if (!(await github.repoHasLabel(label))) {
-						(0, utils_1.safeLog)(`creating label`);
+						(0, utils_1.safeLog)("creating label");
 						await github.createLabel(label, "f1d9ff", "");
 					}
 				}

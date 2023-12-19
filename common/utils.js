@@ -50,13 +50,13 @@ const normalizeIssue = (issue) => {
 			.replace(/\s+/gu, " ")
 			.replace(/```[^`]*?```/gu, "");
 		while (
-			out.includes(`<details>`) &&
+			out.includes("<details>") &&
 			out.includes("</details>") &&
-			out.indexOf(`</details>`) > out.indexOf(`<details>`)
+			out.indexOf("</details>") > out.indexOf("<details>")
 		) {
 			out =
 				out.slice(0, out.indexOf("<details>")) +
-				out.slice(out.indexOf(`</details>`) + 10);
+				out.slice(out.indexOf("</details>") + 10);
 		}
 		return out;
 	};
@@ -92,7 +92,10 @@ const getRateLimit = async (token) => {
 	).data.resources;
 	const usage = {};
 	["core", "graphql", "search"].forEach(async (category) => {
-		var _a, _b, _c, _d;
+		let _a;
+		let _b;
+		let _c;
+		let _d;
 		if (usageData[category]) {
 			usage[category] =
 				1 -
@@ -115,10 +118,7 @@ const getRateLimit = async (token) => {
 exports.getRateLimit = getRateLimit;
 exports.errorLoggingIssue = (() => {
 	try {
-		const repo =
-			github_1.context.repo.owner.toLowerCase() +
-			"/" +
-			github_1.context.repo.repo.toLowerCase();
+		const repo = `${github_1.context.repo.owner.toLowerCase()}/${github_1.context.repo.repo.toLowerCase()}`;
 		if (
 			repo === "microsoft/vscode" ||
 			repo === "microsoft/vscode-remote-release"
@@ -144,12 +144,13 @@ exports.errorLoggingIssue = (() => {
 	}
 })();
 const logErrorToIssue = async (message, ping, token) => {
-	var _a;
+	let _a;
 	// Attempt to wait out abuse detection timeout if present
 	await new Promise((resolve) => setTimeout(resolve, 10000));
 	const dest = exports.errorLoggingIssue;
-	if (!dest)
+	if (!dest) {
 		return console.log("no error logging repo defined. swallowing error.");
+	}
 	return new octokit_1.OctoKitIssue(
 		token,
 		{ owner: dest.owner, repo: dest.repo },
@@ -181,7 +182,7 @@ ${JSON.stringify(github_1.context, null, 2)
 };
 exports.logErrorToIssue = logErrorToIssue;
 const safeLog = (message, ...args) => {
-	const clean = (val) => ("" + val).replace(/:|#/g, "");
+	const clean = (val) => `${val}`.replace(/:|#/g, "");
 	console.log(clean(message), ...args.map(clean));
 };
 exports.safeLog = safeLog;

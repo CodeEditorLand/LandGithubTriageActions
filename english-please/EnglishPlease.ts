@@ -73,17 +73,17 @@ export class LanguageSpecificLabeler {
 				if (error.response) {
 					// The request was made and the server responded with a status code
 					// that falls out of the range of 2xx
-					safeLog("DATA: " + JSON.stringify(error.response.data));
+					safeLog(`DATA: ${JSON.stringify(error.response.data)}`);
 				} else if (error.request) {
 					// The request was made but no response was received
 					// `error.request` is an instance of XMLHttpRequest in the browser and an instance of
 					// http.ClientRequest in node.js
-					safeLog("REQUEST: " + JSON.stringify(error.request));
+					safeLog(`REQUEST: ${JSON.stringify(error.request)}`);
 				} else {
 					// Something happened in setting up the request that triggered an Error
 					safeLog("Error", error.message);
 				}
-				safeLog("CONFIG: " + JSON.stringify(error.config));
+				safeLog(`CONFIG: ${JSON.stringify(error.config)}`);
 			});
 		return (result as any)?.data?.[0].language ?? undefined;
 	}
@@ -96,8 +96,7 @@ export class LanguageSpecificLabeler {
 		safeLog("attempting to translate...", hashedKey, text.slice(0, 20), to);
 		const result = await axios
 			.post(
-				"https://api.cognitive.microsofttranslator.com/translate?api-version=3.0&to=" +
-					to,
+				`https://api.cognitive.microsofttranslator.com/translate?api-version=3.0&to=${to}`,
 				[{ text }],
 				{
 					headers: {
@@ -139,14 +138,16 @@ export class LanguageSpecificLabeler {
 			const languagelabel = issue.labels.find((label) =>
 				label.startsWith(this.translatorRequestedLabelPrefix),
 			);
-			if (languagelabel) await this.issue.removeLabel(languagelabel);
+			if (languagelabel) {
+				await this.issue.removeLabel(languagelabel);
+			}
 			await this.issue.removeLabel(this.englishPleaseLabel);
 			await this.issue.removeLabel(this.needsMoreInfoLabel);
 		} else if (language) {
 			const label =
 				this.translatorRequestedLabelPrefix + commonNames[language];
 			if (!(await this.issue.repoHasLabel(label))) {
-				safeLog("Globally creating label " + label);
+				safeLog(`Globally creating label ${label}`);
 				await this.issue.createLabel(
 					label,
 					this.translatorRequestedLabelColor,
@@ -154,8 +155,9 @@ export class LanguageSpecificLabeler {
 				);
 			}
 			await this.issue.addLabel(label);
-			if (this.needsMoreInfoLabel)
+			if (this.needsMoreInfoLabel) {
 				await this.issue.addLabel(this.needsMoreInfoLabel);
+			}
 
 			const targetLanguageComment =
 				knownTranslations[language] ??

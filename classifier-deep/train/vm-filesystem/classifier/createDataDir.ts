@@ -73,13 +73,13 @@ const normalizeIssue = (issue: {
 			.replace(/```[^`]*?```/gu, "");
 
 		while (
-			out.includes(`<details>`) &&
+			out.includes("<details>") &&
 			out.includes("</details>") &&
-			out.indexOf(`</details>`) > out.indexOf(`<details>`)
+			out.indexOf("</details>") > out.indexOf("<details>")
 		) {
 			out =
 				out.slice(0, out.indexOf("<details>")) +
-				out.slice(out.indexOf(`</details>`) + 10);
+				out.slice(out.indexOf("</details>") + 10);
 		}
 
 		return out;

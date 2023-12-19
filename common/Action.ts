@@ -22,7 +22,7 @@ export abstract class Action {
 	private token = getRequiredInput("token");
 
 	constructor() {
-		console.log("::stop-commands::" + uuid());
+		console.log(`::stop-commands::${uuid()}`);
 		this.username = getOctokit(this.token)
 			.rest.users.getAuthenticated()
 			.then(
@@ -70,48 +70,57 @@ export abstract class Action {
 				) {
 					switch (context.payload.action) {
 						case "opened":
-						case "ready_for_review":
+						case "ready_for_review": {
 							await this.onOpened(octokit, context.payload);
 							break;
-						case "reopened":
+						}
+						case "reopened": {
 							await this.onReopened(octokit);
 							break;
-						case "closed":
+						}
+						case "closed": {
 							await this.onClosed(octokit, context.payload);
 							break;
-						case "labeled":
+						}
+						case "labeled": {
 							await this.onLabeled(
 								octokit,
 								context.payload.label.name,
 							);
 							break;
-						case "assigned":
+						}
+						case "assigned": {
 							await this.onAssigned(
 								octokit,
 								context.payload.assignee.login,
 							);
 							break;
-						case "unassigned":
+						}
+						case "unassigned": {
 							await this.onUnassigned(
 								octokit,
 								context.payload.assignee.login,
 							);
 							break;
-						case "edited":
+						}
+						case "edited": {
 							await this.onEdited(octokit);
 							break;
-						case "milestoned":
+						}
+						case "milestoned": {
 							await this.onMilestoned(octokit);
 							break;
-						case "converted_to_draft":
+						}
+						case "converted_to_draft": {
 							await this.onConvertedToDraft(
 								octokit,
 								context.payload,
 							);
 							break;
+						}
 						default:
 							throw Error(
-								"Unexpected action: " + context.payload.action,
+								`Unexpected action: ${context.payload.action}`,
 							);
 					}
 				}
@@ -145,7 +154,9 @@ export abstract class Action {
 			user: await this.username,
 		};
 
-		if (context.issue?.number) details.issue = context.issue.number;
+		if (context.issue?.number) {
+			details.issue = context.issue.number;
+		}
 
 		const rendered = `
 Message: ${details.message}

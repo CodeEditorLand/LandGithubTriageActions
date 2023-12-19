@@ -148,7 +148,7 @@ export const download = async (
 				headers: {
 					"Content-Type": "application/json",
 					Accept: "application/json",
-					Authorization: "bearer " + token,
+					Authorization: `bearer ${token}`,
 					"User-Agent":
 						"github-actions://microsoft/vscode-github-triage-actions#fetch-issues",
 				},
@@ -195,7 +195,7 @@ export const download = async (
 
 	writeFileSync(
 		join(__dirname, "issues.json"),
-		issues.map((issue) => JSON.stringify(issue)).join("\n") + "\n",
+		`${issues.map((issue) => JSON.stringify(issue)).join("\n")}\n`,
 		{
 			flag: "a",
 		},

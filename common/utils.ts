@@ -48,13 +48,13 @@ export const normalizeIssue = (issue: {
 			.replace(/```[^`]*?```/gu, "");
 
 		while (
-			out.includes(`<details>`) &&
+			out.includes("<details>") &&
 			out.includes("</details>") &&
-			out.indexOf(`</details>`) > out.indexOf(`<details>`)
+			out.indexOf("</details>") > out.indexOf("<details>")
 		) {
 			out =
 				out.slice(0, out.indexOf("<details>")) +
-				out.slice(out.indexOf(`</details>`) + 10);
+				out.slice(out.indexOf("</details>") + 10);
 		}
 
 		return out;
@@ -111,10 +111,7 @@ export const getRateLimit = async (token: string) => {
 
 export const errorLoggingIssue = (() => {
 	try {
-		const repo =
-			context.repo.owner.toLowerCase() +
-			"/" +
-			context.repo.repo.toLowerCase();
+		const repo = `${context.repo.owner.toLowerCase()}/${context.repo.repo.toLowerCase()}`;
 		if (
 			repo === "microsoft/vscode" ||
 			repo === "microsoft/vscode-remote-release"
@@ -148,8 +145,9 @@ export const logErrorToIssue = async (
 	// Attempt to wait out abuse detection timeout if present
 	await new Promise((resolve) => setTimeout(resolve, 10000));
 	const dest = errorLoggingIssue;
-	if (!dest)
+	if (!dest) {
 		return console.log("no error logging repo defined. swallowing error.");
+	}
 
 	return new OctoKitIssue(
 		token,
@@ -179,7 +177,7 @@ export const safeLog = (
 	message: string,
 	...args: (string | number | string[])[]
 ): void => {
-	const clean = (val: any) => ("" + val).replace(/:|#/g, "");
+	const clean = (val: any) => `${val}`.replace(/:|#/g, "");
 	console.log(clean(message), ...args.map(clean));
 };
 
