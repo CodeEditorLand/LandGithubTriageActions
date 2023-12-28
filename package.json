@@ -26,7 +26,7 @@
 		"@azure/storage-blob": "12.17.0",
 		"@octokit/rest": "20.0.2",
 		"@slack/web-api": "6.11.0",
-		"axios": "1.6.2",
+		"axios": "1.6.3",
 		"uuid": "9.0.1"
 	},
 	"devDependencies": {
@@ -34,7 +34,7 @@
 		"@types/mocha": "10.0.6",
 		"@types/uuid": "9.0.7",
 		"@types/yargs": "17.0.32",
-		"chai": "4.3.10",
+		"chai": "5.0.0",
 		"husky": "8.0.3",
 		"mocha": "10.2.0",
 		"nock": "13.4.0",
