@@ -3,9 +3,9 @@
  *  Licensed under the MIT License. See LICENSE in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { writeFileSync } from "fs";
-import { join } from "path";
-import axios from "axios";
+import axios from 'axios';
+import { writeFileSync } from 'fs';
+import { join } from 'path';
 
 type Response = {
 	rateLimit: RateLimitResponse;
@@ -14,20 +14,20 @@ type Response = {
 
 type GHLabelEvent = {
 	createdAt: string;
-	__typename: "LabeledEvent" | "UnlabeledEvent";
+	__typename: 'LabeledEvent' | 'UnlabeledEvent';
 	label: { name: string };
 	actor: { login: string };
 };
 type GHRenameEvent = {
 	createdAt: string;
-	__typename: "RenamedTitleEvent";
+	__typename: 'RenamedTitleEvent';
 	currentTitle: string;
 	previousTitle: string;
 };
 
 type GHCloseEvent = {
-	__typename: "ClosedEvent";
-	closer: { __typename: "Commit" | "PullRequest" } | null;
+	__typename: 'ClosedEvent';
+	closer: { __typename: 'Commit' | 'PullRequest' } | null;
 };
 
 type RateLimitResponse = { cost: number; remaining: number };
@@ -61,7 +61,7 @@ export type JSONOutputLine = {
 export type LabelEvent = AddedLabelEvent | RemovedLabelEvent;
 
 export type AddedLabelEvent = {
-	type: "added";
+	type: 'added';
 	label: string;
 	actor: string;
 	title: string;
@@ -69,22 +69,18 @@ export type AddedLabelEvent = {
 };
 
 export type RemovedLabelEvent = {
-	type: "removed";
+	type: 'removed';
 	label: string;
 };
 
-export const download = async (
-	token: string,
-	repo: { owner: string; repo: string },
-	endCursor?: string,
-) => {
+export const download = async (token: string, repo: { owner: string; repo: string }, endCursor?: string) => {
 	const data = await axios
 		.post(
-			"https://api.github.com/graphql",
+			'https://api.github.com/graphql',
 			JSON.stringify({
 				query: `{
       repository(name: "${repo.repo}", owner: "${repo.owner}") {
-        issues(first: 100 ${endCursor ? `after: "${endCursor}"` : ""}) {
+        issues(first: 100 ${endCursor ? `after: "${endCursor}"` : ''}) {
           pageInfo {
             endCursor
             hasNextPage
@@ -143,9 +139,9 @@ export const download = async (
 			}),
 			{
 				headers: {
-					"Content-Type": "application/json",
-					Accept: "application/json",
-					Authorization: `bearer ${token}`,
+					'Content-Type': 'application/json',
+					Accept: 'application/json',
+					Authorization: 'bearer ' + token,
 				},
 			},
 		)
@@ -157,29 +153,26 @@ export const download = async (
 
 	const response = data.data as Response;
 
-	const issues: JSONOutputLine[] = response.repository.issues.nodes.map(
-		(issue) => ({
-			number: issue.number,
-			title: issue.title,
-			body: issue.body,
-			createdAt: +new Date(issue.createdAt),
-			labels: issue.labels.nodes.map((label) => label.name),
-			assignees: issue.assignees.nodes.map((assignee) => assignee.login),
-			labelEvents: extractLabelEvents(issue),
-			closedWithCode: !!issue.timelineItems.nodes.find(
-				(event) =>
-					event.__typename === "ClosedEvent" &&
-					(event.closer?.__typename === "PullRequest" ||
-						event.closer?.__typename === "Commit"),
-			),
-		}),
-	);
+	const issues: JSONOutputLine[] = response.repository.issues.nodes.map((issue) => ({
+		number: issue.number,
+		title: issue.title,
+		body: issue.body,
+		createdAt: +new Date(issue.createdAt),
+		labels: issue.labels.nodes.map((label) => label.name),
+		assignees: issue.assignees.nodes.map((assignee) => assignee.login),
+		labelEvents: extractLabelEvents(issue),
+		closedWithCode: !!issue.timelineItems.nodes.find(
+			(event) =>
+				event.__typename === 'ClosedEvent' &&
+				(event.closer?.__typename === 'PullRequest' || event.closer?.__typename === 'Commit'),
+		),
+	}));
 
 	writeFileSync(
-		join(__dirname, "issues.json"),
-		`${issues.map((issue) => JSON.stringify(issue)).join("\n")}\n`,
+		join(__dirname, 'issues.json'),
+		issues.map((issue) => JSON.stringify(issue)).join('\n') + '\n',
 		{
-			flag: "a",
+			flag: 'a',
 		},
 	);
 
@@ -203,104 +196,84 @@ export const download = async (
 	}
 };
 
-const extractLabelEvents = (
-	_issue: IssueResponse["nodes"][number],
-): LabelEvent[] => {
+const extractLabelEvents = (_issue: IssueResponse['nodes'][number]): LabelEvent[] => {
 	const issue = _issue;
 	const events: ({ timestamp: number } & (
-		| { type: "labeled"; label: string; actor: string }
-		| { type: "titleEdited"; new: string; old: string }
-		| { type: "bodyEdited"; new: string }
-		| { type: "unlabeled"; label: string }
+		| { type: 'labeled'; label: string; actor: string }
+		| { type: 'titleEdited'; new: string; old: string }
+		| { type: 'bodyEdited'; new: string }
+		| { type: 'unlabeled'; label: string }
 	))[] = [];
 
 	events.push(
 		...issue.userContentEdits.nodes.map(
-			(node) =>
-				({
-					timestamp: +new Date(node.editedAt),
-					type: "bodyEdited",
-					new: node.diff,
-				}) as const,
+			(node) => ({ timestamp: +new Date(node.editedAt), type: 'bodyEdited', new: node.diff } as const),
 		),
 	);
 
 	events.push(
 		...issue.timelineItems.nodes
-			.filter(
-				(node): node is GHLabelEvent =>
-					node.__typename === "LabeledEvent",
-			)
+			.filter((node): node is GHLabelEvent => node.__typename === 'LabeledEvent')
 			.map((node) => ({ ...node, issue }))
 			.map(
 				(node) =>
 					({
 						timestamp: +new Date(node.createdAt),
-						type: "labeled",
+						type: 'labeled',
 						label: node.label.name,
-						actor: node.actor?.login ?? "ghost",
-					}) as const,
+						actor: node.actor?.login ?? 'ghost',
+					} as const),
 			),
 	);
 
 	events.push(
 		...issue.timelineItems.nodes
-			.filter(
-				(node): node is GHLabelEvent =>
-					node.__typename === "UnlabeledEvent",
-			)
+			.filter((node): node is GHLabelEvent => node.__typename === 'UnlabeledEvent')
 			.map(
 				(node) =>
 					({
 						timestamp: +new Date(node.createdAt),
-						type: "unlabeled",
+						type: 'unlabeled',
 						label: node.label.name,
-					}) as const,
+					} as const),
 			),
 	);
 
 	events.push(
 		...issue.timelineItems.nodes
-			.filter(
-				(node): node is GHRenameEvent =>
-					node.__typename === "RenamedTitleEvent",
-			)
+			.filter((node): node is GHRenameEvent => node.__typename === 'RenamedTitleEvent')
 			.map(
 				(node) =>
 					({
 						timestamp: +new Date(node.createdAt),
-						type: "titleEdited",
+						type: 'titleEdited',
 						new: node.currentTitle,
 						old: node.previousTitle,
-					}) as const,
+					} as const),
 			),
 	);
 
 	events.sort(({ timestamp: a }, { timestamp: b }) => a - b);
 
-	let currentTitle =
-		(events.find((event) => event.type === "titleEdited") as any)?.old ??
-		issue.title;
-	let currentBody =
-		(events.find((event) => event.type === "bodyEdited") as any)?.new ??
-		issue.body;
+	let currentTitle = (events.find((event) => event.type === 'titleEdited') as any)?.old ?? issue.title;
+	let currentBody = (events.find((event) => event.type === 'bodyEdited') as any)?.new ?? issue.body;
 
 	const labelEvents: LabelEvent[] = [];
 	for (const event of events) {
-		if (event.type === "labeled") {
+		if (event.type === 'labeled') {
 			labelEvents.push({
-				type: "added",
+				type: 'added',
 				actor: event.actor,
 				label: event.label,
 				body: currentBody,
 				title: currentTitle,
 			});
-		} else if (event.type === "bodyEdited") {
+		} else if (event.type === 'bodyEdited') {
 			currentBody = event.new;
-		} else if (event.type === "titleEdited") {
+		} else if (event.type === 'titleEdited') {
 			currentTitle = event.new;
-		} else if (event.type === "unlabeled") {
-			labelEvents.push({ type: "removed", label: event.label });
+		} else if (event.type === 'unlabeled') {
+			labelEvents.push({ type: 'removed', label: event.label });
 		}
 	}
 

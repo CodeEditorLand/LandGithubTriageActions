@@ -3,21 +3,18 @@
  *  Licensed under the MIT License. See LICENSE in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { OctoKitIssue } from "../../api/octokit";
-import { Action } from "../../common/Action";
-import { getRequiredInput } from "../../common/utils";
+import { OctoKitIssue } from '../../api/octokit';
+import { Action } from '../../common/Action';
+import { getRequiredInput } from '../../common/utils';
 
 class DeepClassifierMonitor extends Action {
-	id = "Classifier-Deep/Monitor";
+	id = 'Classifier-Deep/Monitor';
 
-	protected async onAssigned(
-		issue: OctoKitIssue,
-		assignee: string,
-	): Promise<void> {
+	protected async onAssigned(issue: OctoKitIssue, assignee: string): Promise<void> {
 		const assigner = await issue.getAssigner(assignee);
-		if (assigner !== getRequiredInput("botName")) {
-			await issue.removeLabel("triage-needed");
-			await issue.removeLabel("stale");
+		if (assigner !== getRequiredInput('botName')) {
+			await issue.removeLabel('triage-needed');
+			await issue.removeLabel('stale');
 		}
 	}
 
@@ -26,4 +23,4 @@ class DeepClassifierMonitor extends Action {
 	}
 }
 
-new DeepClassifierMonitor().run(); // eslint-disable-line
+new DeepClassifierMonitor().run() // eslint-disable-line

@@ -3,8 +3,8 @@
  *  Licensed under the MIT License. See LICENSE in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { GitHub } from "../api/api";
-import { daysAgoToHumanReadbleDate, safeLog } from "../common/utils";
+import { GitHub } from '../api/api';
+import { daysAgoToHumanReadbleDate, safeLog } from '../common/utils';
 
 export class Locker {
 	constructor(
@@ -14,17 +14,17 @@ export class Locker {
 		private label?: string,
 		private ignoreLabelUntil?: string,
 		private labelUntil?: string,
+		private typeIs?: string,
 	) {}
 
 	async run() {
 		const closedTimestamp = daysAgoToHumanReadbleDate(this.daysSinceClose);
-		const updatedTimestamp = daysAgoToHumanReadbleDate(
-			this.daysSinceUpdate,
-		);
+		const updatedTimestamp = daysAgoToHumanReadbleDate(this.daysSinceUpdate);
 
 		const query =
 			`closed:<${closedTimestamp} updated:<${updatedTimestamp} is:unlocked` +
-			(this.label ? ` -label:${this.label}` : "");
+			(this.label ? ` -label:${this.label}` : '') +
+			(this.typeIs ? ` is:${this.typeIs}` : '');
 
 		for await (const page of this.github.query({ q: query })) {
 			await Promise.all(
@@ -34,7 +34,10 @@ export class Locker {
 					if (
 						!hydrated.locked &&
 						hydrated.open === false &&
-						!(this.label && hydrated.labels.includes(this.label))
+						(!this.label || !hydrated.labels.includes(this.label)) &&
+						(!this.typeIs ||
+							(this.typeIs == 'issue' && !hydrated.isPr) ||
+							(this.typeIs == 'pr' && hydrated.isPr))
 						// TODO: Verify closed and updated timestamps
 					) {
 						const skipDueToIgnoreLabel =
@@ -43,22 +46,18 @@ export class Locker {
 							hydrated.labels.includes(this.ignoreLabelUntil) &&
 							!hydrated.labels.includes(this.labelUntil);
 
-						if (skipDueToIgnoreLabel) {
-							safeLog(
-								"Not locking issue as it has ignoreLabelUntil but not labelUntil",
-							);
-						} else {
+						if (!skipDueToIgnoreLabel) {
 							safeLog(`Locking issue ${hydrated.number}`);
 							await issue.lockIssue();
+						} else {
+							safeLog(`Not locking issue as it has ignoreLabelUntil but not labelUntil`);
 						}
-					} else if (hydrated.locked) {
-						safeLog(
-							`Issue ${hydrated.number} is already locked. Ignoring`,
-						);
 					} else {
-						safeLog(
-							`Query returned an invalid issue:${hydrated.number}`,
-						);
+						if (hydrated.locked) {
+							safeLog(`Issue ${hydrated.number} is already locked. Ignoring`);
+						} else {
+							safeLog('Query returned an invalid issue:' + hydrated.number);
+						}
 					}
 				}),
 			);

@@ -3,29 +3,29 @@
 
 export enum Platform {
 	MAC = 1,
-	WINDOWS = 2,
-	LINUX = 3,
-	IPAD = 4,
+	WINDOWS,
+	LINUX,
+	IPAD,
 }
 
-export type Region = "Redmond" | "Zurich";
+export type Region = 'Redmond' | 'Zurich';
 
 export enum Role {
-	CONTENT_DEVELOPER = "Content Developer",
-	DEVELOPER = "Developer",
-	DESIGNER = "Designer",
-	ENGINEERING_MANAGER = "Engineering Manager",
-	PROGRAM_MANAGER = "Program Manager",
-	OTHER = "Other",
+	CONTENT_DEVELOPER = 'Content Developer',
+	DEVELOPER = 'Developer',
+	DESIGNER = 'Designer',
+	ENGINEERING_MANAGER = 'Engineering Manager',
+	PROGRAM_MANAGER = 'Program Manager',
+	OTHER = 'Other',
 }
 
 // Note: referened by triage bot to find triagers who are not "NOT_AVAILABLE", please make updates there too :)
 // https://github.com/microsoft/vscode-github-triage-actions/blob/c53b3637cd694df982b4a6a048c75ae16500ba1b/classifier-deep/apply/apply-labels/index.ts#L34-L41
 export enum Availability {
 	FULL = 1,
-	HALF = 2,
-	OPTIONAL = 3,
-	NOT_AVAILABLE = 4,
+	HALF,
+	OPTIONAL,
+	NOT_AVAILABLE,
 }
 
 export interface ITeamMember {
@@ -39,17 +39,17 @@ export interface ITeamMember {
 	slack?: string;
 }
 
-export const TRIAGE_DUTY = "triage";
-export const ENDGAME_DUTY = "endgame";
-export const TESTING_DUTY = "testing";
-export const BUILD_DUTY = "build";
-export const TWITTER_DUTY = "twitter";
-export const DISCUSSIONS_DUTY = "discussions";
+export const TRIAGE_DUTY = 'triage';
+export const ENDGAME_DUTY = 'endgame';
+export const TESTING_DUTY = 'testing';
+export const BUILD_DUTY = 'build';
+export const TWITTER_DUTY = 'twitter';
+export const DISCUSSIONS_DUTY = 'discussions';
 
 export enum RotatingMode {
-	NONE = 0,
-	WEEKLY = "weekly",
-	MONTHLY = "monthly",
+	NONE,
+	WEEKLY = 'weekly',
+	MONTHLY = 'monthly',
 }
 
 export interface IDuty {

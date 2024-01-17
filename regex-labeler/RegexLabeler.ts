@@ -3,8 +3,8 @@
  *  Licensed under the MIT License. See LICENSE in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { GitHubIssue } from "../api/api";
-import { safeLog } from "../common/utils";
+import { GitHubIssue } from '../api/api';
+import { safeLog } from '../common/utils';
 
 export class RegexFlagger {
 	constructor(
@@ -17,20 +17,19 @@ export class RegexFlagger {
 
 	async run() {
 		const issue = await this.github.getIssue();
-		const stripped = issue.body.replace(/<!--.*?-->/g, "");
+		const stripped = issue.body.replace(/<!--.*?-->/g, '');
 		if (
-			(this.mustNotMatch &&
-				new RegExp(this.mustNotMatch, "i").test(stripped)) ||
-			(this.mustMatch && !new RegExp(this.mustMatch, "i").test(stripped))
+			(this.mustNotMatch && new RegExp(this.mustNotMatch, 'i').test(stripped)) ||
+			(this.mustMatch && !new RegExp(this.mustMatch, 'i').test(stripped))
 		) {
-			safeLog("Flagging");
+			safeLog('Flagging');
 			if (this.label) {
 				await this.github.addLabel(this.label);
 			}
 			if (this.comment) {
 				await this.github.postComment(this.comment);
 			}
-			await this.github.closeIssue("not_planned");
+			await this.github.closeIssue('not_planned');
 		}
 	}
 }

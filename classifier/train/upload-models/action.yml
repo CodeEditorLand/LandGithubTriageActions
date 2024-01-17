@@ -1,16 +1,15 @@
 name: "Trainer: Upload Models"
 description: Upload models to blob storage
 inputs:
-    token:
-        description:
-            GitHub token with issue, comment, and label read/write permissions
-        default: ${{ github.token }}
-    blobContainerName:
-        description: Name of Azure Storage container
-        required: true
-    blobStorageKey:
-        description: Access string for blob storage account
-        required: true
+  token:
+    description: GitHub token with issue, comment, and label read/write permissions
+    default: ${{ github.token }}
+  blobContainerName:
+    description: Name of Azure Storage container
+    required: true
+  blobStorageKey:
+    description: Access string for blob storage account
+    required: true
 runs:
-    using: "node16"
-    main: "index.js"
+  using: 'node16'
+  main: 'index.js'
