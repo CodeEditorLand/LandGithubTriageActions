@@ -82,6 +82,9 @@ jobs:
             - run: pnpm install
               working-directory: .
 
+            - run: pnpm run test
+              working-directory: .
+
             - run: pnpm run build
               working-directory: .
 
@@ -89,6 +92,3 @@ jobs:
               with:
                   name: .-Node-${{ matrix.node-version }}-Target
                   path: ./Target
-
-            - run: pnpm run test
-              working-directory: .
