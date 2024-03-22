@@ -1,4 +1,29 @@
 {
+	"name": "vscode-github-triage-actions",
+	"version": "0.0.1",
+	"private": false,
+	"description": "GitHub Actions used by VS Code for triaging issues",
+	"homepage": "https://github.com/CodeEditorLand/Foundation#readme",
+	"bugs": {
+		"url": "https://github.com/CodeEditorLand/Foundation/issues"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/CodeEditorLand/Foundation.git"
+	},
+	"license": "SEE LICENSE IN LICENSE",
+	"author": {
+		"name": "Playform",
+		"email": "Hello@Playform.Cloud",
+		"url": "https://playform.cloud"
+	},
+	"type": "module",
+	"scripts": {
+		"build": "tsc",
+		"compile": "tsc",
+		"prepublishOnly": "TypeScriptESBuild 'Source/**/*.ts'",
+		"watch": "tsc --watch"
+	},
 	"dependencies": {
 		"@actions/core": "1.10.1",
 		"@actions/github": "6.0.0",
@@ -10,7 +35,6 @@
 		"axios": "1.6.8",
 		"uuid": "9.0.1"
 	},
-	"description": "GitHub Actions used by VS Code for triaging issues",
 	"devDependencies": {
 		"@types/chai": "4.3.13",
 		"@types/mocha": "10.0.6",
@@ -25,12 +49,7 @@
 		"typescript-esbuild": "0.4.5",
 		"yargs": "17.7.2"
 	},
-	"name": "vscode-github-triage-actions",
-	"scripts": {
-		"build": "tsc",
-		"compile": "tsc",
-		"prepublishOnly": "TypeScriptESBuild 'Source/**/*.ts'",
-		"watch": "tsc --watch"
-	},
-	"type": "module"
+	"publishConfig": {
+		"access": "public"
+	}
 }
