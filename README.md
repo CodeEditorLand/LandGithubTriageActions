@@ -7,7 +7,7 @@ Many of these are not specific to VS Code, and can be used in other projects by 
 ```yml
 steps:
   - name: Checkout Actions
-    uses: actions/checkout@v2
+    uses: actions/checkout@v4.1.4
     with:
       repository: 'microsoft/vscode-triage-github-actions'
       ref: stable # not recommeneded, use the lastest released tag to ensure stability
