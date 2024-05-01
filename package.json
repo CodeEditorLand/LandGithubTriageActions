@@ -1,11 +1,31 @@
 {
-	"author": {
-		"email": "Land@PlayForm.Cloud",
-		"name": "🌆 — Land —",
-		"url": "HTTPS://Land.PlayForm.Cloud"
-	},
+	"name": "vscode-github-triage-actions",
+	"version": "0.0.1",
+	"private": false,
+	"description": "GitHub Actions used by VS Code for triaging issues",
+	"keywords": [
+		"land"
+	],
+	"homepage": "HTTPS://GitHub.Com/CodeEditorLand/LandGitHubTriageActions#readme",
 	"bugs": {
 		"url": "HTTPS://GitHub.Com/CodeEditorLand/LandGitHubTriageActions/issues"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+HTTPS://github.com/CodeEditorLand/LandGitHubTriageActions.git"
+	},
+	"license": "SEE LICENSE IN LICENSE",
+	"author": {
+		"name": "🌆 — Land —",
+		"email": "Land@PlayForm.Cloud",
+		"url": "HTTPS://Land.PlayForm.Cloud"
+	},
+	"type": "module",
+	"scripts": {
+		"Document": "Document 'Source/**/*.ts'",
+		"build": "tsc",
+		"compile": "tsc",
+		"prepublishOnly": "Build 'Source/**/*.ts'"
 	},
 	"dependencies": {
 		"@actions/core": "1.10.1",
@@ -15,7 +35,6 @@
 		"axios": "1.6.8",
 		"uuid": "9.0.1"
 	},
-	"description": "GitHub Actions used by VS Code for triaging issues",
 	"devDependencies": {
 		"@playform/build": "0.0.7",
 		"@playform/document": "0.0.6",
@@ -26,26 +45,7 @@
 		"nock": "13.5.4",
 		"yargs": "17.7.2"
 	},
-	"homepage": "HTTPS://GitHub.Com/CodeEditorLand/LandGitHubTriageActions#readme",
-	"keywords": [
-		"land"
-	],
-	"license": "SEE LICENSE IN LICENSE",
-	"name": "vscode-github-triage-actions",
-	"private": false,
 	"publishConfig": {
 		"access": "public"
-	},
-	"repository": {
-		"type": "git",
-		"url": "git+HTTPS://github.com/CodeEditorLand/LandGitHubTriageActions.git"
-	},
-	"scripts": {
-		"Document": "Document 'Source/**/*.ts'",
-		"build": "tsc",
-		"compile": "tsc",
-		"prepublishOnly": "Build 'Source/**/*.ts'"
-	},
-	"type": "module",
-	"version": "0.0.1"
+	}
 }
