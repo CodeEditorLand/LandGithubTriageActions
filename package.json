@@ -28,22 +28,22 @@
 		"prepublishOnly": "Build 'Source/**/*.ts'"
 	},
 	"dependencies": {
-		"@actions/core": "^1.9.1",
-		"@actions/github": "^5.0.3",
-		"@octokit/rest": "^19.0.3",
-		"@slack/web-api": "^6.7.2",
-		"axios": "^1.6.0",
-		"uuid": "^8.3.2"
+		"@actions/core": "1.10.1",
+		"@actions/github": "6.0.0",
+		"@octokit/rest": "20.1.0",
+		"@slack/web-api": "7.0.4",
+		"axios": "1.6.8",
+		"uuid": "9.0.1"
 	},
 	"devDependencies": {
 		"@playform/build": "0.0.7",
 		"@playform/document": "0.0.6",
-		"@types/chai": "^4.3.3",
-		"@types/uuid": "^8.3.4",
-		"@types/yargs": "^17.0.11",
-		"chai": "^4.3.6",
-		"nock": "^13.2.9",
-		"yargs": "^17.5.1"
+		"@types/chai": "4.3.14",
+		"@types/uuid": "9.0.8",
+		"@types/yargs": "17.0.32",
+		"chai": "5.1.0",
+		"nock": "13.5.4",
+		"yargs": "17.7.2"
 	},
 	"publishConfig": {
 		"access": "public"
