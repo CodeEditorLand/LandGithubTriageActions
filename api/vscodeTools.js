@@ -5,10 +5,11 @@ const core_http_1 = require("@azure/core-http");
 const identity_1 = require("@azure/identity");
 const vscodeToolsTypes_1 = require("./vscodeToolsTypes");
 const API_URL = 'https://tools.code.visualstudio.com/api';
+const CREDENTIAL_SCOPES = ['api://3834c68c-adcc-4ad8-818a-8fca4cc260be/.default'];
 class VSCodeToolsAPIManager {
-    constructor(config) {
-        const credential = new identity_1.ClientSecretCredential(config.tenantId, config.clientId, config.clientSecret);
-        this.serviceClient = new core_http_1.ServiceClient(credential, { credentialScopes: [config.clientScope] });
+    constructor() {
+        const credential = new identity_1.AzureCliCredential();
+        this.serviceClient = new core_http_1.ServiceClient(credential, { credentialScopes: CREDENTIAL_SCOPES });
     }
     async getTeamMembers() {
         return this.fetchDataFromAPI(`${API_URL}/team/members`);

@@ -4,19 +4,18 @@
  *--------------------------------------------------------------------------------------------*/
 
 import { getRequiredInput } from '../common/utils';
+import { uploadBlobText } from '../classifier/blobStorage';
 import { Action } from '../common/Action';
-import { ReviewReminder } from './ReviewReminder';
-import { VSCodeToolsAPIManager } from '../api/vscodeTools';
+import { OctoKitIssue } from '../api/octokit';
 
-const slackToken = getRequiredInput('slack_token');
-const auth = getRequiredInput('token');
+const storageKey = getRequiredInput('storageKey');
 
-class ReviewReminderAction extends Action {
-	id = 'ReviewReminder';
+class BlobTest extends Action {
+	id = 'BlobTest';
 
-	async onTriggered() {
-		await new ReviewReminder(auth, slackToken, new VSCodeToolsAPIManager()).run();
+	async onCommented(_issue: OctoKitIssue, comment: string, _actor: string) {
+		await uploadBlobText('test-ignore', comment, 'latest-releases', storageKey);
 	}
 }
 
-new ReviewReminderAction().run() // eslint-disable-line
+new BlobTest().run() // eslint-disable-line

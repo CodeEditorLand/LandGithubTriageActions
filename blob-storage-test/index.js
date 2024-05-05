@@ -5,19 +5,17 @@
  *--------------------------------------------------------------------------------------------*/
 Object.defineProperty(exports, "__esModule", { value: true });
 const utils_1 = require("../common/utils");
+const blobStorage_1 = require("../classifier/blobStorage");
 const Action_1 = require("../common/Action");
-const ReviewReminder_1 = require("./ReviewReminder");
-const vscodeTools_1 = require("../api/vscodeTools");
-const slackToken = (0, utils_1.getRequiredInput)('slack_token');
-const auth = (0, utils_1.getRequiredInput)('token');
-class ReviewReminderAction extends Action_1.Action {
+const storageKey = (0, utils_1.getRequiredInput)('storageKey');
+class BlobTest extends Action_1.Action {
     constructor() {
         super(...arguments);
-        this.id = 'ReviewReminder';
+        this.id = 'BlobTest';
     }
-    async onTriggered() {
-        await new ReviewReminder_1.ReviewReminder(auth, slackToken, new vscodeTools_1.VSCodeToolsAPIManager()).run();
+    async onCommented(_issue, comment, _actor) {
+        await (0, blobStorage_1.uploadBlobText)('test-ignore', comment, 'latest-releases', storageKey);
     }
 }
-new ReviewReminderAction().run(); // eslint-disable-line
+new BlobTest().run(); // eslint-disable-line
 //# sourceMappingURL=index.js.map
