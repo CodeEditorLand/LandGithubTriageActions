@@ -30,7 +30,7 @@
 	"dependencies": {
 		"@actions/core": "1.10.1",
 		"@actions/github": "6.0.0",
-		"@octokit/rest": "20.1.0",
+		"@octokit/rest": "20.1.1",
 		"@slack/web-api": "7.0.4",
 		"axios": "1.6.8",
 		"uuid": "9.0.1"
@@ -38,7 +38,7 @@
 	"devDependencies": {
 		"@playform/build": "0.0.7",
 		"@playform/document": "0.0.6",
-		"@types/chai": "4.3.14",
+		"@types/chai": "4.3.16",
 		"@types/uuid": "9.0.8",
 		"@types/yargs": "17.0.32",
 		"chai": "5.1.0",
