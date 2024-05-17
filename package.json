@@ -1,26 +1,6 @@
 {
 	"name": "vscode-github-triage-actions",
-	"version": "0.0.1",
-	"private": false,
 	"description": "GitHub Actions used by VS Code for triaging issues",
-	"keywords": [
-		"land"
-	],
-	"homepage": "HTTPS://GitHub.Com/CodeEditorLand/LandGitHubTriageActions#readme",
-	"bugs": {
-		"url": "HTTPS://GitHub.Com/CodeEditorLand/LandGitHubTriageActions/issues"
-	},
-	"repository": {
-		"type": "git",
-		"url": "git+HTTPS://github.com/CodeEditorLand/LandGitHubTriageActions.git"
-	},
-	"license": "SEE LICENSE IN LICENSE",
-	"author": {
-		"name": "🛬 Land —",
-		"email": "Land@PlayForm.Cloud",
-		"url": "HTTPS://Land.PlayForm.Cloud"
-	},
-	"type": "module",
 	"scripts": {
 		"Document": "Document 'Source/**/*.ts'",
 		"build": "tsc",
@@ -37,15 +17,11 @@
 	},
 	"devDependencies": {
 		"@playform/build": "0.0.7",
-		"@playform/document": "0.0.6",
 		"@types/chai": "4.3.16",
 		"@types/uuid": "9.0.8",
 		"@types/yargs": "17.0.32",
 		"chai": "5.1.0",
 		"nock": "13.5.4",
 		"yargs": "17.7.2"
-	},
-	"publishConfig": {
-		"access": "public"
 	}
 }
