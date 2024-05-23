@@ -10,7 +10,7 @@
 		"@actions/github": "6.0.0",
 		"@octokit/rest": "20.1.1",
 		"@slack/web-api": "7.0.4",
-		"axios": "1.7.1",
+		"axios": "1.7.2",
 		"uuid": "9.0.1"
 	},
 	"devDependencies": {
