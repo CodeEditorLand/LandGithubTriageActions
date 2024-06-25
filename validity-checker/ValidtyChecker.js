@@ -9,6 +9,11 @@ const utils_1 = require("../common/utils");
 const keywords = [
     'money',
     'xbox',
+    'temu',
+    'instagram',
+    'coupon',
+    'fullclip',
+    'fortnite',
     'tiktok',
     'tik-tok',
     'nintendo',
@@ -18,6 +23,10 @@ const keywords = [
     'v-bucks',
     'gift card',
     'giftcard',
+    'movie',
+    'viral',
+    'cinema',
+    'watch now',
 ];
 class ValidtyChecker {
     constructor(github) {
@@ -27,10 +36,11 @@ class ValidtyChecker {
         const issue = await this.github.getIssue();
         (0, utils_1.safeLog)(`Checking issue validty for #${issue.number}...`);
         const hasKeyword = keywords.some((keyword) => issue.title.includes(keyword) || issue.body.includes(keyword));
-        const isBadAuthor = issue.author.name === 'gmemarket2024' || issue.author.name === 'ghost';
+        const isBadAuthor = issue.author.name === 'ghost';
         if (hasKeyword || isBadAuthor) {
             (0, utils_1.safeLog)(`Issue #${issue.number} is not a valid issue, closing...`);
             try {
+                await this.github.addLabel('invalid');
                 await this.github.closeIssue('not_planned');
                 await this.github.lockIssue();
             }
