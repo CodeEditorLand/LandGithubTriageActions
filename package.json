@@ -1,4 +1,10 @@
 {
+	"name": "vscode-github-triage-actions",
+	"description": "GitHub Actions used by VS Code for triaging issues",
+	"scripts": {
+		"build": "tsc",
+		"compile": "tsc"
+	},
 	"dependencies": {
 		"@actions/core": "1.10.1",
 		"@actions/github": "6.0.0",
@@ -7,7 +13,6 @@
 		"axios": "1.7.2",
 		"uuid": "10.0.0"
 	},
-	"description": "GitHub Actions used by VS Code for triaging issues",
 	"devDependencies": {
 		"@types/chai": "4.3.16",
 		"@types/uuid": "10.0.0",
@@ -15,10 +20,5 @@
 		"chai": "5.1.1",
 		"nock": "13.5.4",
 		"yargs": "17.7.2"
-	},
-	"name": "vscode-github-triage-actions",
-	"scripts": {
-		"build": "tsc",
-		"compile": "tsc"
 	}
 }
