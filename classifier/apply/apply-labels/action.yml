@@ -1,0 +1,12 @@
+name: "Classifier: Apply Labels"
+description: Applies labels generated from the python script back to thier respective issues
+inputs:
+  token:
+    description: GitHub token with issue, comment, and label read/write permissions
+    default: ${{ github.token }}
+  config-path:
+    description: The PATH of a .github/PATH.json in the repo that describes what should be done per feature area
+    required: true
+runs:
+  using: 'node20'
+  main: 'index.js'
