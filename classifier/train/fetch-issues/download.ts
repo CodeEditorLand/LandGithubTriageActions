@@ -6,6 +6,7 @@
 import axios from 'axios';
 import { writeFileSync } from 'fs';
 import { join } from 'path';
+import { getAuthenticationToken } from '../../../common/Action';
 
 type Response = {
 	rateLimit: RateLimitResponse;
@@ -73,7 +74,8 @@ export type RemovedLabelEvent = {
 	label: string;
 };
 
-export const download = async (token: string, repo: { owner: string; repo: string }, endCursor?: string) => {
+export const download = async (repo: { owner: string; repo: string }, endCursor?: string) => {
+	const token = await getAuthenticationToken();
 	const data = await axios
 		.post(
 			'https://api.github.com/graphql',
@@ -189,7 +191,7 @@ export const download = async (token: string, repo: { owner: string; repo: strin
 	if (pageInfo.hasNextPage) {
 		return new Promise<void>((resolve) => {
 			setTimeout(async () => {
-				await download(token, repo, endCursor);
+				await download(repo, endCursor);
 				resolve();
 			}, 1000);
 		});

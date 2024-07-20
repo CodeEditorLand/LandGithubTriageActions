@@ -5,13 +5,13 @@
 
 import { readFileSync } from 'fs';
 import { join } from 'path';
-import { context } from '@actions/github';
 import { OctoKit, OctoKitIssue } from '../../../api/octokit';
-import { getRequiredInput, getInput, safeLog } from '../../../common/utils';
-import { Action } from '../../../common/Action';
+import { Action, getAuthenticationToken } from '../../../common/Action';
+import { getInput, getRequiredInput, safeLog } from '../../../common/utils';
 
-const token = getRequiredInput('token');
 const debug = !!getInput('__debug');
+const owner = getRequiredInput('owner');
+const repo = getRequiredInput('repo');
 
 type ClassifierConfig = {
 	labels?: {
@@ -27,13 +27,14 @@ class ApplyLabels extends Action {
 	id = 'Classifier/Apply/ApplyLabels';
 
 	async onTriggered(github: OctoKit) {
+		const token = await getAuthenticationToken();
 		const config: ClassifierConfig = await github.readConfig(getRequiredInput('config-path'));
 		const labelings: { number: number; area: string; assignee: string }[] = JSON.parse(
 			readFileSync(join(__dirname, '../issue_labels.json'), { encoding: 'utf8' }),
 		);
 
 		for (const labeling of labelings) {
-			const issue = new OctoKitIssue(token, context.repo, { number: labeling.number });
+			const issue = new OctoKitIssue(token, { owner, repo }, { number: labeling.number });
 			const issueData = await issue.getIssue();
 
 			if (!debug && issueData.assignee) {
@@ -82,7 +83,7 @@ class ApplyLabels extends Action {
 						[available[i], available[j]] = [available[j], available[i]];
 					}
 					if (!debug) {
-						const issue = new OctoKitIssue(token, context.repo, { number: labeling.number });
+						const issue = new OctoKitIssue(token, { owner, repo }, { number: labeling.number });
 
 						await issue.addLabel('triage-needed');
 						const randomSelection = available[0];
