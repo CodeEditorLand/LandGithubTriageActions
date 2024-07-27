@@ -8,16 +8,20 @@ const utils_1 = require("../common/utils");
 const Action_1 = require("../common/Action");
 const ReviewReminder_1 = require("./ReviewReminder");
 const vscodeTools_1 = require("../api/vscodeTools");
-const slackToken = (0, utils_1.getRequiredInput)('slack_token');
-const auth = (0, utils_1.getRequiredInput)('token');
+const slackToken = (0, utils_1.getRequiredInput)("slack_token");
+const auth = (0, utils_1.getRequiredInput)("token");
 class ReviewReminderAction extends Action_1.Action {
-    constructor() {
-        super(...arguments);
-        this.id = 'ReviewReminder';
-    }
-    async onTriggered() {
-        await new ReviewReminder_1.ReviewReminder(auth, slackToken, new vscodeTools_1.VSCodeToolsAPIManager()).run();
-    }
+	constructor() {
+		super(...arguments);
+		this.id = "ReviewReminder";
+	}
+	async onTriggered() {
+		await new ReviewReminder_1.ReviewReminder(
+			auth,
+			slackToken,
+			new vscodeTools_1.VSCodeToolsAPIManager(),
+		).run();
+	}
 }
 new ReviewReminderAction().run(); // eslint-disable-line
 //# sourceMappingURL=index.js.map

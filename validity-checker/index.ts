@@ -3,12 +3,12 @@
  *  Licensed under the MIT License. See LICENSE in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { OctoKitIssue } from '../api/octokit';
-import { Action } from '../common/Action';
-import { ValidtyChecker } from './ValidtyChecker';
+import { OctoKitIssue } from "../api/octokit";
+import { Action } from "../common/Action";
+import { ValidtyChecker } from "./ValidtyChecker";
 
 class ValidtyCheckerAction extends Action {
-	id = 'ValidtyChecker';
+	id = "ValidtyChecker";
 
 	async onOpened(issue: OctoKitIssue) {
 		await new ValidtyChecker(issue).run();
@@ -19,4 +19,4 @@ class ValidtyCheckerAction extends Action {
 	}
 }
 
-new ValidtyCheckerAction().run() // eslint-disable-line
+new ValidtyCheckerAction().run(); // eslint-disable-line

@@ -3,8 +3,12 @@
  *  Licensed under the MIT License. See LICENSE in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { GitHub } from '../api/api';
-import { daysAgoToHumanReadbleDate, daysAgoToTimestamp, safeLog } from '../common/utils';
+import { GitHub } from "../api/api";
+import {
+	daysAgoToHumanReadbleDate,
+	daysAgoToTimestamp,
+	safeLog,
+} from "../common/utils";
 
 export class NeedsMoreInfoCloser {
 	constructor(
@@ -26,9 +30,11 @@ export class NeedsMoreInfoCloser {
 		for await (const page of this.github.query({ q: query })) {
 			for (const issue of page) {
 				const hydrated = await issue.getIssue();
-				const lastCommentIterator = await issue.getComments(true).next();
+				const lastCommentIterator = await issue
+					.getComments(true)
+					.next();
 				if (lastCommentIterator.done) {
-					throw Error('Unexpected comment data');
+					throw Error("Unexpected comment data");
 				}
 				const lastComment = lastCommentIterator.value[0];
 
@@ -45,16 +51,23 @@ export class NeedsMoreInfoCloser {
 						(await issue.hasWriteAccess(lastComment.author.name))
 					) {
 						if (lastComment) {
-							safeLog(`Last comment on ${hydrated.number} by team. Closing.`);
+							safeLog(
+								`Last comment on ${hydrated.number} by team. Closing.`,
+							);
 						} else {
-							safeLog(`No comments on ${hydrated.number}. Closing.`);
+							safeLog(
+								`No comments on ${hydrated.number}. Closing.`,
+							);
 						}
 						if (this.closeComment) {
 							await issue.postComment(this.closeComment);
 						}
-						await issue.closeIssue('not_planned');
+						await issue.closeIssue("not_planned");
 					} else {
-						if (hydrated.updatedAt < pingTimestamp && hydrated.assignee) {
+						if (
+							hydrated.updatedAt < pingTimestamp &&
+							hydrated.assignee
+						) {
 							safeLog(
 								`Last comment on ${hydrated.number} by rando. Pinging @${hydrated.assignee}`,
 							);
@@ -62,22 +75,30 @@ export class NeedsMoreInfoCloser {
 								await issue.postComment(
 									this.pingComment
 										.replace(
-											'${assignee}',
-											hydrated.assignees?.join(' @') || hydrated.assignee,
+											"${assignee}",
+											hydrated.assignees?.join(" @") ||
+												hydrated.assignee,
 										)
-										.replace('${author}', hydrated.author.name),
+										.replace(
+											"${author}",
+											hydrated.author.name,
+										),
 								);
 							}
 						} else {
 							safeLog(
 								`Last comment on ${hydrated.number} by rando. Skipping.${
-									hydrated.assignee ? ' cc @' + hydrated.assignee : ''
+									hydrated.assignee
+										? " cc @" + hydrated.assignee
+										: ""
 								}`,
 							);
 						}
 					}
 				} else {
-					safeLog('Query returned an invalid issue:' + hydrated.number);
+					safeLog(
+						"Query returned an invalid issue:" + hydrated.number,
+					);
 				}
 			}
 		}

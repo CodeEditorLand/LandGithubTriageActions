@@ -3,24 +3,24 @@
  *  Licensed under the MIT License. See LICENSE in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { OctoKitIssue } from '../api/octokit';
-import { getInput, getRequiredInput } from '../common/utils';
-import { NewRelease } from './NewRelease';
-import { Action } from '../common/Action';
+import { OctoKitIssue } from "../api/octokit";
+import { getInput, getRequiredInput } from "../common/utils";
+import { NewRelease } from "./NewRelease";
+import { Action } from "../common/Action";
 
 class NewReleaseAction extends Action {
-	id = 'NewRelease';
+	id = "NewRelease";
 
 	async onOpened(issue: OctoKitIssue) {
 		await new NewRelease(
 			issue,
-			getRequiredInput('label'),
-			getRequiredInput('labelColor'),
-			getRequiredInput('labelDescription'),
-			+getRequiredInput('days'),
-			getInput('oldVersionMessage'),
+			getRequiredInput("label"),
+			getRequiredInput("labelColor"),
+			getRequiredInput("labelDescription"),
+			+getRequiredInput("days"),
+			getInput("oldVersionMessage"),
 		).run();
 	}
 }
 
-new NewReleaseAction().run() // eslint-disable-line
+new NewReleaseAction().run(); // eslint-disable-line
