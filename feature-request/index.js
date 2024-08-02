@@ -4,9 +4,9 @@
  *  Licensed under the MIT License. See LICENSE in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 Object.defineProperty(exports, "__esModule", { value: true });
+const Action_1 = require("../common/Action");
 const utils_1 = require("../common/utils");
 const FeatureRequest_1 = require("./FeatureRequest");
-const Action_1 = require("../common/Action");
 const config = {
 	milestones: {
 		candidateID: +(0, utils_1.getRequiredInput)("candidateMilestoneID"),
@@ -32,30 +32,18 @@ const config = {
 	},
 };
 class FeatureRequest extends Action_1.Action {
-	constructor() {
-		super(...arguments);
-		this.id = "FeatureRequest";
-	}
-	async onTriggered(github) {
-		await new FeatureRequest_1.FeatureRequestQueryer(github, config).run();
-	}
-	async onLabeled(github, label) {
-		if (label === config.featureRequestLabel) {
-			await new FeatureRequest_1.FeatureRequestOnLabel(
-				github,
-				+(0, utils_1.getRequiredInput)("milestoneDelaySeconds"),
-				config.milestones.candidateID,
-				config.featureRequestLabel,
-			).run();
-		}
-	}
-	async onMilestoned(github) {
-		await new FeatureRequest_1.FeatureRequestOnMilestone(
-			github,
-			config.comments.init,
-			config.milestones.candidateID,
-		).run();
-	}
+    constructor() {
+        super(...arguments);
+        this.id = 'FeatureRequest';
+    }
+    async onLabeled(github, label) {
+        if (label === config.featureRequestLabel) {
+            await new FeatureRequest_1.FeatureRequestOnLabel(github, +(0, utils_1.getRequiredInput)('milestoneDelaySeconds'), config.milestones.candidateID, config.featureRequestLabel).run();
+        }
+    }
+    async onMilestoned(github) {
+        await new FeatureRequest_1.FeatureRequestOnMilestone(github, config.comments.init, config.milestones.candidateID).run();
+    }
 }
 new FeatureRequest().run(); // eslint-disable-line
 //# sourceMappingURL=index.js.map

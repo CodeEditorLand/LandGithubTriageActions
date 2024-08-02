@@ -3,15 +3,10 @@
  *  Licensed under the MIT License. See LICENSE in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { OctoKit, OctoKitIssue } from "../api/octokit";
-import { getInput, getRequiredInput } from "../common/utils";
-import {
-	FeatureRequestConfig,
-	FeatureRequestOnLabel,
-	FeatureRequestQueryer,
-	FeatureRequestOnMilestone,
-} from "./FeatureRequest";
-import { Action } from "../common/Action";
+import { OctoKitIssue } from '../api/octokit';
+import { Action } from '../common/Action';
+import { getInput, getRequiredInput } from '../common/utils';
+import { FeatureRequestConfig, FeatureRequestOnLabel, FeatureRequestOnMilestone } from './FeatureRequest';
 
 const config: FeatureRequestConfig = {
 	milestones: {
@@ -40,10 +35,6 @@ const config: FeatureRequestConfig = {
 
 class FeatureRequest extends Action {
 	id = "FeatureRequest";
-
-	async onTriggered(github: OctoKit) {
-		await new FeatureRequestQueryer(github, config).run();
-	}
 
 	async onLabeled(github: OctoKitIssue, label: string) {
 		if (label === config.featureRequestLabel) {

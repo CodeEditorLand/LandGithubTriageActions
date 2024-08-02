@@ -48,6 +48,50 @@ export abstract class Action {
 		);
 	}
 
+	getAssignee(): string {
+		const payload = getInput('payload');
+		let assignee = '';
+		if (payload) {
+			assignee = JSON.parse(payload).assignee;
+		} else {
+			assignee = context.payload.assignee.login;
+		}
+		return assignee;
+	}
+
+	getComment() {
+		const payload = getInput('comment');
+		let comment = '';
+		if (payload) {
+			comment = JSON.parse(payload)?.body;
+		} else {
+			comment = context.payload.comment?.body;
+		}
+		return comment;
+	}
+
+	getCommentAuthor() {
+		const payload = getInput('comment');
+		let author = '';
+		if (payload) {
+			author = JSON.parse(payload).user?.login;
+		} else {
+			author = context.payload.comment?.user?.login;
+		}
+		return author;
+	}
+
+	getLabel() {
+		const payload = getInput('payload');
+		let label = '';
+		if (payload) {
+			label = JSON.parse(payload).label;
+		} else {
+			label = context.payload.label?.name;
+		}
+		return label;
+	}
+
 	public async run() {
 		if (errorLoggingIssue) {
 			const errorIssue = errorLoggingIssue(this.repoName, this.repoOwner);
@@ -64,8 +108,8 @@ export abstract class Action {
 
 		try {
 			const token = await this.getToken();
-			const readonly = !!getInput("readonly");
-
+			const readonly = !!getInput('readonly');
+			const event = getInput('event') ?? context.eventName;
 			if (this.issue) {
 				const octokit = new OctoKitIssue(
 					token,
@@ -73,20 +117,17 @@ export abstract class Action {
 					{ number: this.issue },
 					{ readonly },
 				);
-				if (context.eventName === "issue_comment") {
-					await this.onCommented(
-						octokit,
-						context.payload.comment?.body,
-						context.actor,
-					);
+				if (event === 'issue_comment') {
+					await this.onCommented(octokit, this.getComment(), this.getCommentAuthor());
 				} else if (
-					context.eventName === "issues" ||
-					context.eventName === "pull_request" ||
-					context.eventName === "pull_request_target"
+					event === 'issues' ||
+					event === 'pull_request' ||
+					event === 'pull_request_target'
 				) {
-					switch (context.payload.action) {
-						case "opened":
-						case "ready_for_review":
+					const action = getInput('action') ?? context.payload.action;
+					switch (action) {
+						case 'opened':
+						case 'ready_for_review':
 							await this.onOpened(octokit, context.payload);
 							break;
 						case "reopened":
@@ -95,23 +136,14 @@ export abstract class Action {
 						case "closed":
 							await this.onClosed(octokit, context.payload);
 							break;
-						case "labeled":
-							await this.onLabeled(
-								octokit,
-								context.payload.label.name,
-							);
+						case 'labeled':
+							await this.onLabeled(octokit, this.getLabel());
 							break;
-						case "assigned":
-							await this.onAssigned(
-								octokit,
-								context.payload.assignee.login,
-							);
+						case 'assigned':
+							await this.onAssigned(octokit, this.getAssignee());
 							break;
-						case "unassigned":
-							await this.onUnassigned(
-								octokit,
-								context.payload.assignee.login,
-							);
+						case 'unassigned':
+							await this.onUnassigned(octokit, this.getAssignee());
 							break;
 						case "edited":
 							await this.onEdited(octokit);
@@ -126,12 +158,10 @@ export abstract class Action {
 							);
 							break;
 						default:
-							throw Error(
-								"Unexpected action: " + context.payload.action,
-							);
+							throw Error('Unexpected action: ' + action);
 					}
 				}
-			} else if (context.eventName === "create") {
+			} else if (event === 'create') {
 				await this.onCreated(
 					new OctoKit(
 						token,

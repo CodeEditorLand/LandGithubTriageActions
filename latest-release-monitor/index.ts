@@ -24,9 +24,9 @@ class LatestReleaseMonitor extends Action {
 
 		const latest = (await loadLatestRelease(quality))?.version;
 		if (latest && latest !== lastKnown) {
-			safeLog("found a new release of", quality);
-			const owner = this.repoOwner;
-			const repo = this.repoName;
+			safeLog('found a new release of', quality);
+			const owner = 'microsoft';
+			const repo = 'vscode-engineering';
 			const token = await this.getToken();
 			await uploadBlobText(
 				"latest-" + quality,

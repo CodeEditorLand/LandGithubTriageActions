@@ -3,42 +3,42 @@ description:
     Respond to commands given in the form of either labels or comments by
     contributors or authorized community members
 inputs:
-    token:
-        description:
-            GitHub token with issue, comment, and label read/write permissions
-        default: ${{ github.token }}
-    config-path:
-        description:
-            Name of .json file (no extension) in .github/ directory of repo
-            holding configuration for this action
-        required: true
-    appInsightsKey:
-        description: Key for Azure App Insights to monitor application health
-    repository:
-        description:
-            Repository object for a triggered action. Otherwise, this is
-            obtained from the github context.
-        required: false
-    issue:
-        description:
-            Issue object for a triggered action. Otherwise, this is obtained
-            from the github context.
-        required: false
-    event:
-        description:
-            Event name for a triggered action. Otherwise, this is obtained from
-            the github context.
-        required: false
-    action:
-        description:
-            Action name for a triggered action. Otherwise, this is obtained from
-            the github context.
-        required: false
-    comment:
-        description:
-            Comment object for a triggered action. Otherwise, this is obtained
-            from the github context.
-        required: false
+  app_id:
+    description: GitHub App ID
+    required: true
+  app_installation_id:
+    description: GitHub App Installation ID
+    required: true
+  app_private_key:
+    description: GitHub App Private Key
+    required: true
+  owner:
+    description: Repository owner
+    required: false
+  repo:
+    description: Repository name
+    required: false
+  issue_number:
+    description: Issue number
+    required: false
+  config-path:
+    description: Name of .json file (no extension) in .github/ directory of repo holding configuration for this action
+    required: true
+  repository:
+    description: Repository object for a triggered action. Otherwise, this is obtained from the github context.
+    required: false
+  issue:
+    description: Issue object for a triggered action. Otherwise, this is obtained from the github context.
+    required: false
+  event:
+    description: Event name for a triggered action. Otherwise, this is obtained from the github context.
+    required: false
+  action:
+    description: Action name for a triggered action. Otherwise, this is obtained from the github context.
+    required: false
+  comment:
+    description: Comment object for a triggered action. Otherwise, this is obtained from the github context.
+    required: false
 runs:
     using: "node20"
     main: "index.js"

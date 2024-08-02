@@ -3,23 +3,20 @@
  *  Licensed under the MIT License. See LICENSE in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { context } from "@actions/github";
-import { OctoKitIssue } from "../api/octokit";
-import { getInput, getRequiredInput } from "../common/utils";
-import { RegexFlagger } from "./RegexLabeler";
-import { Action } from "../common/Action";
+import { OctoKitIssue } from '../api/octokit';
+import { Action } from '../common/Action';
+import { getInput } from '../common/utils';
+import { RegexFlagger } from './RegexLabeler';
 
 class RegexFlaggerActon extends Action {
-	id = "RegexFlagger";
-	async onOpened() {
+	id = 'RegexFlagger';
+	async onOpened(issue: OctoKitIssue) {
 		await new RegexFlagger(
-			new OctoKitIssue(getRequiredInput("token"), context.repo, {
-				number: context.issue.number,
-			}),
-			getInput("label"),
-			getInput("comment"),
-			getInput("mustMatch"),
-			getInput("mustNotMatch"),
+			issue,
+			getInput('label'),
+			getInput('comment'),
+			getInput('mustMatch'),
+			getInput('mustNotMatch'),
 		).run();
 	}
 }

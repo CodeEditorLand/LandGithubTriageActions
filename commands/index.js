@@ -23,92 +23,45 @@ const hydrate = (comment, issue) => {
 		.replace("${author}", issue.author.name);
 };
 class CommandsRunner extends Action_1.Action {
-	constructor() {
-		super(...arguments);
-		this.id = "Commands";
-	}
-	async onCommented(issue, comment, actor) {
-		const commands = await issue.readConfig(
-			(0, utils_1.getRequiredInput)("config-path"),
-		);
-		await new Commands_1.Commands(
-			issue,
-			commands,
-			{ comment, user: { name: actor } },
-			hydrate,
-		).run();
-	}
-	async onLabeled(issue, label) {
-		const commands = await issue.readConfig(
-			(0, utils_1.getRequiredInput)("config-path"),
-		);
-		await new Commands_1.Commands(
-			issue,
-			commands,
-			{ label },
-			hydrate,
-		).run();
-	}
-	async onTriggered() {
-		// This function is only called during a manual workspace dispatch event
-		// caused by a webhook, so we know to expect some inputs.
-		const auth = (0, utils_1.getRequiredInput)("token");
-		const event = (0, utils_1.getRequiredInput)("event");
-		const issue = JSON.parse((0, utils_1.getRequiredInput)("issue"));
-		const repository = JSON.parse(
-			(0, utils_1.getRequiredInput)("repository"),
-		);
-		const octokitIssue = new octokit_1.OctoKitIssue(
-			auth,
-			{ owner: repository.owner.login, repo: repository.name },
-			{ number: issue.number },
-		);
-		if (event === "issue_comment") {
-			const commentObject = JSON.parse(
-				(0, utils_1.getRequiredInput)("comment"),
-			);
-			const comment = commentObject.body;
-			const actor = commentObject.user.login;
-			const commands = await octokitIssue.readConfig(
-				(0, utils_1.getRequiredInput)("config-path"),
-				"vscode-engineering",
-			);
-			await new Commands_1.Commands(
-				octokitIssue,
-				commands,
-				{ comment, user: { name: actor } },
-				hydrate,
-			).run();
-		} else if (event === "issues") {
-			const action = (0, utils_1.getRequiredInput)("action");
-			switch (action) {
-				case "labeled":
-					{
-						for (const label of issue.labels) {
-							const commands = await octokitIssue.readConfig(
-								(0, utils_1.getRequiredInput)("config-path"),
-								"vscode-engineering",
-							);
-							await new Commands_1.Commands(
-								octokitIssue,
-								commands,
-								{ label: label.name },
-								hydrate,
-							).run();
-						}
-					}
-					break;
-				case "edited":
-					console.log(
-						"Performing a no-op operation for edited event",
-					);
-					return;
-				default:
-					throw Error(`Unknown event: ${event}`);
-			}
-		}
-		return;
-	}
+    constructor() {
+        super(...arguments);
+        this.id = 'Commands';
+    }
+    async onCommented(issue, comment, actor) {
+        const commands = await issue.readConfig((0, utils_1.getRequiredInput)('config-path'));
+        await new Commands_1.Commands(issue, commands, { comment, user: { name: actor } }, hydrate).run();
+    }
+    async onLabeled(issue, label) {
+        const commands = await issue.readConfig((0, utils_1.getRequiredInput)('config-path'));
+        await new Commands_1.Commands(issue, commands, { label }, hydrate).run();
+    }
+    async onTriggered() {
+        // This function is only called during a manual workspace dispatch event
+        // caused by a webhook, so we know to expect some inputs.
+        const auth = await this.getToken();
+        const event = (0, utils_1.getRequiredInput)('event');
+        const issue = JSON.parse((0, utils_1.getRequiredInput)('issue'));
+        const repository = JSON.parse((0, utils_1.getRequiredInput)('repository'));
+        const octokitIssue = new octokit_1.OctoKitIssue(auth, { owner: repository.owner.login, repo: repository.name }, { number: issue.number });
+        if (event === 'issue_comment') {
+            const commentObject = JSON.parse((0, utils_1.getRequiredInput)('comment'));
+            const comment = commentObject.body;
+            const actor = commentObject.user.login;
+            const commands = await octokitIssue.readConfig((0, utils_1.getRequiredInput)('config-path'), 'vscode-engineering');
+            await new Commands_1.Commands(octokitIssue, commands, { comment, user: { name: actor } }, hydrate).run();
+        }
+        else if (event === 'issues') {
+            const action = (0, utils_1.getRequiredInput)('action');
+            if (action !== 'labeled') {
+                return;
+            }
+            for (const label of issue.labels) {
+                const commands = await octokitIssue.readConfig((0, utils_1.getRequiredInput)('config-path'), 'vscode-engineering');
+                await new Commands_1.Commands(octokitIssue, commands, { label: label.name }, hydrate).run();
+            }
+        }
+        return;
+    }
 }
 new CommandsRunner().run(); // eslint-disable-line
 //# sourceMappingURL=index.js.map

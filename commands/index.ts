@@ -50,12 +50,10 @@ class CommandsRunner extends Action {
 	protected override async onTriggered() {
 		// This function is only called during a manual workspace dispatch event
 		// caused by a webhook, so we know to expect some inputs.
-		const auth = getRequiredInput("token");
-		const event = getRequiredInput("event");
-		const issue = JSON.parse(getRequiredInput("issue"));
-		const repository: PayloadRepository = JSON.parse(
-			getRequiredInput("repository"),
-		);
+		const auth = await this.getToken();
+		const event = getRequiredInput('event');
+		const issue = JSON.parse(getRequiredInput('issue'));
+		const repository: PayloadRepository = JSON.parse(getRequiredInput('repository'));
 
 		const octokitIssue = new OctoKitIssue(
 			auth,
@@ -71,38 +69,19 @@ class CommandsRunner extends Action {
 				getRequiredInput("config-path"),
 				"vscode-engineering",
 			);
-			await new Commands(
-				octokitIssue,
-				commands,
-				{ comment, user: { name: actor } },
-				hydrate,
-			).run();
-		} else if (event === "issues") {
-			const action = getRequiredInput("action");
-			switch (action) {
-				case "labeled":
-					{
-						for (const label of issue.labels) {
-							const commands = await octokitIssue.readConfig(
-								getRequiredInput("config-path"),
-								"vscode-engineering",
-							);
-							await new Commands(
-								octokitIssue,
-								commands,
-								{ label: label.name },
-								hydrate,
-							).run();
-						}
-					}
-					break;
-				case "edited":
-					console.log(
-						"Performing a no-op operation for edited event",
-					);
-					return;
-				default:
-					throw Error(`Unknown event: ${event}`);
+			await new Commands(octokitIssue, commands, { comment, user: { name: actor } }, hydrate).run();
+		} else if (event === 'issues') {
+			const action = getRequiredInput('action');
+			if (action !== 'labeled') {
+				return;
+			}
+
+			for (const label of issue.labels) {
+				const commands = await octokitIssue.readConfig(
+					getRequiredInput('config-path'),
+					'vscode-engineering',
+				);
+				await new Commands(octokitIssue, commands, { label: label.name }, hydrate).run();
 			}
 		}
 		return;
