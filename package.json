@@ -3,9 +3,9 @@
 		"@actions/core": "1.10.1",
 		"@actions/github": "6.0.0",
 		"@octokit/auth-app": "7.1.0",
-		"@octokit/rest": "21.0.1",
-		"@slack/web-api": "7.3.2",
-		"axios": "1.7.3",
+		"@octokit/rest": "21.0.2",
+		"@slack/web-api": "7.3.4",
+		"axios": "1.7.4",
 		"uuid": "10.0.0"
 	},
 	"description": "GitHub Actions used by VS Code for triaging issues",
@@ -14,7 +14,7 @@
 		"@types/uuid": "10.0.0",
 		"@types/yargs": "17.0.33",
 		"chai": "5.1.1",
-		"nock": "14.0.0-beta.9",
+		"nock": "14.0.0-beta.11",
 		"yargs": "17.7.2"
 	},
 	"name": "vscode-github-triage-actions",
