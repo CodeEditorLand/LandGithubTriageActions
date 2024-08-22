@@ -102,17 +102,14 @@ export class ReviewReminder {
 	 */
 	private async *getRepositories(octokit: Octokit) {
 		// Inject a few extra repos that aren't in the VS Code org
-		yield { owner: { login: "microsoft" }, name: "vscode-jupyter" };
-		yield { owner: { login: "microsoft" }, name: "vscode-python" };
-		const it = octokit.paginate.iterator(
-			octokit.rest.repos.listForAuthenticatedUser,
-			{
-				per_page: 100,
-			},
-		);
+		yield { owner: { login: 'microsoft' }, name: 'vscode-jupyter' };
+		yield { owner: { login: 'microsoft' }, name: 'vscode-python' };
+		const it = octokit.paginate.iterator(octokit.rest.apps.listReposAccessibleToInstallation, {
+			per_page: 100,
+		});
 
 		for await (const { data: repositories } of it) {
-			for (const repository of repositories) {
+			for (const repository of repositories.repositories) {
 				if (repository.archived) {
 					continue;
 				}
