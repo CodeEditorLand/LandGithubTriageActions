@@ -3,8 +3,8 @@
  *  Licensed under the MIT License. See LICENSE in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { GitHub } from '../api/api';
-import { daysAgoToHumanReadbleDate, safeLog } from '../common/utils';
+import { GitHub } from "../api/api";
+import { daysAgoToHumanReadbleDate, safeLog } from "../common/utils";
 
 export class Locker {
 	constructor(
@@ -20,16 +20,25 @@ export class Locker {
 
 	async run() {
 		const closedTimestamp = daysAgoToHumanReadbleDate(this.daysSinceClose);
-		const updatedTimestamp = daysAgoToHumanReadbleDate(this.daysSinceUpdate);
-		const milestones = this.ignoredMilestones ? this.ignoredMilestones.split(',') : [];
-		const milestonesQuery = milestones.map((milestone) => ` -milestone:"${milestone}"`).join('');
+		const updatedTimestamp = daysAgoToHumanReadbleDate(
+			this.daysSinceUpdate,
+		);
+		const milestones = this.ignoredMilestones
+			? this.ignoredMilestones.split(",")
+			: [];
+		const milestonesQuery = milestones
+			.map((milestone) => ` -milestone:"${milestone}"`)
+			.join("");
 		const query =
-			`repo:${this.github.repoOwner}/${this.github.repoName} closed:<${closedTimestamp} updated:<${updatedTimestamp} is:unlocked` +
-			(this.label ? ` -label:${this.label}` : '') +
-			(milestones.length > 0 ? milestonesQuery : '') +
-			(this.typeIs ? ` is:${this.typeIs}` : '');
+			`closed:<${closedTimestamp} updated:<${updatedTimestamp} is:unlocked` +
+			(this.label ? ` -label:${this.label}` : "") +
+			(milestones.length > 0 ? milestonesQuery : "") +
+			(this.typeIs ? ` is:${this.typeIs}` : "");
 
-		for await (const page of this.github.query({ q: query, per_page: 50 })) {
+		for await (const page of this.github.query({
+			q: query,
+			per_page: 50,
+		})) {
 			page.map(async (issue) => {
 				const hydrated = await issue.getIssue();
 
@@ -38,8 +47,8 @@ export class Locker {
 					hydrated.open === false &&
 					(!this.label || !hydrated.labels.includes(this.label)) &&
 					(!this.typeIs ||
-						(this.typeIs == 'issue' && !hydrated.isPr) ||
-						(this.typeIs == 'pr' && hydrated.isPr)) &&
+						(this.typeIs == "issue" && !hydrated.isPr) ||
+						(this.typeIs == "pr" && hydrated.isPr)) &&
 					(!this.ignoredMilestones ||
 						!hydrated.milestone ||
 						!milestones.includes(hydrated.milestone.title))
@@ -61,13 +70,20 @@ export class Locker {
 							safeLog(err?.stack || err?.message || String(e));
 						}
 					} else {
-						safeLog(`Not locking issue as it has ignoreLabelUntil but not labelUntil`);
+						safeLog(
+							`Not locking issue as it has ignoreLabelUntil but not labelUntil`,
+						);
 					}
 				} else {
 					if (hydrated.locked) {
-						safeLog(`Issue ${hydrated.number} is already locked. Ignoring`);
+						safeLog(
+							`Issue ${hydrated.number} is already locked. Ignoring`,
+						);
 					} else {
-						safeLog('Query returned an invalid issue:' + hydrated.number);
+						safeLog(
+							"Query returned an invalid issue:" +
+								hydrated.number,
+						);
 					}
 				}
 			});

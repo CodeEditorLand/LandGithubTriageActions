@@ -1,6 +1,6 @@
-name: 'Review Reminder'
-description: 'Notify in chat about build results.'
-author: 'Logan Ramos'
+name: "Review Reminder"
+description: "Notify in chat about build results."
+author: "Logan Ramos"
 inputs:
   app_id:
     description: GitHub App ID
@@ -15,5 +15,5 @@ inputs:
     description: Slack token.
     required: true
 runs:
-  using: 'node20'
-  main: 'index.js'
+    using: "node20"
+    main: "index.js"

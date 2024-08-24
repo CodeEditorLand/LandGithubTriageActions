@@ -1,4 +1,4 @@
-name: 'Regex Labeler'
+name: "Regex Labeler"
 description: Close issues that do or don't match particular Regex's
 inputs:
   app_id:
@@ -34,5 +34,5 @@ inputs:
   label:
     description: Label to apply to isses that don't fit the criteria
 runs:
-  using: 'node20'
-  main: 'index.js'
+    using: "node20"
+    main: "index.js"

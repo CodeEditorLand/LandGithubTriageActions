@@ -11,7 +11,7 @@ import { ReviewReminder } from './ReviewReminder';
 const slackToken = getRequiredInput('slack_token');
 
 class ReviewReminderAction extends Action {
-	id = 'ReviewReminder';
+	id = "ReviewReminder";
 
 	async onTriggered() {
 		const auth = await this.getToken();
@@ -19,4 +19,4 @@ class ReviewReminderAction extends Action {
 	}
 }
 
-new ReviewReminderAction().run() // eslint-disable-line
+new ReviewReminderAction().run(); // eslint-disable-line

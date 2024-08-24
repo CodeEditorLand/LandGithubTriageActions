@@ -1,5 +1,7 @@
 name: Feature request
-description: Manage feature requests according to the VS Code feature request specification
+description:
+    Manage feature requests according to the VS Code feature request
+    specification
 inputs:
   app_id:
     description: GitHub App ID
@@ -69,5 +71,5 @@ inputs:
     description: Delay between adding a feature request label and assigning the issue to candidate milestone
     required: true
 runs:
-  using: 'node20'
-  main: 'index.js'
+    using: "node20"
+    main: "index.js"

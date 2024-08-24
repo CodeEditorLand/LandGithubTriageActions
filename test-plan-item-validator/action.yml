@@ -1,4 +1,4 @@
-name: 'Test Plan Item Validator'
+name: "Test Plan Item Validator"
 description: Tag issues that don't contain important info
 inputs:
   token:
@@ -41,5 +41,5 @@ inputs:
     description: Comment to post to invalid test plan items
     required: true
 runs:
-  using: 'node20'
-  main: 'index.js'
+    using: "node20"
+    main: "index.js"

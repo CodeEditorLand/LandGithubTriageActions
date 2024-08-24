@@ -69,23 +69,30 @@ class ReleasePipeline {
 }
 exports.ReleasePipeline = ReleasePipeline;
 const enrollIssue = async (issue, notYetReleasedLabel) => {
-    var _a;
-    const closingHash = (_a = (await issue.getClosingInfo())) === null || _a === void 0 ? void 0 : _a.hash;
-    if (closingHash) {
-        await issue.addLabel(notYetReleasedLabel);
-        // Get the milestone linked to the current release and set it if the issue doesn't have one
-        const releaseMilestone = (await issue.getIssue()).milestone
-            ? undefined
-            : await issue.getCurrentRepoMilestone();
-        if (releaseMilestone !== undefined) {
-            await issue.setMilestone(releaseMilestone);
-        }
-    }
+	var _a;
+	const closingHash =
+		(_a = await issue.getClosingInfo()) === null || _a === void 0
+			? void 0
+			: _a.hash;
+	if (closingHash) {
+		await issue.addLabel(notYetReleasedLabel);
+		// Get the milestone linked to the current release and set it if the issue doesn't have one
+		const releaseMilestone = (await issue.getIssue()).milestone
+			? undefined
+			: await issue.getCurrentRepoMilestone();
+		if (releaseMilestone !== undefined) {
+			await issue.setMilestone(releaseMilestone);
+		}
+	}
 };
 exports.enrollIssue = enrollIssue;
-const unenrollIssue = async (issue, notYetReleasedLabel, insidersReleasedLabel) => {
-    await issue.removeLabel(insidersReleasedLabel);
-    await issue.removeLabel(notYetReleasedLabel);
+const unenrollIssue = async (
+	issue,
+	notYetReleasedLabel,
+	insidersReleasedLabel,
+) => {
+	await issue.removeLabel(insidersReleasedLabel);
+	await issue.removeLabel(notYetReleasedLabel);
 };
 exports.unenrollIssue = unenrollIssue;
 //# sourceMappingURL=ReleasePipeline.js.map

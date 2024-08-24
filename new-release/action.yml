@@ -1,5 +1,6 @@
 name: New Release
-description: Identify issues with a version tag matching the latest vscode release
+description:
+    Identify issues with a version tag matching the latest vscode release
 inputs:
   app_id:
     description: GitHub App ID
@@ -40,5 +41,5 @@ inputs:
   oldVersionMessage:
     description: comment to post when an issue version is not the latest version. The token "{currentVersion}" will be replaced with the latest release version
 runs:
-  using: 'node20'
-  main: 'index.js'
+    using: "node20"
+    main: "index.js"

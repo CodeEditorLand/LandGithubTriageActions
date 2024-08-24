@@ -1,6 +1,6 @@
-name: 'Code Review Chat'
-description: 'Notify in chat about build results.'
-author: 'Jackson Kearl / Logan Ramos'
+name: "Code Review Chat"
+description: "Notify in chat about build results."
+author: "Jackson Kearl / Logan Ramos"
 inputs:
   app_id:
     description: GitHub App ID
@@ -39,5 +39,5 @@ inputs:
     description: 'Repository name - used in webhooks'
     required: false
 runs:
-  using: 'node20'
-  main: 'index.js'
+    using: "node20"
+    main: "index.js"

@@ -1,5 +1,7 @@
 name: Latest Release Monitor
-description: Keep track of the latest releases of insiders and stable and trigger webhook events when they change
+description:
+    Keep track of the latest releases of insiders and stable and trigger webhook
+    events when they change
 inputs:
   app_id:
     description: GitHub App ID
@@ -12,5 +14,5 @@ inputs:
   repo:
     description: Repository name
 runs:
-  using: 'node20'
-  main: 'index.js'
+    using: "node20"
+    main: "index.js"

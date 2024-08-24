@@ -90,39 +90,50 @@ class FeatureRequestQueryer {
 }
 exports.FeatureRequestQueryer = FeatureRequestQueryer;
 class FeatureRequestOnLabel {
-    constructor(github, delay, milestone, label) {
-        this.github = github;
-        this.delay = delay;
-        this.milestone = milestone;
-        this.label = label;
-    }
-    async run() {
-        var _a;
-        await new Promise((resolve) => setTimeout(resolve, this.delay * 1000));
-        const issue = await this.github.getIssue();
-        if (!issue.open ||
-            ((_a = issue.milestone) === null || _a === void 0 ? void 0 : _a.milestoneId) ||
-            !issue.labels.includes(this.label) ||
-            (await this.github.hasWriteAccess(issue.author.name))) {
-            return;
-        }
-        return this.github.setMilestone(this.milestone);
-    }
+	constructor(github, delay, milestone, label) {
+		this.github = github;
+		this.delay = delay;
+		this.milestone = milestone;
+		this.label = label;
+	}
+	async run() {
+		var _a;
+		await new Promise((resolve) => setTimeout(resolve, this.delay * 1000));
+		const issue = await this.github.getIssue();
+		if (
+			!issue.open ||
+			((_a = issue.milestone) === null || _a === void 0
+				? void 0
+				: _a.milestoneId) ||
+			!issue.labels.includes(this.label) ||
+			(await this.github.hasWriteAccess(issue.author.name))
+		) {
+			return;
+		}
+		return this.github.setMilestone(this.milestone);
+	}
 }
 exports.FeatureRequestOnLabel = FeatureRequestOnLabel;
 class FeatureRequestOnMilestone {
-    constructor(github, comment, milestone) {
-        this.github = github;
-        this.comment = comment;
-        this.milestone = milestone;
-    }
-    async run() {
-        var _a;
-        const issue = await this.github.getIssue();
-        if (issue.open && ((_a = issue.milestone) === null || _a === void 0 ? void 0 : _a.milestoneId) === this.milestone) {
-            await this.github.postComment(exports.CREATE_MARKER + '\n' + this.comment);
-        }
-    }
+	constructor(github, comment, milestone) {
+		this.github = github;
+		this.comment = comment;
+		this.milestone = milestone;
+	}
+	async run() {
+		var _a;
+		const issue = await this.github.getIssue();
+		if (
+			issue.open &&
+			((_a = issue.milestone) === null || _a === void 0
+				? void 0
+				: _a.milestoneId) === this.milestone
+		) {
+			await this.github.postComment(
+				exports.CREATE_MARKER + "\n" + this.comment,
+			);
+		}
+	}
 }
 exports.FeatureRequestOnMilestone = FeatureRequestOnMilestone;
 //# sourceMappingURL=FeatureRequest.js.map

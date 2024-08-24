@@ -15,35 +15,37 @@ import {
 
 const config: FeatureRequestConfig = {
 	milestones: {
-		candidateID: +getRequiredInput('candidateMilestoneID'),
-		candidateName: getRequiredInput('candidateMilestoneName'),
-		backlogID: +getRequiredInput('backlogMilestoneID'),
+		candidateID: +getRequiredInput("candidateMilestoneID"),
+		candidateName: getRequiredInput("candidateMilestoneName"),
+		backlogID: +getRequiredInput("backlogMilestoneID"),
 	},
-	featureRequestLabel: getRequiredInput('featureRequestLabel'),
-	upvotesRequired: +getRequiredInput('upvotesRequired'),
-	numCommentsOverride: +getRequiredInput('numCommentsOverride'),
-	labelsToExclude: ((getInput('labelsToExclude') as string) || '').split(',').filter((l) => !!l),
+	featureRequestLabel: getRequiredInput("featureRequestLabel"),
+	upvotesRequired: +getRequiredInput("upvotesRequired"),
+	numCommentsOverride: +getRequiredInput("numCommentsOverride"),
+	labelsToExclude: ((getInput("labelsToExclude") as string) || "")
+		.split(",")
+		.filter((l) => !!l),
 	comments: {
-		init: getRequiredInput('initComment'),
-		warn: getRequiredInput('warnComment'),
-		accept: getRequiredInput('acceptComment'),
-		reject: getRequiredInput('rejectComment'),
-		rejectLabel: getInput('rejectLabel'),
+		init: getRequiredInput("initComment"),
+		warn: getRequiredInput("warnComment"),
+		accept: getRequiredInput("acceptComment"),
+		reject: getRequiredInput("rejectComment"),
+		rejectLabel: getInput("rejectLabel"),
 	},
 	delays: {
-		warn: +getRequiredInput('warnDays'),
-		close: +getRequiredInput('closeDays'),
+		warn: +getRequiredInput("warnDays"),
+		close: +getRequiredInput("closeDays"),
 	},
 };
 
 class FeatureRequest extends Action {
-	id = 'FeatureRequest';
+	id = "FeatureRequest";
 
 	async onLabeled(github: OctoKitIssue, label: string) {
 		if (label === config.featureRequestLabel) {
 			await new FeatureRequestOnLabel(
 				github,
-				+getRequiredInput('milestoneDelaySeconds'),
+				+getRequiredInput("milestoneDelaySeconds"),
 				config.milestones.candidateID,
 				config.featureRequestLabel,
 			).run();
@@ -67,4 +69,4 @@ class FeatureRequest extends Action {
 	}
 }
 
-new FeatureRequest().run() // eslint-disable-line
+new FeatureRequest().run(); // eslint-disable-line

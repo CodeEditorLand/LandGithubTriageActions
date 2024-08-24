@@ -3,15 +3,17 @@
  *  Licensed under the MIT License. See LICENSE in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { safeLog } from '../common/utils';
-import { Comment, GitHub, GitHubIssue, Issue, Query } from './api';
+import { safeLog } from "../common/utils";
+import { Comment, GitHub, GitHubIssue, Issue, Query } from "./api";
 
 type TestbedConfig = {
 	globalLabels: string[];
 	configs: Record<string, any>;
 	writers: string[];
 	releasedCommits: string[];
-	queryRunner: (query: Query) => AsyncIterableIterator<(TestbedIssueConstructorArgs | TestbedIssue)[]>;
+	queryRunner: (
+		query: Query,
+	) => AsyncIterableIterator<(TestbedIssueConstructorArgs | TestbedIssue)[]>;
 };
 
 export type TestbedConstructorArgs = Partial<TestbedConfig>;
@@ -19,8 +21,8 @@ export type TestbedConstructorArgs = Partial<TestbedConfig>;
 export class Testbed implements GitHub {
 	public config: TestbedConfig;
 
-	public readonly repoName: string = 'test-repo';
-	public readonly repoOwner: string = 'test-owner';
+	public readonly repoName: string = "test-repo";
+	public readonly repoOwner: string = "test-owner";
 
 	constructor(config?: TestbedConstructorArgs) {
 		this.config = {
@@ -39,12 +41,19 @@ export class Testbed implements GitHub {
 	async *query(query: Query): AsyncIterableIterator<GitHubIssue[]> {
 		for await (const page of this.config.queryRunner(query)) {
 			yield page.map((issue) =>
-				issue instanceof TestbedIssue ? issue : new TestbedIssue(this.config, issue),
+				issue instanceof TestbedIssue
+					? issue
+					: new TestbedIssue(this.config, issue),
 			);
 		}
 	}
 
-	async createIssue(_owner: string, _repo: string, _title: string, _body: string): Promise<void> {
+	async createIssue(
+		_owner: string,
+		_repo: string,
+		_title: string,
+		_body: string,
+	): Promise<void> {
 		// pass...
 	}
 
@@ -60,20 +69,29 @@ export class Testbed implements GitHub {
 		return this.config.globalLabels.includes(label);
 	}
 
-	async createLabel(label: string, _color: string, _description: string): Promise<void> {
+	async createLabel(
+		label: string,
+		_color: string,
+		_description: string,
+	): Promise<void> {
 		this.config.globalLabels.push(label);
 	}
 
 	async deleteLabel(labelToDelete: string): Promise<void> {
-		this.config.globalLabels = this.config.globalLabels.filter((label) => label !== labelToDelete);
+		this.config.globalLabels = this.config.globalLabels.filter(
+			(label) => label !== labelToDelete,
+		);
 	}
 
-	async releaseContainsCommit(_release: string, commit: string): Promise<'yes' | 'no' | 'unknown'> {
-		return this.config.releasedCommits.includes(commit) ? 'yes' : 'no';
+	async releaseContainsCommit(
+		_release: string,
+		commit: string,
+	): Promise<"yes" | "no" | "unknown"> {
+		return this.config.releasedCommits.includes(commit) ? "yes" : "no";
 	}
 
 	async dispatch(title: string): Promise<void> {
-		safeLog('dispatching for', title);
+		safeLog("dispatching for", title);
 	}
 
 	async getCurrentRepoMilestone(): Promise<number | undefined> {
@@ -83,36 +101,41 @@ export class Testbed implements GitHub {
 }
 
 type TestbedIssueConfig = {
-	issue: Omit<Issue, 'labels'>;
+	issue: Omit<Issue, "labels">;
 	comments: Comment[];
 	labels: string[];
 	closingCommit: { hash: string | undefined; timestamp: number } | undefined;
 };
 
-export type TestbedIssueConstructorArgs = Partial<Omit<TestbedIssueConfig, 'issue'>> & {
-	issue?: Partial<Omit<Issue, 'labels'>>;
+export type TestbedIssueConstructorArgs = Partial<
+	Omit<TestbedIssueConfig, "issue">
+> & {
+	issue?: Partial<Omit<Issue, "labels">>;
 };
 
 export class TestbedIssue extends Testbed implements GitHubIssue {
 	public issueConfig: TestbedIssueConfig;
 
-	constructor(globalConfig?: TestbedConstructorArgs, issueConfig?: TestbedIssueConstructorArgs) {
+	constructor(
+		globalConfig?: TestbedConstructorArgs,
+		issueConfig?: TestbedIssueConstructorArgs,
+	) {
 		super(globalConfig);
 		issueConfig = issueConfig ?? {};
 		issueConfig.comments = issueConfig?.comments ?? [];
 		issueConfig.labels = issueConfig?.labels ?? [];
 		issueConfig.issue = {
-			author: { name: 'JacksonKearl' },
-			body: 'issue body',
+			author: { name: "JacksonKearl" },
+			body: "issue body",
 			locked: false,
 			numComments: issueConfig?.comments?.length || 0,
 			number: 1,
 			open: true,
-			title: 'issue title',
+			title: "issue title",
 			assignee: undefined,
 			reactions: {
-				'+1': 0,
-				'-1': 0,
+				"+1": 0,
+				"-1": 0,
 				confused: 0,
 				eyes: 0,
 				heart: 0,
@@ -143,14 +166,14 @@ export class TestbedIssue extends Testbed implements GitHubIssue {
 		} else {
 			this.issueConfig.issue.milestone = {
 				milestoneId,
-				title: '',
-				description: '',
+				title: "",
+				description: "",
 				dueOn: new Date(),
 				closedAt: new Date(),
 				createdAt: new Date(),
 				numClosedIssues: 0,
 				numOpenIssues: 0,
-				state: 'open',
+				state: "open",
 			};
 		}
 	}
@@ -162,7 +185,7 @@ export class TestbedIssue extends Testbed implements GitHubIssue {
 
 	async postComment(body: string, author?: string): Promise<void> {
 		this.issueConfig.comments.push({
-			author: { name: author ?? 'bot' },
+			author: { name: author ?? "bot" },
 			body,
 			id: Math.random(),
 			timestamp: +new Date(),
@@ -170,7 +193,9 @@ export class TestbedIssue extends Testbed implements GitHubIssue {
 	}
 
 	async deleteComment(id: number): Promise<void> {
-		this.issueConfig.comments = this.issueConfig.comments.filter((comment) => comment.id !== id);
+		this.issueConfig.comments = this.issueConfig.comments.filter(
+			(comment) => comment.id !== id,
+		);
 	}
 
 	async *getComments(last?: boolean): AsyncIterableIterator<Comment[]> {
@@ -184,7 +209,9 @@ export class TestbedIssue extends Testbed implements GitHubIssue {
 	}
 
 	async removeLabel(labelToDelete: string): Promise<void> {
-		this.issueConfig.labels = this.issueConfig.labels.filter((label) => label !== labelToDelete);
+		this.issueConfig.labels = this.issueConfig.labels.filter(
+			(label) => label !== labelToDelete,
+		);
 	}
 
 	async closeIssue(): Promise<void> {
@@ -199,7 +226,9 @@ export class TestbedIssue extends Testbed implements GitHubIssue {
 		this.issueConfig.issue.locked = false;
 	}
 
-	async getClosingInfo(): Promise<{ hash: string | undefined; timestamp: number } | undefined> {
+	async getClosingInfo(): Promise<
+		{ hash: string | undefined; timestamp: number } | undefined
+	> {
 		return this.issueConfig.closingCommit;
 	}
 }

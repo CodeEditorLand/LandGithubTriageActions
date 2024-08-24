@@ -1,5 +1,7 @@
 name: Author Verified
-description: Allow issue authors to verify their own issues by pinging them when the fix goes into insiders
+description:
+    Allow issue authors to verify their own issues by pinging them when the fix
+    goes into insiders
 inputs:
   app_id:
     description: GitHub App ID
@@ -38,5 +40,5 @@ inputs:
     description: Label added by issue fixer to signal that the author can verify the issue
     required: true
 runs:
-  using: 'node20'
-  main: 'index.js'
+    using: "node20"
+    main: "index.js"

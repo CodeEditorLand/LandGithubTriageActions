@@ -10,11 +10,17 @@ const Action_1 = require("../common/Action");
 const utils_1 = require("../common/utils");
 const Commands_1 = require("./Commands");
 const hydrate = (comment, issue) => {
-    const baseQueryString = `https://github.com/${github_1.context.repo.owner}/${github_1.context.repo.repo}/issues?utf8=%E2%9C%93&q=is%3Aopen+is%3Aissue+`;
-    const importantLabels = issue.labels.filter((label) => label !== '*duplicate');
-    const labelsQueryString = encodeURIComponent(importantLabels.map((label) => `label:"${label}"`).join(' '));
-    const url = baseQueryString + labelsQueryString;
-    return comment.replace('${duplicateQuery}', url).replace('${author}', issue.author.name);
+	const baseQueryString = `https://github.com/${github_1.context.repo.owner}/${github_1.context.repo.repo}/issues?utf8=%E2%9C%93&q=is%3Aopen+is%3Aissue+`;
+	const importantLabels = issue.labels.filter(
+		(label) => label !== "*duplicate",
+	);
+	const labelsQueryString = encodeURIComponent(
+		importantLabels.map((label) => `label:"${label}"`).join(" "),
+	);
+	const url = baseQueryString + labelsQueryString;
+	return comment
+		.replace("${duplicateQuery}", url)
+		.replace("${author}", issue.author.name);
 };
 class CommandsRunner extends Action_1.Action {
     constructor() {

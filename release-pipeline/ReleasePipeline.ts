@@ -3,8 +3,8 @@
  *  Licensed under the MIT License. See LICENSE in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { GitHub, GitHubIssue } from '../api/api';
-import { loadLatestRelease, Release, safeLog } from '../common/utils';
+import { GitHub, GitHubIssue } from "../api/api";
+import { loadLatestRelease, Release, safeLog } from "../common/utils";
 
 export class ReleasePipeline {
 	constructor(
@@ -14,19 +14,24 @@ export class ReleasePipeline {
 	) {}
 
 	async run() {
-		const latestRelease = await loadLatestRelease('insider');
-		if (!latestRelease) throw Error('Error loading latest release');
+		const latestRelease = await loadLatestRelease("insider");
+		if (!latestRelease) throw Error("Error loading latest release");
 
 		const query = `is:closed label:${this.notYetReleasedLabel}`;
 
 		for await (const page of this.github.query({ q: query })) {
 			for (const issue of page) {
 				const issueData = await issue.getIssue();
-				if (issueData.labels.includes(this.notYetReleasedLabel) && issueData.open === false) {
+				if (
+					issueData.labels.includes(this.notYetReleasedLabel) &&
+					issueData.open === false
+				) {
 					await this.update(issue, latestRelease);
 					await new Promise((resolve) => setTimeout(resolve, 1000));
 				} else {
-					safeLog('Query returned an invalid issue:' + issueData.number);
+					safeLog(
+						"Query returned an invalid issue:" + issueData.number,
+					);
 				}
 			}
 		}
@@ -58,22 +63,27 @@ export class ReleasePipeline {
 
 		const releaseContainsCommit = await issue
 			.releaseContainsCommit(latestRelease.version, closingHash)
-			.catch(() => 'unknown' as const);
+			.catch(() => "unknown" as const);
 
-		if (releaseContainsCommit === 'yes') {
+		if (releaseContainsCommit === "yes") {
 			await issue.removeLabel(this.notYetReleasedLabel);
 			await issue.addLabel(this.insidersReleasedLabel);
-		} else if (releaseContainsCommit === 'no') {
+		} else if (releaseContainsCommit === "no") {
 			await issue.removeLabel(this.insidersReleasedLabel);
 			await issue.addLabel(this.notYetReleasedLabel);
-		} else if ((await issue.getIssue()).labels.includes(this.notYetReleasedLabel)) {
+		} else if (
+			(await issue.getIssue()).labels.includes(this.notYetReleasedLabel)
+		) {
 			await issue.removeLabel(this.notYetReleasedLabel);
 			await this.commentUnableToFindCommitMessage(issue);
 		}
 	}
 }
 
-export const enrollIssue = async (issue: GitHubIssue, notYetReleasedLabel: string) => {
+export const enrollIssue = async (
+	issue: GitHubIssue,
+	notYetReleasedLabel: string,
+) => {
 	const closingHash = (await issue.getClosingInfo())?.hash;
 	if (closingHash) {
 		await issue.addLabel(notYetReleasedLabel);

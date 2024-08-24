@@ -21,4 +21,4 @@ class RegexFlaggerActon extends Action {
 	}
 }
 
-new RegexFlaggerActon().run() // eslint-disable-line
+new RegexFlaggerActon().run(); // eslint-disable-line

@@ -181,58 +181,69 @@ Actor: ${details.user}
 
 ID: ${details.id}
 `;
-        await (0, utils_2.logErrorToIssue)(rendered, true, token, this.repoName, this.repoOwner);
-        (0, core_1.setFailed)(error.message);
-    }
-    async onTriggered(_octokit) {
-        throw Error('not implemented');
-    }
-    async onCreated(_octokit, _ref, _creator) {
-        throw Error('not implemented');
-    }
-    async onEdited(_issue) {
-        throw Error('not implemented');
-    }
-    async onLabeled(_issue, _label) {
-        throw Error('not implemented');
-    }
-    async onAssigned(_issue, _assignee) {
-        throw Error('not implemented');
-    }
-    async onUnassigned(_issue, _assignee) {
-        throw Error('not implemented');
-    }
-    async onOpened(_issue, _payload) {
-        throw Error('not implemented');
-    }
-    async onReopened(_issue) {
-        throw Error('not implemented');
-    }
-    async onClosed(_issue, _payload) {
-        throw Error('not implemented');
-    }
-    async onConvertedToDraft(_issue, _payload) {
-        throw Error('not implemented');
-    }
-    async onMilestoned(_issue) {
-        throw Error('not implemented');
-    }
-    async onCommented(_issue, _comment, _actor) {
-        throw Error('not implemented');
-    }
+		await (0, utils_2.logErrorToIssue)(
+			rendered,
+			true,
+			token,
+			this.repoName,
+			this.repoOwner,
+		);
+		(0, core_1.setFailed)(error.message);
+	}
+	async onTriggered(_octokit) {
+		throw Error("not implemented");
+	}
+	async onCreated(_octokit, _ref, _creator) {
+		throw Error("not implemented");
+	}
+	async onEdited(_issue) {
+		throw Error("not implemented");
+	}
+	async onLabeled(_issue, _label) {
+		throw Error("not implemented");
+	}
+	async onAssigned(_issue, _assignee) {
+		throw Error("not implemented");
+	}
+	async onUnassigned(_issue, _assignee) {
+		throw Error("not implemented");
+	}
+	async onOpened(_issue, _payload) {
+		throw Error("not implemented");
+	}
+	async onReopened(_issue) {
+		throw Error("not implemented");
+	}
+	async onClosed(_issue, _payload) {
+		throw Error("not implemented");
+	}
+	async onConvertedToDraft(_issue, _payload) {
+		throw Error("not implemented");
+	}
+	async onMilestoned(_issue) {
+		throw Error("not implemented");
+	}
+	async onCommented(_issue, _comment, _actor) {
+		throw Error("not implemented");
+	}
 }
 exports.Action = Action;
 async function getAuthenticationToken() {
-    const appId = (0, utils_1.getInput)('app_id');
-    const installationId = (0, utils_1.getInput)('app_installation_id');
-    const privateKey = (0, utils_1.getInput)('app_private_key');
-    if (appId && installationId && privateKey) {
-        const appAuth = (0, auth_app_1.createAppAuth)({ appId, installationId, privateKey });
-        return (await appAuth({ type: 'installation' })).token;
-    }
-    else {
-        throw Error('Input required: app_id, app_installation_id, app_private_key');
-    }
+	const appId = (0, utils_1.getInput)("app_id");
+	const installationId = (0, utils_1.getInput)("app_installation_id");
+	const privateKey = (0, utils_1.getInput)("app_private_key");
+	if (appId && installationId && privateKey) {
+		const appAuth = (0, auth_app_1.createAppAuth)({
+			appId,
+			installationId,
+			privateKey,
+		});
+		return (await appAuth({ type: "installation" })).token;
+	} else {
+		throw Error(
+			"Input required: app_id, app_installation_id, app_private_key",
+		);
+	}
 }
 exports.getAuthenticationToken = getAuthenticationToken;
 //# sourceMappingURL=Action.js.map

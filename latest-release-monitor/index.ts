@@ -3,18 +3,21 @@
  *  Licensed under the MIT License. See LICENSE in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { OctoKit } from '../api/octokit';
-import { downloadBlobText, uploadBlobText } from '../classifier/blobStorage';
-import { Action } from '../common/Action';
-import { loadLatestRelease, safeLog } from '../common/utils';
+import { OctoKit } from "../api/octokit";
+import { downloadBlobText, uploadBlobText } from "../classifier/blobStorage";
+import { Action } from "../common/Action";
+import { loadLatestRelease, safeLog } from "../common/utils";
 
 class LatestReleaseMonitor extends Action {
-	id = 'LatestReleaseMonitor';
+	id = "LatestReleaseMonitor";
 
-	private async update(quality: 'stable' | 'insider') {
+	private async update(quality: "stable" | "insider") {
 		let lastKnown: undefined | string = undefined;
 		try {
-			lastKnown = await downloadBlobText('latest-' + quality, 'latest-releases');
+			lastKnown = await downloadBlobText(
+				"latest-" + quality,
+				"latest-releases",
+			);
 		} catch {
 			// pass
 		}
@@ -25,15 +28,21 @@ class LatestReleaseMonitor extends Action {
 			const owner = 'microsoft';
 			const repo = 'vscode-engineering';
 			const token = await this.getToken();
-			await uploadBlobText('latest-' + quality, latest, 'latest-releases');
-			await new OctoKit(token, { owner, repo }).dispatch('released-' + quality);
+			await uploadBlobText(
+				"latest-" + quality,
+				latest,
+				"latest-releases",
+			);
+			await new OctoKit(token, { owner, repo }).dispatch(
+				"released-" + quality,
+			);
 		}
 	}
 
 	async onTriggered() {
-		await this.update('insider');
-		await this.update('stable');
+		await this.update("insider");
+		await this.update("stable");
 	}
 }
 
-new LatestReleaseMonitor().run() // eslint-disable-line
+new LatestReleaseMonitor().run(); // eslint-disable-line

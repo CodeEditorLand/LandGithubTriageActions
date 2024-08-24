@@ -9,7 +9,7 @@ import { getRequiredInput } from '../common/utils';
 import { TestPlanItemValidator } from './TestPlanitemValidator';
 
 class TestPlanItemValidatorAction extends Action {
-	id = 'TestPlanItemValidator';
+	id = "TestPlanItemValidator";
 
 	async runValidation(issue: OctoKitIssue) {
 		const auth = await this.getToken();
@@ -36,4 +36,4 @@ class TestPlanItemValidatorAction extends Action {
 	}
 }
 
-new TestPlanItemValidatorAction().run() // eslint-disable-line
+new TestPlanItemValidatorAction().run(); // eslint-disable-line

@@ -1,5 +1,7 @@
 name: Commands
-description: Respond to commands given in the form of either labels or comments by contributors or authorized community members
+description:
+    Respond to commands given in the form of either labels or comments by
+    contributors or authorized community members
 inputs:
   app_id:
     description: GitHub App ID
@@ -38,5 +40,5 @@ inputs:
     description: Comment object for a triggered action. Otherwise, this is obtained from the github context.
     required: false
 runs:
-  using: 'node20'
-  main: 'index.js'
+    using: "node20"
+    main: "index.js"
