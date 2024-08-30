@@ -1,8 +1,0 @@
-train_data
-*.pyc
-issues.json
-issue_data.json
-issue_labels.json
-blobStorage/*-config.json
-blobStorage/*.pickle
-blobStorage/*.zip
