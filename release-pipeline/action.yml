@@ -1,0 +1,39 @@
+name: Release Pipeline Labeler
+description: Label issues as the progress through the release pipeline
+inputs:
+  app_id:
+    description: GitHub App ID
+    required: true
+  app_installation_id:
+    description: GitHub App Installation ID
+    required: true
+  app_private_key:
+    description: GitHub App Private Key
+    required: true
+  owner:
+    description: Repository owner
+    required: false
+  repo:
+    description: Repository name
+    required: false
+  issue_number:
+    description: Issue number
+    required: false
+  event:
+    description: Event name for a triggered action. Otherwise, this is obtained from the github context.
+    required: false
+  action:
+    description: Action name for a triggered action. Otherwise, this is obtained from the github context.
+    required: false
+  payload:
+    description: Payload object for the github action
+    required: false
+  notYetReleasedLabel:
+    description: Label for issues that should be included in the release pipeline action, but are not yet released.
+    required: true
+  insidersReleasedLabel:
+    description: Label for issues that have been released to Insiders
+    required: true
+runs:
+  using: 'node20'
+  main: 'index.js'

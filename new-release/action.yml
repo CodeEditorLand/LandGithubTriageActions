@@ -1,0 +1,44 @@
+name: New Release
+description: Identify issues with a version tag matching the latest vscode release
+inputs:
+  app_id:
+    description: GitHub App ID
+    required: false
+  app_installation_id:
+    description: GitHub App Installation ID
+    required: false
+  app_private_key:
+    description: GitHub App Private Key
+    required: false
+  owner:
+    description: Repository owner
+    required: false
+  repo:
+    description: Repository name
+    required: false
+  issue_number:
+    description: Issue number
+    required: false
+  event:
+    description: Event name for a triggered action. Otherwise, this is obtained from the github context.
+    required: false
+  action:
+    description: Action name for a triggered action. Otherwise, this is obtained from the github context.
+    required: false
+  days:
+    description: time ago for releases to count as new releases
+    required: true
+  label:
+    description: name of label to apply
+    required: true
+  labelColor:
+    description: color of label to apply
+    required: true
+  labelDescription:
+    description: description of label to apply
+    required: true
+  oldVersionMessage:
+    description: comment to post when an issue version is not the latest version. The token "{currentVersion}" will be replaced with the latest release version
+runs:
+  using: 'node20'
+  main: 'index.js'

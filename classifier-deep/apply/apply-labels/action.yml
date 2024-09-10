@@ -1,0 +1,27 @@
+name: "Classifier: Apply Labels"
+description: Applies labels generated from the python script back to their respective issues
+inputs:
+  app_id:
+    description: GitHub App ID
+    required: true
+  app_installation_id:
+    description: GitHub App Installation ID
+    required: true
+  app_private_key:
+    description: GitHub App Private Key
+    required: true
+  owner:
+    description: Repository owner
+    required: true
+  repo:
+    description: Repository name
+    required: true
+  configPath:
+    description: The PATH of a .github/PATH.json in the repo that describes what should be done per feature area
+    required: true
+  allowLabels:
+    description: "Pipe (|) separated list of labels such that the bot should act even if those labels are already present (use for bot-applied labels/etc.)"
+    default: ''
+runs:
+  using: 'node20'
+  main: 'index.js'
