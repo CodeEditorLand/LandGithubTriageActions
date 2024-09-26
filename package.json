@@ -15,7 +15,7 @@
 		"uuid": "10.0.0"
 	},
 	"devDependencies": {
-		"@types/chai": "4.3.19",
+		"@types/chai": "5.0.0",
 		"@types/uuid": "10.0.0",
 		"@types/yargs": "17.0.33",
 		"chai": "5.1.1",
