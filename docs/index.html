@@ -1,0 +1,367 @@
+<!DOCTYPE html><html class="default" lang="en"><head><meta charset="utf-8"/><meta name="keywords" content="@playform/document"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>vscode-github-triage-actions</title><meta name="description" content="Documentation for vscode-github-triage-actions"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="assets/style.css"/><link rel="stylesheet" href="assets/highlight.css"/><link rel="stylesheet" href="assets/custom.css"/><script defer src="assets/main.js"></script><script async src="assets/icons.js" id="tsd-icons-script"></script><script async src="assets/search.js" id="tsd-search-script"></script><script async src="assets/navigation.js" id="tsd-nav-script"></script></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os";document.body.style.display="none";setTimeout(() => app?app.showPage():document.body.style.removeProperty("display"),500)</script><header class="tsd-page-toolbar"><div class="tsd-toolbar-contents container"><div class="table-cell" id="tsd-search" data-base="."><div class="field"><label for="tsd-search-field" class="tsd-widget tsd-toolbar-icon search no-caption"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><use href="assets/icons.svg#icon-search"></use></svg></label><input type="text" id="tsd-search-field" aria-label="Search"/></div><div class="field"><div id="tsd-toolbar-links"></div></div><ul class="results"><li class="state loading">Preparing search index...</li><li class="state failure">The search index is not available</li></ul><a href="index.html" class="title">vscode-github-triage-actions</a></div><div class="table-cell" id="tsd-widgets"><a href="#" class="tsd-widget tsd-toolbar-icon menu no-caption" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><use href="assets/icons.svg#icon-menu"></use></svg></a></div></div></header><div class="container container-main"><div class="col-content"><div class="tsd-page-title"><h2>vscode-github-triage-actions</h2></div><div class="tsd-panel tsd-typography"><a id="md:vs-codes-issue-triage-github-actions" class="tsd-anchor"></a><h1 class="tsd-anchor-link">VS Code's Issue Triage GitHub Actions<a href="#md:vs-codes-issue-triage-github-actions" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h1><p>We host our <a href="https://help.github.com/en/actions" target="_blank" class="external">GitHub Actions</a> for triaging issues here.</p>
+<p>Many of these are not specific to VS Code, and can be used in other projects by importing the repository like so:</p>
+<pre><code class="yml">steps:
+  - name: Checkout Actions
+    uses: actions/checkout@v2
+    with:
+      repository: 'microsoft/vscode-triage-github-actions'
+      ref: stable # not recommeneded, use the lastest released tag to ensure stability
+  - name: Install Actions
+    run: npm install --production
+  - name: Run Commands
+    uses: ./commands
+</code><button type="button">Copy</button></pre>
+
+<p>Additionally, in <code>./api</code>, we have a wrapper around the Octokit instance that can be helpful for developing (and testing!) your own Actions.</p>
+<p><em>Note:</em> All Actions must be compiled/packaged into a single output file for deployment. We use <a href="https://github.com/zeit/ncc" target="_blank" class="external">ncc</a> and <a href="https://github.com/typicode/husky" target="_blank" class="external">husky</a> to do this on-commit. Thus committing can take quite a while. If you're making a simple change to non-code files or tests, this can be skipped with the <code>--no-verify</code> <code>git commit</code> flag.</p>
+<a id="md:code-layout" class="tsd-anchor"></a><h3 class="tsd-anchor-link">Code Layout<a href="#md:code-layout" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3><p>The <code>api</code> directory contains <code>api.ts</code>, which provides an interface for interacting with GitHub issues. This is implemented both by <code>octokit.ts</code> and <code>testbed.ts</code>. Octokit will talk to GitHub, testbed mimics GitHub locally, to help with writing unit tests.</p>
+<p>The <code>utils</code> directory contains various commands to help with interacting with GitHub/other services, which do not have a corresponding mocked version. Thus when using these in code that will be unit tested, it is a good idea to manually mock the calls, using <code>nock</code> or similar.</p>
+<p>The rest of the directories contain three files:</p>
+<ul>
+<li><code>index.ts</code>: This file is the entry point for actions. It should be the only file in the directory to use Action-specific code, such as any imports from <code>@actions/</code>. In most cases it should simply gather any required config data, create an <code>octokit</code> instance (see <code>api</code> section above) and invoke the command. By keeping Action specific code separate from the rest of the logic, it is easy to extend these commands to run via Apps, or even via webhooks to Azure Functions or similar.</li>
+<li><code>Command.ts</code>: This file contains the core logic for the command. The commands should operate on the GitHub interface in <code>api</code>, so that they may be run against either GitHub proper or the Testbed.</li>
+<li><code>Command.test.ts</code>: This file contains tests for the command. Tests should invoke the command using a <code>Testbed</code> instance, and preferably verify the command works by querying through the <code>GitHub</code> interface, though there are some convenience commands implemented directly on <code>Testbed</code> for ease of testing.</li>
+<li><code>cpi.ts</code>: This is not present in every directory, but when present allows for running the action via command line, by running <code>node action/cli.js</code> with appropriate flags.</li>
+</ul>
+<a id="md:action-descriptions" class="tsd-anchor"></a><h2 class="tsd-anchor-link">Action Descriptions<a href="#md:action-descriptions" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2><a id="md:author-verified" class="tsd-anchor"></a><h3 class="tsd-anchor-link">Author Verified<a href="#md:author-verified" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3><p>Allow issue authors to verify their own issues by pinging them when the fix goes into insiders</p>
+<pre><code class="yml">inputs:
+  token:
+    description: GitHub token with issue, comment, and label read/write permissions
+    default: ${{ github.token }}
+  requestVerificationComment:
+    description: Comment to add when asking authors to verify the issue. ${commit} and ${author} will be substituted
+    required: true
+  releasedLabel:
+    description: Label of issues which are released and thus able to be verified
+    required: true
+  verifiedLabel:
+    description: Label of issues that are already verified and shouldn't be further interacted with
+    required: true
+  authorVerificationRequestedLabel:
+    description: Label added by issue fixer to signal that the author can verify the issue
+    required: true
+</code><button type="button">Copy</button></pre>
+
+<a id="md:deep-classifier" class="tsd-anchor"></a><h3 class="tsd-anchor-link">Deep Classifier<a href="#md:deep-classifier" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3><p>This classifier generates assignees and labels using a deep-learning model stored in Azure Blob storage and generated using an Azure GPU instance. The model is created with help from <a href="https://simpletransformers.ai/" target="_blank" class="external">simpletransformers</a> and <a href="https://github.com/huggingface/transformers" target="_blank" class="external">huggingface/transformers</a>.</p>
+<p>This setup is more involved and detailed in the <a href="/classifier-deep/README.md">Action's README</a>.</p>
+<a id="md:classifier" class="tsd-anchor"></a><h3 class="tsd-anchor-link">Classifier<a href="#md:classifier" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3><p>This classifier generates assignees and labels using a model stored in Azure Blob storage and generated using a GitHub Actions runner.</p>
+<p>The full classifier workflow is a 2-part process (Train, Apply), with each part consisting of several individual Actions. It may be helpful to see how this is configured in the <a href="https://github.com/microsoft/vscode-remote-release/tree/master/.github/workflows" target="_blank" class="external">vscode-remote-release repository</a>.</p>
+<a id="md:train" class="tsd-anchor"></a><h4 class="tsd-anchor-link">Train<a href="#md:train" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h4><p>In this part, the full issue data for the repository is downloaded and ML models are applied to it. These models then get uploaded to Azure Storage, to be later consumed by the Labeling part. This action should run periodically (approximately monthly) to keep the models from going stale.</p>
+<a id="md:fetch-issues" class="tsd-anchor"></a><h5 class="tsd-anchor-link">fetch-issues<a href="#md:fetch-issues" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h5><p>Download all issues and associated labeling data</p>
+<pre><code class="yml">inputs:
+  token:
+    description: GitHub token with issue, comment, and label read/write permissions
+    default: ${{ github.token }}
+  areas:
+    description: Pipe-separated list of feature-areas to classify
+  assignees:
+    description: Pipe-separated list of assignees to classify
+</code><button type="button">Copy</button></pre>
+
+<a id="md:generate-models" class="tsd-anchor"></a><h5 class="tsd-anchor-link">generate-models<a href="#md:generate-models" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h5><p>This is a Python Action, invoked like:</p>
+<pre><code class="yml">run: python ./actions/classifier/train/generate-models/generate.py category
+</code><button type="button">Copy</button></pre>
+
+<a id="md:upload-models" class="tsd-anchor"></a><h5 class="tsd-anchor-link">upload-models<a href="#md:upload-models" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h5><p>Upload models to blob storage</p>
+<pre><code class="yml">inputs:
+  token:
+    description: GitHub token with issue, comment, and label read/write permissions
+    default: ${{ github.token }}
+  blobContainerName:
+    description: Name of Azure Storage container
+    required: true
+</code><button type="button">Copy</button></pre>
+
+<a id="md:apply" class="tsd-anchor"></a><h4 class="tsd-anchor-link">Apply<a href="#md:apply" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h4><p>In this part, the models generated in the Training phase get applied to issues. To save on bandwidth and compute, this is done in batches. For example, every half hour, the issues in the past period are passed through the models and assigned a label.</p>
+<a id="md:fetch-issues-1" class="tsd-anchor"></a><h5 class="tsd-anchor-link">fetch-issues<a href="#md:fetch-issues-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h5><p>Collect the issues which need to be labeled and write them to a file for later processing</p>
+<pre><code class="yml">inputs:
+  token:
+    description: GitHub token with issue, comment, and label read/write permissions
+    default: ${{ github.token }}
+  from:
+    description: Start point of collected issues (minutes ago)
+    required: true
+  until:
+    description: End point of collected issues (minutes ago)
+    required: true
+  blobContainerName:
+    description: Name of Azure Storage container
+    required: true
+</code><button type="button">Copy</button></pre>
+
+<a id="md:generate-labels" class="tsd-anchor"></a><h5 class="tsd-anchor-link">generate-labels<a href="#md:generate-labels" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h5><p>This is a Python Action, invoked like:</p>
+<pre><code class="yml">run: python ./actions/classifier/apply/generate-labels/main.py
+</code><button type="button">Copy</button></pre>
+
+<a id="md:apply-labels" class="tsd-anchor"></a><h5 class="tsd-anchor-link">apply-labels<a href="#md:apply-labels" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h5><p>Applies labels generated from the python script back to their respective issues</p>
+<pre><code class="yml">inputs:
+  token:
+    description: GitHub token with issue, comment, and label read/write permissions
+    default: ${{ github.token }}
+  config-path:
+    description: The PATH of a .github/PATH.json in the repo that describes what should be done per feature area
+    required: true
+  allowLabels:
+    description: "Pipe (|) separated list of labels such that the bot should act even if those labels are already present (use for bot-applied labels/etc.)"
+    default: ''
+</code><button type="button">Copy</button></pre>
+
+<a id="md:monitor" class="tsd-anchor"></a><h4 class="tsd-anchor-link">Monitor<a href="#md:monitor" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h4><p>This action monitors <code>unassign</code> events and reports them back to app insights for analysis.</p>
+<pre><code class="yaml">inputs:
+  token:
+    description: GitHub token with issue, comment, and label read/write permissions
+    default: ${{ github.token }}
+  botName:
+    description: The login of the bot
+    required: true
+  appInsightsKey:
+    description: Key for Azure App Insights to monitor application health
+</code><button type="button">Copy</button></pre>
+
+<a id="md:commands" class="tsd-anchor"></a><h3 class="tsd-anchor-link">Commands<a href="#md:commands" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3><p>Respond to commands given in the form of either labels or comments by select groups of people.</p>
+<p>This takes as input a <code>config-path</code>, which is the <code>config</code> part of a <code>./github/config.json</code> file in the host repo that describes the commands. This config file should have type:</p>
+<pre><code class="ts"><span class="hl-0">export</span><span class="hl-1"> </span><span class="hl-2">type</span><span class="hl-1"> </span><span class="hl-3">Command</span><span class="hl-1"> =</span><br/><span class="hl-1">	{ </span><span class="hl-4">name</span><span class="hl-1">: </span><span class="hl-3">string</span><span class="hl-1"> } &amp;</span><br/><span class="hl-1">	({ </span><span class="hl-4">type</span><span class="hl-1">: </span><span class="hl-5">&#39;comment&#39;</span><span class="hl-1"> &amp; </span><span class="hl-3">allowUsers</span><span class="hl-1">: (</span><span class="hl-3">username</span><span class="hl-1"> | </span><span class="hl-5">&#39;@author&#39;</span><span class="hl-1">)[] } | { </span><span class="hl-4">type</span><span class="hl-1">: </span><span class="hl-5">&#39;label&#39;</span><span class="hl-1"> }) &amp;</span><br/><span class="hl-1">	{ </span><span class="hl-4">action</span><span class="hl-1">?: </span><span class="hl-5">&#39;close&#39;</span><span class="hl-1"> } &amp;</span><br/><span class="hl-1">	{ </span><span class="hl-4">comment</span><span class="hl-1">?: </span><span class="hl-3">string</span><span class="hl-1">; </span><span class="hl-4">addLabel</span><span class="hl-1">?: </span><span class="hl-3">string</span><span class="hl-1">; </span><span class="hl-4">removeLabel</span><span class="hl-1">?: </span><span class="hl-3">string</span><span class="hl-1"> } &amp;</span><br/><span class="hl-1">	{ </span><span class="hl-4">requireLabel</span><span class="hl-1">?: </span><span class="hl-3">string</span><span class="hl-1">; </span><span class="hl-4">disallowLabel</span><span class="hl-1">?: </span><span class="hl-3">string</span><span class="hl-1"> }</span>
+</code><button type="button">Copy</button></pre>
+
+<p>Commands of type <code>comment</code> and name <code>label</code> or <code>assign</code> are special-cased to label or assign their arguments:</p>
+<pre><code><span class="hl-1">\</span><span class="hl-4">label</span><span class="hl-1"> </span><span class="hl-4">bug</span><span class="hl-1"> </span><span class="hl-5">&quot;needs more info&quot;</span><br/><span class="hl-1">\</span><span class="hl-4">assign</span><span class="hl-1"> </span><span class="hl-4">JacksonKearl</span>
+</code><button>Copy</button></pre>
+
+<pre><code class="yml">inputs:
+  token:
+    description: GitHub token with issue, comment, and label read/write permissions
+    default: ${{ github.token }}
+  config-path:
+    description: Name of .json file (no extension) in .github/ directory of repo holding configuration for this action
+    required: true
+</code><button type="button">Copy</button></pre>
+
+<a id="md:copycat" class="tsd-anchor"></a><h3 class="tsd-anchor-link">Copycat<a href="#md:copycat" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3><p>Clone all new issues in a repo to a different repo. Useful for testing.</p>
+<pre><code class="yml">inputs:
+  token:
+    description: GitHub token with issue, comment, and label read/write permissions to both repos
+    default: ${{ github.token }}
+  owner:
+    description: account/organization that owns the destination repo (the microsoft part of microsoft/vscode)
+    required: true
+  repo:
+    description: name of the destination repo (the vscode part of microsoft/vscode)
+    required: true
+</code><button type="button">Copy</button></pre>
+
+<a id="md:english-please" class="tsd-anchor"></a><h3 class="tsd-anchor-link">English Please<a href="#md:english-please" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3><p>Action that identifies issues that are not in English and requests the author to translate them. It additionally labels the issues with a label like <code>translation-required-russian</code>, allowing community members to filter for issues they may be able to help translate.</p>
+<p>It can also add <code>needs more info</code> type labels, to allow the <code>needs-more-info</code> action to close non-english issues that do not receive translations after a set time.</p>
+<p>Automatic language detection simply checks for non-latin characters. Issues in foreign languages with latin script must be flagged manually, by applying the <code>nonEnglishLabel</code>.</p>
+<p>In our experience, automatic translation services are unable to effectively translate technical language, so rather than automatically translating the issue, this Action flags the issue as being in a particular language and lea es a comment requesting the original issue author to either translate the issue themselves if they are able to, or wait for a community member to translate.</p>
+<p>This Action uses the <a href="https://docs.microsoft.com/en-us/azure/cognitive-services/translator/translator-info-overview" target="_blank" class="external">Azure Translator Text</a> API to identify languages and translate the comment requesting translation to the issue's language.</p>
+<p>If you are able to provide a manual translation of the comment, you can help us out by leaving an issue or file a PR against the file <code>./english-please/translation-data.json</code>. Thanks!</p>
+<pre><code class="yml">inputs:
+  token:
+    description: GitHub token with issue, comment, and label read/write permissions
+    default: ${{ github.token }}
+  nonEnglishLabel:
+    description: Label to add when issues are not written in English
+    required: true
+  needsMoreInfoLabel:
+    description: Optional label to add for triggering the 'needs more info' bot to close issues that are not translated
+  translatorRequestedLabelPrefix:
+    description: Labels will be created as needed like "translator-requested-zh" to allow community members to assist in translating issues
+    required: true
+  translatorRequestedLabelColor:
+    description: Labels will be created as needed like "translator-requested-zh" to allow community members to assist in translating issues
+    required: true
+  cognitiveServicesAPIKey:
+    description: API key for the text translator cognitive service to use when detecting issue language and responding to the issue author in their language
+    required: true
+</code><button type="button">Copy</button></pre>
+
+<a id="md:feature-request" class="tsd-anchor"></a><h3 class="tsd-anchor-link">Feature Request<a href="#md:feature-request" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3><p>Manage feature requests according to the VS Code <a href="https://github.com/microsoft/vscode/wiki/Issues-Triaging#managing-feature-requests" target="_blank" class="external">feature request specification</a></p>
+<pre><code class="yml">inputs:
+  token:
+    description: GitHub token with issue, milestone, comment, and label read/write permissions
+    default: ${{ github.token }}
+  candidateMilestoneID:
+    description: Numeric ID of the candidate issues milestone
+    required: true
+  candidateMilestoneName:
+    description: Name of the candidate issues milestone
+    required: true
+  backlogMilestoneID:
+    description: Numeric ID of the backlog milestone
+    required: true
+  featureRequestLabel:
+    description: Label for feature requests
+    required: true
+  upvotesRequired:
+    description: Number of upvotes required to advance an issue
+    required: true
+  numCommentsOverride:
+    description: Number of comments required to disable automatically closing an issue
+    required: true
+  labelsToExclude:
+    description: A comma-separated list of labels to exclude from processing
+  initComment:
+    description: Comment when an issue is introduced to the backlog milestone
+    required: true
+  warnComment:
+    description: Comment when an issue is nearing automatic closure
+    required: true
+  acceptComment:
+    description: Comment when an issue is accepted into backlog
+    required: true
+  rejectComment:
+    description: Comment when an issue is rejected
+    required: true
+  rejectLabel:
+    description: Label applied to issues that are rejected
+  warnDays:
+    description: Number of days before closing the issue to warn about it's impending closure
+    required: true
+  closeDays:
+    description: Number of days to wait before closing an issue
+    required: true
+  milestoneDelaySeconds:
+    description: Delay between adding a feature request label and assigning the issue to candidate milestone
+    required: true
+</code><button type="button">Copy</button></pre>
+
+<a id="md:locker" class="tsd-anchor"></a><h3 class="tsd-anchor-link">Locker<a href="#md:locker" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3><p>Lock issues and/or PRs that have been closed and not updated for some time.</p>
+<pre><code class="yml">inputs:
+  token:
+    description: GitHub token with issue, comment, and label read/write permissions
+    default: ${{ github.token }}
+  daysSinceClose:
+    description: Days to wait since closing before locking the item
+    required: true
+  daysSinceUpdate:
+    description: days to wait since the last interaction before locking the item
+    required: true
+  ignoredLabel:
+    description: items with this label will not be automatically locked
+  ignoreLabelUntil:
+    description: items with this label will not be automatically locked, until they also have the until label
+  labelUntil:
+    description: items with this will not automatically locked, even if they have the ignoreLabelUntil label
+  typeIs:
+    description: either 'issue' or 'pr' to limit the query to only those types
+</code><button type="button">Copy</button></pre>
+
+<a id="md:needs-more-info-closer" class="tsd-anchor"></a><h3 class="tsd-anchor-link">Needs More Info Closer<a href="#md:needs-more-info-closer" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3><p>Close issues that are marked a <code>needs more info</code> label and were last interacted with by a contributor or bot, after some time has passed.</p>
+<p>Can also ping the assignee if the last comment was by someone other than a team member or bot.</p>
+<pre><code class="yml">inputs:
+  token:
+    description: GitHub token with issue, comment, and label read/write permissions
+    default: ${{ github.token }}
+  label:
+    description: Label signifying an issue that needs more info
+    required: true
+  additionalTeam:
+    description: Pipe-separated list of users to treat as team for purposes of closing `needs more info` issues
+  closeDays:
+    description: Days to wait before closing the issue
+    required: true
+  closeComment:
+    description: Comment to add upon closing the issue
+  pingDays:
+    description: Days to wait before pinging the assignee
+    required: true
+  pingComment:
+    description: Comment to add when pinging assignee. ${assignee} and ${author} are replaced.
+</code><button type="button">Copy</button></pre>
+
+<a id="md:new-release" class="tsd-anchor"></a><h3 class="tsd-anchor-link">New Release<a href="#md:new-release" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3><p>Label issues with a version tag matching the latest vscode release, creating the label if it does not exist. Delete the label (thereby unassigning all issues) when the latest release has been out for some time</p>
+<pre><code class="yml">inputs:
+  token:
+    description: GitHub token with issue, comment, and label read/write permissions
+    default: ${{ github.token }}
+  days:
+    description: time ago for releases to count as new releases
+    required: true
+  label:
+    description: name of label to apply
+    required: true
+  labelColor:
+    description: color of label to apply
+    required: true
+  labelDescription:
+    description: description of label to apply
+    required: true
+</code><button type="button">Copy</button></pre>
+
+<a id="md:stale-closer" class="tsd-anchor"></a><h3 class="tsd-anchor-link">Stale Closer<a href="#md:stale-closer" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3><p>Closes stale issues that have not had activity or upvotes</p>
+<pre><code class="yml">inputs:
+  token:
+    description: GitHub token with issue, milestone, comment, and label read/write permissions
+    default: ${{ github.token }}
+  candidateMilestoneID:
+    description: Numeric ID of the candidate issues milestone
+    required: true
+  candidateMilestoneName:
+    description: Name of the candidate issues milestone
+    required: true
+  featureRequestLabel:
+    description: Label for feature requests
+    required: true
+  upvotesRequired:
+    description: Number of upvotes required to advance an issue
+    required: true
+  numCommentsOverride:
+    description: Number of comments required to disable automatically closing an issue
+    required: true
+  labelsToExclude:
+    description: A comma-separated list of labels to exclude from processing
+  warnComment:
+    description: Comment when an issue is nearing automatic closure
+    required: true
+  rejectComment:
+    description: Comment when an issue is rejected
+    required: true
+  rejectLabel:
+    description: Label applied to issues that are rejected
+  warnDays:
+    description: Number of days before closing the issue to warn about it's impending closure
+    required: true
+  closeDays:
+    description: Number of days to wait before closing an issue
+    required: true
+  milestoneDelaySeconds:
+    description: Delay between adding a feature request label and assigning the issue to candidate milestone
+    required: true
+</code><button type="button">Copy</button></pre>
+
+<a id="md:test-plan-item-validator" class="tsd-anchor"></a><h3 class="tsd-anchor-link">Test Plan Item Validator<a href="#md:test-plan-item-validator" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3><p>Tag testplan item issues that don't match the VS Code test plan item format</p>
+<pre><code class="yml">inputs:
+  token:
+    description: 'GitHub token with issue, comment, and label read/write permissions'
+    default: ${{ github.token }}
+  label:
+    description: The label that signifies an item is a testplan item and should be checked
+    required: true
+  invalidLabel:
+    description: The label to add when a test plan item is invalid
+    required: true
+  comment:
+    description: Comment to post to invalid test plan items
+    required: true
+</code><button type="button">Copy</button></pre>
+
+<a id="md:topic-subscribe" class="tsd-anchor"></a><h3 class="tsd-anchor-link">Topic Subscribe<a href="#md:topic-subscribe" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h3><p>Subscribe a set of users to an issue when it gets a particular label.</p>
+<pre><code class="yml">inputs:
+  token:
+    description: GitHub token with issue, comment, and label read/write permissions
+    default: ${{ github.token }}
+  config-path:
+    description: Name of .json file (no extension) in .github/ directory of repo holding configuration for this action
+    required: true
+</code><button type="button">Copy</button></pre>
+
+<a id="md:contributing" class="tsd-anchor"></a><h2 class="tsd-anchor-link">Contributing<a href="#md:contributing" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="assets/icons.svg#icon-anchor"></use></svg></a></h2><p>This project welcomes contributions and suggestions.  Most contributions require you to agree to a
+Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us
+the rights to use your contribution. For details, visit <a href="https://cla.opensource.microsoft.com" target="_blank" class="external">https://cla.opensource.microsoft.com</a>.</p>
+<p>When you submit a pull request, a CLA bot will automatically determine whether you need to provide
+a CLA and decorate the PR appropriately (e.g., status check, comment). Simply follow the instructions
+provided by the bot. You will only need to do this once across all repos using our CLA.</p>
+<p>This project has adopted the <a href="https://opensource.microsoft.com/codeofconduct/" target="_blank" class="external">Microsoft Open Source Code of Conduct</a>.
+For more information see the <a href="https://opensource.microsoft.com/codeofconduct/faq/" target="_blank" class="external">Code of Conduct FAQ</a> or
+contact <a href="mailto:opencode@microsoft.com">opencode@microsoft.com</a> with any additional questions or comments.</p>
+</div></div><div class="col-sidebar"><div class="page-menu"><div class="tsd-navigation settings"><details class="tsd-accordion"><summary class="tsd-accordion-summary"><h3><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><use href="assets/icons.svg#icon-chevronDown"></use></svg>Settings</h3></summary><div class="tsd-accordion-details"><div class="tsd-filter-visibility"><span class="settings-label">Member Visibility</span><ul id="tsd-filter-options"><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-protected" name="protected"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Protected</span></label></li><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-external" name="external"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>External</span></label></li></ul></div><div class="tsd-theme-toggle"><label class="settings-label" for="tsd-theme">Theme</label><select id="tsd-theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div><details open class="tsd-accordion tsd-page-navigation"><summary class="tsd-accordion-summary"><h3><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><use href="assets/icons.svg#icon-chevronDown"></use></svg>On This Page</h3></summary><div class="tsd-accordion-details"><a href="#md:vs-codes-issue-triage-github-actions"><span>VS <wbr/>Code&#39;s <wbr/>Issue <wbr/>Triage <wbr/>Git<wbr/>Hub <wbr/>Actions</span></a><ul><li><ul><li><a href="#md:code-layout"><span>Code <wbr/>Layout</span></a></li></ul></li><li><a href="#md:action-descriptions"><span>Action <wbr/>Descriptions</span></a></li><li><ul><li><a href="#md:author-verified"><span>Author <wbr/>Verified</span></a></li><li><a href="#md:deep-classifier"><span>Deep <wbr/>Classifier</span></a></li><li><a href="#md:classifier"><span>Classifier</span></a></li><li><ul><li><a href="#md:train"><span>Train</span></a></li><li><ul><li><a href="#md:fetch-issues"><span>fetch-<wbr/>issues</span></a></li><li><a href="#md:generate-models"><span>generate-<wbr/>models</span></a></li><li><a href="#md:upload-models"><span>upload-<wbr/>models</span></a></li></ul></li><li><a href="#md:apply"><span>Apply</span></a></li><li><ul><li><a href="#md:fetch-issues-1"><span>fetch-<wbr/>issues</span></a></li><li><a href="#md:generate-labels"><span>generate-<wbr/>labels</span></a></li><li><a href="#md:apply-labels"><span>apply-<wbr/>labels</span></a></li></ul></li><li><a href="#md:monitor"><span>Monitor</span></a></li></ul></li><li><a href="#md:commands"><span>Commands</span></a></li><li><a href="#md:copycat"><span>Copycat</span></a></li><li><a href="#md:english-please"><span>English <wbr/>Please</span></a></li><li><a href="#md:feature-request"><span>Feature <wbr/>Request</span></a></li><li><a href="#md:locker"><span>Locker</span></a></li><li><a href="#md:needs-more-info-closer"><span>Needs <wbr/>More <wbr/>Info <wbr/>Closer</span></a></li><li><a href="#md:new-release"><span>New <wbr/>Release</span></a></li><li><a href="#md:stale-closer"><span>Stale <wbr/>Closer</span></a></li><li><a href="#md:test-plan-item-validator"><span>Test <wbr/>Plan <wbr/>Item <wbr/>Validator</span></a></li><li><a href="#md:topic-subscribe"><span>Topic <wbr/>Subscribe</span></a></li></ul></li><li><a href="#md:contributing"><span>Contributing</span></a></li></ul></div></details></div><div class="site-menu"><nav class="tsd-navigation"><a href="modules.html" class="current"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="assets/icons.svg#icon-1"></use></svg><span>vscode-github-triage-actions</span></a><ul class="tsd-small-nested-navigation" id="tsd-nav-container" data-base="."><li>Loading...</li></ul></nav></div></div></div><footer><p class="tsd-generator">Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p></footer><div class="overlay"></div></body></html>
