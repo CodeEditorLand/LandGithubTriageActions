@@ -95,16 +95,9 @@ export class ReviewReminder {
 			per_page: 100,
 		});
 
-		for await (const { data: repositories } of it) {
-			const repos = Array.isArray(repositories)
-				? (repositories as typeof repositories['repositories'])
-				: [];
-
-			if (repositories.repositories) {
-				repos.push(...repositories.repositories);
-			}
-
-			for (const repository of repos) {
+		for await (const response of it) {
+			console.log(`Processing GitHubApp installation ${response.data}`);
+			for (const repository of response.data.repositories) {
 				if (repository.archived) {
 					continue;
 				}
