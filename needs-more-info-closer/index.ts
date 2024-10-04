@@ -3,25 +3,25 @@
  *  Licensed under the MIT License. See LICENSE in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { OctoKit } from '../api/octokit';
-import { getInput, getRequiredInput } from '../common/utils';
-import { NeedsMoreInfoCloser } from './NeedsMoreInfoCloser';
-import { Action } from '../common/Action';
+import { OctoKit } from "../api/octokit";
+import { Action } from "../common/Action";
+import { getInput, getRequiredInput } from "../common/utils";
+import { NeedsMoreInfoCloser } from "./NeedsMoreInfoCloser";
 
 class NeedsMoreInfo extends Action {
-	id = 'NeedsMoreInfo';
+	id = "NeedsMoreInfo";
 
 	async onTriggered(github: OctoKit) {
 		await new NeedsMoreInfoCloser(
 			github,
-			getRequiredInput('label'),
-			+getRequiredInput('closeDays'),
-			+getRequiredInput('pingDays'),
-			getInput('closeComment') || '',
-			getInput('pingComment') || '',
-			(getInput('additionalTeam') ?? '').split('|'),
+			getRequiredInput("label"),
+			+getRequiredInput("closeDays"),
+			+getRequiredInput("pingDays"),
+			getInput("closeComment") || "",
+			getInput("pingComment") || "",
+			(getInput("additionalTeam") ?? "").split("|"),
 		).run();
 	}
 }
 
-new NeedsMoreInfo().run() // eslint-disable-line
+new NeedsMoreInfo().run(); // eslint-disable-line

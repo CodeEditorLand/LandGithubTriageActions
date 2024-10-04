@@ -3,23 +3,23 @@
  *  Licensed under the MIT License. See LICENSE in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { OctoKitIssue } from '../api/octokit';
-import { Action } from '../common/Action';
-import { getRequiredInput } from '../common/utils';
-import { TestPlanItemValidator } from './TestPlanitemValidator';
+import { OctoKitIssue } from "../api/octokit";
+import { Action } from "../common/Action";
+import { getRequiredInput } from "../common/utils";
+import { TestPlanItemValidator } from "./TestPlanitemValidator";
 
 class TestPlanItemValidatorAction extends Action {
-	id = 'TestPlanItemValidator';
+	id = "TestPlanItemValidator";
 
 	async runValidation(issue: OctoKitIssue) {
 		const auth = await this.getToken();
 		await new TestPlanItemValidator(
 			issue,
-			auth ?? getRequiredInput('token'),
-			getRequiredInput('refLabel'),
-			getRequiredInput('label'),
-			getRequiredInput('invalidLabel'),
-			getRequiredInput('comment'),
+			auth ?? getRequiredInput("token"),
+			getRequiredInput("refLabel"),
+			getRequiredInput("label"),
+			getRequiredInput("invalidLabel"),
+			getRequiredInput("comment"),
 		).run();
 	}
 
@@ -36,4 +36,4 @@ class TestPlanItemValidatorAction extends Action {
 	}
 }
 
-new TestPlanItemValidatorAction().run() // eslint-disable-line
+new TestPlanItemValidatorAction().run(); // eslint-disable-line

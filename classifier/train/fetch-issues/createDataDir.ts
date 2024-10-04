@@ -3,10 +3,11 @@
  *  Licensed under the MIT License. See LICENSE in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import * as fs from 'fs';
-import * as path from 'path';
-import { normalizeIssue, safeLog } from '../../../common/utils';
-import { JSONOutputLine } from './download';
+import * as fs from "fs";
+import * as path from "path";
+
+import { normalizeIssue, safeLog } from "../../../common/utils";
+import { JSONOutputLine } from "./download";
 
 interface Classification {
 	name: string;
@@ -15,48 +16,58 @@ interface Classification {
 	categoriesExtractor: (issue: JSONOutputLine) => string[];
 }
 
-const DATA_DIR = 'train_data';
+const DATA_DIR = "train_data";
 
-export const createDataDirectories = async (areas: string[], assignees: string[]) => {
+export const createDataDirectories = async (
+	areas: string[],
+	assignees: string[],
+) => {
 	const classifications: Classification[] = [
 		{
-			name: 'area',
+			name: "area",
 			categoryPriority: areas,
 			labelToCategory: {},
 			categoriesExtractor: (issue) => issue.labels,
 		},
 		{
-			name: 'assignee',
+			name: "assignee",
 			labelToCategory: {},
 			categoriesExtractor: (issue) => issue.assignees,
 			categoryPriority: assignees,
 		},
 	];
 
-	const dumpFile = path.join(__dirname, 'issues.json');
+	const dumpFile = path.join(__dirname, "issues.json");
 	const issues: JSONOutputLine[] = fs
-		.readFileSync(dumpFile, { encoding: 'utf8' })
-		.split('\n')
+		.readFileSync(dumpFile, { encoding: "utf8" })
+		.split("\n")
 		.filter((l) => l)
 		.map((l) => JSON.parse(l));
 
 	for (const classification of classifications) {
-		const { name, categoryPriority, labelToCategory, categoriesExtractor } = classification;
+		const { name, categoryPriority, labelToCategory, categoriesExtractor } =
+			classification;
 		const labelToCategoryFn =
-			typeof labelToCategory === 'function'
+			typeof labelToCategory === "function"
 				? labelToCategory
 				: (label: string) => labelToCategory[label];
 		const categoryPriorityFn =
-			typeof categoryPriority === 'function'
+			typeof categoryPriority === "function"
 				? categoryPriority
 				: (categories: string[]) =>
-						categoryPriority.find((candidate) => categories.indexOf(candidate) !== -1);
+						categoryPriority.find(
+							(candidate) => categories.indexOf(candidate) !== -1,
+						);
 
 		const seen: Record<string, number> = {};
 
 		const ignoredLabels = Object.entries(
 			issues
-				.map((issue) => issue.labels.map((label) => labelToCategoryFn(label) || label))
+				.map((issue) =>
+					issue.labels.map(
+						(label) => labelToCategoryFn(label) || label,
+					),
+				)
 				.map((labels) => categoryPriorityFn(labels))
 				.filter((x): x is string => !!x)
 				.reduce((record: Record<string, number>, label) => {
@@ -70,55 +81,81 @@ export const createDataDirectories = async (areas: string[], assignees: string[]
 		for (const issue of issues) {
 			const category =
 				categoryPriorityFn(
-					categoriesExtractor(issue).map((label) => labelToCategoryFn(label) || label),
+					categoriesExtractor(issue).map(
+						(label) => labelToCategoryFn(label) || label,
+					),
 				) ??
-				(['*caused-by-extension', 'info-needed', '*question'].find((otherLabel) =>
-					issue.labels.includes(otherLabel),
+				(["*caused-by-extension", "info-needed", "*question"].find(
+					(otherLabel) => issue.labels.includes(otherLabel),
 				)
-					? name === 'area' && Math.random() < 0.2
-						? '__OTHER__'
+					? name === "area" && Math.random() < 0.2
+						? "__OTHER__"
 						: undefined
 					: undefined);
 
-			const isDuplicate = issue.labels.includes('*duplicate');
+			const isDuplicate = issue.labels.includes("*duplicate");
 
 			const isHumanLabeled = !!issue.labelEvents.find(
 				(event) =>
-					event.type === 'added' &&
+					event.type === "added" &&
 					event.label === category &&
 					![
-						'vscodebot',
-						'github-actions',
-						'vscode-triage-bot',
-						'VSCodeTriageBot',
-						'vs-code-engineering[bot]',
-						'vs-code-engineering',
+						"vscodebot",
+						"github-actions",
+						"vscode-triage-bot",
+						"VSCodeTriageBot",
+						"vs-code-engineering[bot]",
+						"vs-code-engineering",
 					].includes(event.actor),
 			);
 
 			if (
 				category &&
 				!ignoredLabels.includes(category) &&
-				(name === 'assignee' || (!isDuplicate && (isHumanLabeled || category === '__OTHER__')))
+				(name === "assignee" ||
+					(!isDuplicate &&
+						(isHumanLabeled || category === "__OTHER__")))
 			) {
 				if (!seen[category]) {
 					seen[category] = 0;
-					fs.mkdirSync(path.join(__dirname, '..', DATA_DIR, name, 'train', category), {
-						recursive: true,
-					});
-					fs.mkdirSync(path.join(__dirname, '..', DATA_DIR, name, 'test', category), {
-						recursive: true,
-					});
+					fs.mkdirSync(
+						path.join(
+							__dirname,
+							"..",
+							DATA_DIR,
+							name,
+							"train",
+							category,
+						),
+						{
+							recursive: true,
+						},
+					);
+					fs.mkdirSync(
+						path.join(
+							__dirname,
+							"..",
+							DATA_DIR,
+							name,
+							"test",
+							category,
+						),
+						{
+							recursive: true,
+						},
+					);
 
 					await new Promise((resolve) => setTimeout(resolve, 100)); // ?
 				}
 
 				const filepath = path.join(
 					__dirname,
-					'..',
+					"..",
 					DATA_DIR,
 					name,
-					Math.random() < 0.8 || seen[category] == 0 ? 'train' : 'test',
+					Math.random() < 0.8 || seen[category] == 0
+						? "train"
+						: "test",
 					category,
 				);
 
@@ -130,6 +167,6 @@ export const createDataDirectories = async (areas: string[], assignees: string[]
 				seen[category]++;
 			}
 		}
-		safeLog('Ignored', ignoredLabels);
+		safeLog("Ignored", ignoredLabels);
 	}
 };

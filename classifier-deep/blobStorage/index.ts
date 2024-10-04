@@ -3,15 +3,15 @@
  *  Licensed under the MIT License. See LICENSE in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { DefaultAzureCredential } from '@azure/identity';
-import { BlobServiceClient } from '@azure/storage-blob';
-import { join } from 'path';
+import { join } from "path";
+import { DefaultAzureCredential } from "@azure/identity";
+import { BlobServiceClient } from "@azure/storage-blob";
 
 const credential = new DefaultAzureCredential();
 
 export async function downloadBlobFile(name: string, container: string) {
 	const blobServiceClient = new BlobServiceClient(
-		'https://vscodegithubautomation.blob.core.windows.net',
+		"https://vscodegithubautomation.blob.core.windows.net",
 		credential,
 	);
 	const containerClient = blobServiceClient.getContainerClient(container);
@@ -22,7 +22,7 @@ export async function downloadBlobFile(name: string, container: string) {
 
 export async function uploadBlobFile(name: string, container: string) {
 	const blobServiceClient = new BlobServiceClient(
-		'https://vscodegithubautomation.blob.core.windows.net',
+		"https://vscodegithubautomation.blob.core.windows.net",
 		credential,
 	);
 	const containerClient = blobServiceClient.getContainerClient(container);

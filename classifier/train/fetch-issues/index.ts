@@ -3,28 +3,29 @@
  *  Licensed under the MIT License. See LICENSE in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { statSync } from 'fs';
-import { join } from 'path';
-import { Action } from '../../../common/Action';
-import { getInput, getRequiredInput } from '../../../common/utils';
-import { createDataDirectories } from './createDataDir';
-import { download } from './download';
+import { statSync } from "fs";
+import { join } from "path";
 
-const endCursor = getInput('cursor');
-const owner = getRequiredInput('owner');
-const repo = getRequiredInput('repo');
-const areas = getRequiredInput('areas').split('|');
-const assignees = getRequiredInput('assignees').split('|');
+import { Action } from "../../../common/Action";
+import { getInput, getRequiredInput } from "../../../common/utils";
+import { createDataDirectories } from "./createDataDir";
+import { download } from "./download";
+
+const endCursor = getInput("cursor");
+const owner = getRequiredInput("owner");
+const repo = getRequiredInput("repo");
+const areas = getRequiredInput("areas").split("|");
+const assignees = getRequiredInput("assignees").split("|");
 
 class FetchIssues extends Action {
-	id = 'Classifier/Train/FetchIssues';
+	id = "Classifier/Train/FetchIssues";
 
 	async onTriggered() {
 		if (endCursor) {
 			await download({ owner, repo }, endCursor);
 		} else {
 			try {
-				statSync(join(__dirname, 'issues.json')).isFile();
+				statSync(join(__dirname, "issues.json")).isFile();
 			} catch {
 				await download({ owner, repo });
 			}
@@ -34,4 +35,4 @@ class FetchIssues extends Action {
 	}
 }
 
-new FetchIssues().run() // eslint-disable-line
+new FetchIssues().run(); // eslint-disable-line

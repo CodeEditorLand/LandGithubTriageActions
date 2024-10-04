@@ -3,17 +3,23 @@
  *  Licensed under the MIT License. See LICENSE in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { readFileSync } from 'fs';
-import { join } from 'path';
-import { OctoKit, OctoKitIssue } from '../../../api/octokit';
-import { VSCodeToolsAPIManager } from '../../../api/vscodeTools';
-import { Action, getAuthenticationToken } from '../../../common/Action';
-import { daysAgoToHumanReadbleDate, getInput, getRequiredInput, safeLog } from '../../../common/utils';
+import { readFileSync } from "fs";
+import { join } from "path";
 
-const allowLabels = (getInput('allowLabels') || '').split('|');
-const debug = !!getInput('__debug');
-const repo = getRequiredInput('repo');
-const owner = getRequiredInput('owner');
+import { OctoKit, OctoKitIssue } from "../../../api/octokit";
+import { VSCodeToolsAPIManager } from "../../../api/vscodeTools";
+import { Action, getAuthenticationToken } from "../../../common/Action";
+import {
+	daysAgoToHumanReadbleDate,
+	getInput,
+	getRequiredInput,
+	safeLog,
+} from "../../../common/utils";
+
+const allowLabels = (getInput("allowLabels") || "").split("|");
+const debug = !!getInput("__debug");
+const repo = getRequiredInput("repo");
+const owner = getRequiredInput("owner");
 
 type ClassifierConfig = {
 	vacation?: string[];
@@ -38,22 +44,34 @@ export enum Availability {
 }
 
 class ApplyLabels extends Action {
-	id = 'Classifier-Deep/Apply/ApplyLabels';
+	id = "Classifier-Deep/Apply/ApplyLabels";
 
 	async onTriggered(github: OctoKit) {
-		const config: ClassifierConfig = await github.readConfig(getRequiredInput('configPath'));
+		const config: ClassifierConfig = await github.readConfig(
+			getRequiredInput("configPath"),
+		);
 		const token = await getAuthenticationToken();
 		const labelings: LabelingsFile = JSON.parse(
-			readFileSync(join(__dirname, '../issue_labels.json'), { encoding: 'utf8' }),
+			readFileSync(join(__dirname, "../issue_labels.json"), {
+				encoding: "utf8",
+			}),
 		);
 
 		for (const labeling of labelings) {
-			const issue = new OctoKitIssue(token, { owner, repo }, { number: labeling.number });
+			const issue = new OctoKitIssue(
+				token,
+				{ owner, repo },
+				{ number: labeling.number },
+			);
 
 			const potentialAssignees: string[] = [];
 			const addAssignee = async (assignee: string) => {
 				if (config.vacation?.includes(assignee)) {
-					safeLog('not assigning ', assignee, 'becuase they are on vacation');
+					safeLog(
+						"not assigning ",
+						assignee,
+						"becuase they are on vacation",
+					);
 				} else {
 					potentialAssignees.push(assignee);
 				}
@@ -61,27 +79,31 @@ class ApplyLabels extends Action {
 
 			const issueData = await issue.getIssue();
 
-			if (issueData.labels.includes('invalid')) {
+			if (issueData.labels.includes("invalid")) {
 				safeLog(`issue ${labeling.number} is invalid, skipping`);
 				continue;
 			}
 
 			if (issueData.number !== labeling.number) {
-				safeLog(`issue ${labeling.number} moved to ${issueData.number}, skipping`);
+				safeLog(
+					`issue ${labeling.number} moved to ${issueData.number}, skipping`,
+				);
 				continue;
 			}
 
 			const allLabelsAllowed = issueData.labels.every((issueLabel) =>
-				allowLabels.some((allowedLabel) => issueLabel.includes(allowedLabel)),
+				allowLabels.some((allowedLabel) =>
+					issueLabel.includes(allowedLabel),
+				),
 			);
 
 			if (!debug && (issueData.assignee || !allLabelsAllowed)) {
-				safeLog('skipping');
+				safeLog("skipping");
 				continue;
 			}
 
 			safeLog(
-				'not skipping',
+				"not skipping",
 				JSON.stringify({
 					assignee: labeling.assignee,
 					area: labeling.area,
@@ -95,26 +117,30 @@ class ApplyLabels extends Action {
 					if (confident) {
 						if (!(await github.repoHasLabel(category))) {
 							safeLog(`creating label`);
-							await github.createLabel(category, 'f1d9ff', '');
+							await github.createLabel(category, "f1d9ff", "");
 						}
 						await issue.addLabel(category);
 					}
 					await issue.postComment(
 						`confidence for label ${category}: ${confidence}. ${
-							confident ? 'does' : 'does not'
+							confident ? "does" : "does not"
 						} meet threshold`,
 					);
 				}
 
 				if (confident) {
-					safeLog(`assigning person based on label ${category} for issue ${issueData.number}`);
+					safeLog(
+						`assigning person based on label ${category} for issue ${issueData.number}`,
+					);
 
 					// Assign the issue to the proper person based on the label that was assigned
 					// This is configurable in the per repo config
 					const labelConfig = config.labels?.[category];
 					await Promise.all<any>([
 						...(labelConfig?.assign
-							? labelConfig.assign.map((assignee) => addAssignee(assignee))
+							? labelConfig.assign.map((assignee) =>
+									addAssignee(assignee),
+								)
 							: []),
 					]);
 				}
@@ -126,19 +152,19 @@ class ApplyLabels extends Action {
 					if (confident) {
 						if (!(await github.repoHasLabel(category))) {
 							safeLog(`creating assignee label`);
-							await github.createLabel(category, 'ffa5a1', '');
+							await github.createLabel(category, "ffa5a1", "");
 						}
 						await issue.addLabel(category);
 					}
 					await issue.postComment(
 						`confidence for assignee ${category}: ${confidence}. ${
-							confident ? 'does' : 'does not'
+							confident ? "does" : "does not"
 						} meet threshold`,
 					);
 				}
 
 				if (confident) {
-					safeLog('has assignee');
+					safeLog("has assignee");
 					await addAssignee(category);
 				}
 			}
@@ -146,7 +172,9 @@ class ApplyLabels extends Action {
 			let performedAssignment = false;
 			if (potentialAssignees.length && !debug) {
 				for (const assignee of potentialAssignees) {
-					const hasBeenAssigned = await issue.getAssigner(assignee).catch(() => undefined);
+					const hasBeenAssigned = await issue
+						.getAssigner(assignee)
+						.catch(() => undefined);
 					if (!hasBeenAssigned) {
 						await issue.addAssignee(assignee);
 						performedAssignment = true;
@@ -156,23 +184,26 @@ class ApplyLabels extends Action {
 			}
 
 			if (!performedAssignment) {
-				safeLog('could not find assignee, picking a random one...');
+				safeLog("could not find assignee, picking a random one...");
 				try {
 					const vscodeToolsAPI = new VSCodeToolsAPIManager();
 					const triagers = await vscodeToolsAPI.getTriagerGitHubIds();
-					safeLog('Acquired list of available triagers');
+					safeLog("Acquired list of available triagers");
 					const available = triagers;
 					if (available) {
 						// Shuffle the array
 						for (let i = available.length - 1; i > 0; i--) {
 							const j = Math.floor(Math.random() * (i + 1));
-							[available[i], available[j]] = [available[j], available[i]];
+							[available[i], available[j]] = [
+								available[j],
+								available[i],
+							];
 						}
 						if (!debug) {
-							await issue.addLabel('triage-needed');
+							await issue.addLabel("triage-needed");
 							let i = 0;
 							const randomSelection = available[i];
-							safeLog('assigning', randomSelection);
+							safeLog("assigning", randomSelection);
 							await issue.addAssignee(randomSelection);
 							const staleIssues = github.query({
 								q: `is:issue is:open label:triage-needed -label:stale -label:info-needed updated:<${daysAgoToHumanReadbleDate(
@@ -186,21 +217,24 @@ class ApplyLabels extends Action {
 									if (i >= available.length) {
 										i = 0;
 									}
-									safeLog('assigning to stale issue', available[i]);
+									safeLog(
+										"assigning to stale issue",
+										available[i],
+									);
 									await issue.addAssignee(available[i]);
-									await issue.addLabel('stale');
+									await issue.addLabel("stale");
 								}
 							}
 						}
 					} else {
-						safeLog('could not find manifest');
+						safeLog("could not find manifest");
 					}
 				} catch (e) {
-					safeLog('error assigning random', (e as any).message);
+					safeLog("error assigning random", (e as any).message);
 				}
 			}
 		}
 	}
 }
 
-new ApplyLabels().run() // eslint-disable-line
+new ApplyLabels().run(); // eslint-disable-line

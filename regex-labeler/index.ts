@@ -3,22 +3,22 @@
  *  Licensed under the MIT License. See LICENSE in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { OctoKitIssue } from '../api/octokit';
-import { Action } from '../common/Action';
-import { getInput } from '../common/utils';
-import { RegexFlagger } from './RegexLabeler';
+import { OctoKitIssue } from "../api/octokit";
+import { Action } from "../common/Action";
+import { getInput } from "../common/utils";
+import { RegexFlagger } from "./RegexLabeler";
 
 class RegexFlaggerActon extends Action {
-	id = 'RegexFlagger';
+	id = "RegexFlagger";
 	async onOpened(issue: OctoKitIssue) {
 		await new RegexFlagger(
 			issue,
-			getInput('label'),
-			getInput('comment'),
-			getInput('mustMatch'),
-			getInput('mustNotMatch'),
+			getInput("label"),
+			getInput("comment"),
+			getInput("mustMatch"),
+			getInput("mustNotMatch"),
 		).run();
 	}
 }
 
-new RegexFlaggerActon().run() // eslint-disable-line
+new RegexFlaggerActon().run(); // eslint-disable-line
