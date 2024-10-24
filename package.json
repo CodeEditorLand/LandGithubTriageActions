@@ -4,7 +4,7 @@
 		"@actions/github": "6.0.0",
 		"@octokit/auth-app": "7.1.1",
 		"@octokit/rest": "21.0.2",
-		"@slack/web-api": "7.6.0",
+		"@slack/web-api": "7.7.0",
 		"axios": "1.7.7",
 		"uuid": "10.0.0"
 	},
@@ -13,7 +13,7 @@
 		"@types/chai": "5.0.0",
 		"@types/uuid": "10.0.0",
 		"@types/yargs": "17.0.33",
-		"chai": "5.1.1",
+		"chai": "5.1.2",
 		"nock": "13.5.5",
 		"yargs": "17.7.2"
 	},
