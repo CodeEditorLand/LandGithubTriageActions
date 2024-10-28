@@ -6,7 +6,7 @@
 		"@octokit/rest": "21.0.2",
 		"@slack/web-api": "7.7.0",
 		"axios": "1.7.7",
-		"uuid": "10.0.0"
+		"uuid": "11.0.1"
 	},
 	"description": "GitHub Actions used by VS Code for triaging issues",
 	"devDependencies": {
