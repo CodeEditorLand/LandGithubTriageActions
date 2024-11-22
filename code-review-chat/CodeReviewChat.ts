@@ -30,6 +30,7 @@ interface PR {
 	headBranchName: string;
 	title: string;
 	headLabel: string;
+
 	fork: boolean;
 }
 
@@ -78,6 +79,7 @@ export function createPRObject(pullRequestFromApi: any): PR {
 		headLabel: pullRequestFromApi.head.repo?.full_name || "",
 		fork: pullRequestFromApi.head.repo?.fork || false,
 	};
+
 	return pr;
 }
 
@@ -101,6 +103,7 @@ class Chatter {
 
 export class CodeReviewChatDeleter extends Chatter {
 	private elevatedClient: WebClient | undefined;
+
 	constructor(
 		slackToken: string,
 		slackElevatedUserToken: string | undefined,
@@ -120,6 +123,7 @@ export class CodeReviewChatDeleter extends Chatter {
 			channel,
 			limit: 20,
 		});
+
 		if (!response.ok || !response.messages) {
 			throw Error("Error getting channel history");
 		}
@@ -139,6 +143,7 @@ export class CodeReviewChatDeleter extends Chatter {
 				message.text.match(
 					/https:\/\/github.com\/.*\/pull\/\d+/,
 				)?.[0] ?? "";
+
 			if (isCodeReviewMessage) {
 				safeLog(
 					`${prUrl} was closed or met review threshold. Deleting the message.`,
@@ -158,6 +163,7 @@ export class CodeReviewChatDeleter extends Chatter {
 
 		// Delete all the replies to messages queued for deletion
 		const replies: SlackMessage[] = [];
+
 		for (const message of messagesToDelete) {
 			// If reply count is greater than 1 we must fetch the replies
 			if (message.reply_count) {
@@ -165,6 +171,7 @@ export class CodeReviewChatDeleter extends Chatter {
 					channel,
 					ts: message.ts,
 				});
+
 				if (!replyThread.ok || !replyThread.messages) {
 					safeLog("Error getting messages replies");
 				} else {
@@ -179,6 +186,7 @@ export class CodeReviewChatDeleter extends Chatter {
 
 		if (messagesToDelete.length === 0) {
 			safeLog("no message found, exiting");
+
 			return;
 		}
 		try {
@@ -237,13 +245,16 @@ export class CodeReviewChat extends Chatter {
 				repo: this.options.payload.repo,
 				pull_number: this.options.payload.pr.number,
 			});
+
 		const requestedReviewers = requestedReviewersAPIResponse.data.users.map(
 			(user) => user.login,
 		);
+
 		if (requestedReviewers.length !== 0) {
 			safeLog(
 				"A secondary reviewer has been requested for this PR, skipping",
 			);
+
 			return;
 		}
 		const message = this.getSlackMessage(pr);
@@ -254,8 +265,10 @@ export class CodeReviewChat extends Chatter {
 		const cleanTitle = pr.title
 			.replace(/`/g, "")
 			.replace("https://github.com/", "");
+
 		const changedFilesMessage =
 			`${pr.changed_files} file` + (pr.changed_files > 1 ? "s" : "");
+
 		const diffMessage = `+${pr.additions.toLocaleString()} -${pr.deletions.toLocaleString()}, ${changedFilesMessage}`;
 		// The message that states which repo the PR is in, only populated for non microsoft/vscode PRs
 		const repoMessage =
@@ -264,6 +277,7 @@ export class CodeReviewChat extends Chatter {
 				: ` (in ${this.options.payload.repo_full_name}):`;
 
 		const githubUrl = `${pr.url}/files`;
+
 		const vscodeDevUrl = pr.url.replace(
 			"https://",
 			"https://insiders.vscode.dev/",
@@ -272,7 +286,9 @@ export class CodeReviewChat extends Chatter {
 		const externalPrefix = this._externalContributorPR
 			? "⚠️[EXTERNAL]⚠️ "
 			: "";
+
 		const message = `${externalPrefix}*${cleanTitle}* by _${pr.owner}_${repoMessage} \`${diffMessage}\` <${githubUrl}|Review (GH)> | <${vscodeDevUrl}|Review (VSCode)>`;
+
 		return message;
 	}
 
@@ -285,9 +301,12 @@ export class CodeReviewChat extends Chatter {
 				repo: this.options.payload.repo,
 			})
 		).data;
+
 		const pr = createPRObject(prFromApi);
+
 		if (pr.draft) {
 			safeLog("PR is draft, ignoring");
+
 			return;
 		}
 
@@ -296,6 +315,7 @@ export class CodeReviewChat extends Chatter {
 		// Ignore PRs from ignored repos
 		if (ignoredRepos.includes(this.options.payload.repo)) {
 			safeLog("PR is from ignored repo, ignoring");
+
 			return;
 		}
 
@@ -312,27 +332,33 @@ export class CodeReviewChat extends Chatter {
 			pr.baseBranchName.startsWith("release")
 		) {
 			safeLog("PR is on a non-main or release branch, ignoring");
+
 			return;
 		}
 
 		const isEndGame = (await isInsiderFrozen()) ?? false;
 		// This is an external PR which already received one review and is just awaiting a second
 		const data = await this.issue.getIssue();
+
 		if (this._externalContributorPR) {
 			const externalTasks = [];
+
 			const currentMilestone =
 				await this.issue.getCurrentRepoMilestone(isEndGame);
+
 			if (!data.milestone && currentMilestone) {
 				externalTasks.push(this.issue.setMilestone(currentMilestone));
 			}
 			externalTasks.push(this.postExternalPRMessage(pr));
 			await Promise.all(externalTasks);
+
 			return;
 		}
 
 		const teamMembers = new Set(
 			(await this.toolsAPI.getTeamMembers()).map((t) => t.id),
 		);
+
 		const author = data.author;
 		// Author must have write access to the repo or be a bot
 		if (
@@ -340,6 +366,7 @@ export class CodeReviewChat extends Chatter {
 			author.name.includes("dependabot")
 		) {
 			safeLog("Issue author not team member, ignoring");
+
 			return;
 		}
 		const tasks = [];
@@ -352,6 +379,7 @@ export class CodeReviewChat extends Chatter {
 			(async () => {
 				const currentMilestone =
 					await this.issue.getCurrentRepoMilestone(isEndGame);
+
 				if (!data.milestone && currentMilestone) {
 					await this.issue.setMilestone(currentMilestone);
 				}
@@ -381,6 +409,7 @@ export class CodeReviewChat extends Chatter {
 				// Check to see if there is an existing review or review request. We don't check if the author is part of the review request as that isn't possible
 				const hasExisting =
 					hasExistingReview || existingRequests?.data?.users?.length;
+
 				if (hasExisting) {
 					safeLog("had existing review requests, exiting");
 					process.exit(0);
@@ -427,6 +456,7 @@ export async function getTeamMemberReviews(
 
 	// Only take the latest review of each user
 	const latestReviews = new Map();
+
 	for (const review of reviews.data) {
 		if (!review.user) {
 			continue;
@@ -438,6 +468,7 @@ export async function getTeamMemberReviews(
 			continue;
 		}
 		const isTeamMember = teamMembers.has(review.user.login);
+
 		if (!isTeamMember) {
 			continue;
 		}
@@ -449,6 +480,7 @@ export async function getTeamMemberReviews(
 			continue;
 		}
 		const existingReview = latestReviews.get(review.user.login);
+
 		if (
 			!existingReview ||
 			reviewTimestamp > new Date(existingReview.submitted_at).getTime()
@@ -469,6 +501,7 @@ export async function meetsReviewThreshold(
 ) {
 	// Get author of PR
 	const author = (await ghIssue.getIssue()).author.name;
+
 	const teamMemberReviews = await getTeamMemberReviews(
 		octokit,
 		teamMembers,
@@ -481,6 +514,7 @@ export async function meetsReviewThreshold(
 	const reviewerNames = Array.from(
 		new Set(teamMemberReviews?.map((r) => r.user?.login ?? "Unknown")),
 	);
+
 	let meetsReviewThreshold = false;
 	// Team members require 1 review, external requires two
 	if (teamMembers.has(author)) {

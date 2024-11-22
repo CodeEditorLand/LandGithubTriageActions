@@ -17,8 +17,11 @@ import {
 } from "../../../common/utils";
 
 const allowLabels = (getInput("allowLabels") || "").split("|");
+
 const debug = !!getInput("__debug");
+
 const repo = getRequiredInput("repo");
+
 const owner = getRequiredInput("owner");
 
 type ClassifierConfig = {
@@ -50,7 +53,9 @@ class ApplyLabels extends Action {
 		const config: ClassifierConfig = await github.readConfig(
 			getRequiredInput("configPath"),
 		);
+
 		const token = await getAuthenticationToken();
+
 		const labelings: LabelingsFile = JSON.parse(
 			readFileSync(join(__dirname, "../issue_labels.json"), {
 				encoding: "utf8",
@@ -65,6 +70,7 @@ class ApplyLabels extends Action {
 			);
 
 			const potentialAssignees: string[] = [];
+
 			const addAssignee = async (assignee: string) => {
 				if (config.vacation?.includes(assignee)) {
 					safeLog(
@@ -81,6 +87,7 @@ class ApplyLabels extends Action {
 
 			if (issueData.labels.includes("invalid")) {
 				safeLog(`issue ${labeling.number} is invalid, skipping`);
+
 				continue;
 			}
 
@@ -88,6 +95,7 @@ class ApplyLabels extends Action {
 				safeLog(
 					`issue ${labeling.number} moved to ${issueData.number}, skipping`,
 				);
+
 				continue;
 			}
 
@@ -99,6 +107,7 @@ class ApplyLabels extends Action {
 
 			if (!debug && (issueData.assignee || !allLabelsAllowed)) {
 				safeLog("skipping");
+
 				continue;
 			}
 
@@ -113,6 +122,7 @@ class ApplyLabels extends Action {
 
 			{
 				const { category, confidence, confident } = labeling.area;
+
 				if (debug) {
 					if (confident) {
 						if (!(await github.repoHasLabel(category))) {
@@ -148,6 +158,7 @@ class ApplyLabels extends Action {
 
 			{
 				const { category, confidence, confident } = labeling.assignee;
+
 				if (debug) {
 					if (confident) {
 						if (!(await github.repoHasLabel(category))) {
@@ -170,14 +181,17 @@ class ApplyLabels extends Action {
 			}
 
 			let performedAssignment = false;
+
 			if (potentialAssignees.length && !debug) {
 				for (const assignee of potentialAssignees) {
 					const hasBeenAssigned = await issue
 						.getAssigner(assignee)
 						.catch(() => undefined);
+
 					if (!hasBeenAssigned) {
 						await issue.addAssignee(assignee);
 						performedAssignment = true;
+
 						break;
 					}
 				}
@@ -185,11 +199,15 @@ class ApplyLabels extends Action {
 
 			if (!performedAssignment) {
 				safeLog("could not find assignee, picking a random one...");
+
 				try {
 					const vscodeToolsAPI = new VSCodeToolsAPIManager();
+
 					const triagers = await vscodeToolsAPI.getTriagerGitHubIds();
 					safeLog("Acquired list of available triagers");
+
 					const available = triagers;
+
 					if (available) {
 						// Shuffle the array
 						for (let i = available.length - 1; i > 0; i--) {
@@ -201,10 +219,13 @@ class ApplyLabels extends Action {
 						}
 						if (!debug) {
 							await issue.addLabel("triage-needed");
+
 							let i = 0;
+
 							const randomSelection = available[i];
 							safeLog("assigning", randomSelection);
 							await issue.addAssignee(randomSelection);
+
 							const staleIssues = github.query({
 								q: `is:issue is:open label:triage-needed -label:stale -label:info-needed updated:<${daysAgoToHumanReadbleDate(
 									7,
@@ -214,6 +235,7 @@ class ApplyLabels extends Action {
 							for await (const page of staleIssues) {
 								for (const issue of page) {
 									i += 1;
+
 									if (i >= available.length) {
 										i = 0;
 									}

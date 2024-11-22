@@ -8,6 +8,7 @@ import {
 } from "./vscodeToolsTypes";
 
 const API_URL = "https://tools.code.visualstudio.com/api";
+
 const CREDENTIAL_SCOPES = [
 	"api://3834c68c-adcc-4ad8-818a-8fca4cc260be/.default",
 ];
@@ -28,6 +29,7 @@ export class VSCodeToolsAPIManager {
 
 	async getTriagerGitHubIds(): Promise<string[]> {
 		const members = await this.getTeamMembers();
+
 		return members
 			.filter(
 				(member) =>
@@ -39,6 +41,7 @@ export class VSCodeToolsAPIManager {
 
 	async getTeamMemberFromGitHubId(gitHubId: string) {
 		const teamMembers = await this.getTeamMembers();
+
 		return teamMembers.find((member) => member.id === gitHubId);
 	}
 

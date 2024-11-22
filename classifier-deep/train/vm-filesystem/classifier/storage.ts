@@ -12,6 +12,7 @@ const connectionString = ""; // Azure Storage conenction string
 export async function downloadBlob(name: string, container: string) {
 	const blobServiceClient =
 		BlobServiceClient.fromConnectionString(connectionString);
+
 	const containerClient = blobServiceClient.getContainerClient(container);
 
 	const createContainerResponse = containerClient.getBlockBlobClient(name);
@@ -24,6 +25,7 @@ export async function downloadBlob(name: string, container: string) {
 export async function uploadBlob(name: string, container: string) {
 	const blobServiceClient =
 		BlobServiceClient.fromConnectionString(connectionString);
+
 	const containerClient = blobServiceClient.getContainerClient(container);
 
 	const createContainerResponse = containerClient.getBlockBlobClient(name);

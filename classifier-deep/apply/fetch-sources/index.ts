@@ -19,20 +19,26 @@ import {
 import { downloadBlobFile } from "../../blobStorage";
 
 const minToDay = 0.0007;
+
 const fromInput = getInput("from") || undefined;
+
 const excludeLabels = (getInput("excludeLabels") || "")
 	.split("|")
 	.map((l) => `-label:${l}`)
 	.join(" ");
+
 const from = fromInput
 	? daysAgoToHumanReadbleDate(+fromInput * minToDay)
 	: undefined;
+
 const until = daysAgoToHumanReadbleDate(+getRequiredInput("until") * minToDay);
 
 const createdQuery = `created:` + (from ? `${from}..${until}` : `<${until}`);
 
 const blobContainer = getRequiredInput("blobContainerName");
+
 const repo = getRequiredInput("repo");
+
 const owner = getRequiredInput("owner");
 class FetchIssues extends Action {
 	id = "Clasifier-Deep/Apply/FetchIssues";
@@ -41,6 +47,7 @@ class FetchIssues extends Action {
 		const query = `repo:${owner}/${repo} ${createdQuery} is:open no:assignee ${excludeLabels}`;
 
 		const data: { number: number; contents: string }[] = [];
+
 		for await (const page of github.query({ q: query })) {
 			for (const issue of page) {
 				const issueData = await issue.getIssue();
@@ -48,6 +55,7 @@ class FetchIssues extends Action {
 				// Probably spam. Tagged for later review
 				if (issueData.author.name === "ghost") {
 					safeLog(`Tagging issue  #${issueData.number} as invalid`);
+
 					try {
 						await issue.addLabel("invalid");
 						await issue.closeIssue("not_planned");
@@ -61,7 +69,9 @@ class FetchIssues extends Action {
 				}
 
 				let performedPRAssignment = false;
+
 				let additionalInfo = "";
+
 				if (issueData.isPr) {
 					if (await github.hasWriteAccess(issueData.author.name)) {
 						await issue.addAssignee(issueData.author.name);
@@ -71,18 +81,24 @@ class FetchIssues extends Action {
 							safeLog(
 								"issue is a PR, attempting to read find a linked issue",
 							);
+
 							const linkedIssue =
 								issueData.body.match(/#(\d{3,7})/)?.[1];
+
 							if (linkedIssue) {
 								safeLog("PR is linked to", linkedIssue);
+
 								const linkedIssueData = await github
 									.getIssueByNumber(+linkedIssue)
 									.getIssue();
+
 								const normalized =
 									normalizeIssue(linkedIssueData);
 								additionalInfo = `\n\n${normalized.title}\n\n${normalized.body}`;
+
 								const linkedIssueAssignee =
 									linkedIssueData.assignees[0];
+
 								if (linkedIssueAssignee) {
 									safeLog(
 										"linked issue is assigned to",
@@ -134,7 +150,9 @@ class FetchIssues extends Action {
 		await downloadBlobFile("assignee_model.zip", blobContainer);
 
 		const classifierDeepRoot = join(__dirname, "..", "..");
+
 		const blobStorage = join(classifierDeepRoot, "blobStorage");
+
 		const models = join(classifierDeepRoot, "apply");
 
 		safeLog("unzipping area model");

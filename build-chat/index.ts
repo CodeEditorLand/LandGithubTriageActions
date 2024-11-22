@@ -14,10 +14,12 @@ class BuildChatAction extends Action {
 
 	async onTriggered() {
 		const slackToken = getInput("slack_token");
+
 		if (!slackToken) {
 			return;
 		}
 		const auth = getRequiredInput("token");
+
 		const github = new Octokit({ auth });
 		await buildChat(github, getRequiredInput("workflow_run_url"), {
 			slackToken,

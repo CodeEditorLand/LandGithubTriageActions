@@ -4,13 +4,17 @@ import { getRequiredInput } from "../common/utils";
 import { EnglishPleaseLabler, LanguageSpecificLabeler } from "./EnglishPlease";
 
 const nonEnglishLabel = getRequiredInput("nonEnglishLabel");
+
 const needsMoreInfoLabel = getRequiredInput("needsMoreInfoLabel");
+
 const translatorRequestedLabelPrefix = getRequiredInput(
 	"translatorRequestedLabelPrefix",
 );
+
 const translatorRequestedLabelColor = getRequiredInput(
 	"translatorRequestedLabelColor",
 );
+
 const cognitiveServicesAPIKey = getRequiredInput("cognitiveServicesAPIKey");
 
 class EnglishPlease extends Action {

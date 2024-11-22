@@ -23,25 +23,30 @@ export class TestPlanItemValidator {
 
 	async run() {
 		const issue = await this.github.getIssue();
+
 		const shouldAddErrors =
 			issue.labels.includes(this.label) ||
 			issue.labels.includes(this.invalidLabel);
+
 		const madeByTeamMember = await this.github.hasWriteAccess(
 			issue.author.name,
 		);
 
 		if (!madeByTeamMember) {
 			safeLog("Issue not made by team member, skipping validation");
+
 			return;
 		}
 
 		const tasks: Promise<void>[] = [];
 
 		let priorComments: Comment[] | undefined = undefined;
+
 		for await (const page of this.github.getComments()) {
 			priorComments = page.filter(
 				(comment) => comment.body.indexOf(commentTag) !== -1,
 			);
+
 			if (priorComments) {
 				safeLog("Found prior comment. Deleting.");
 				tasks.push(
@@ -54,6 +59,7 @@ export class TestPlanItemValidator {
 		}
 
 		const errors = await this.getErrors(issue);
+
 		if (errors) {
 			if (shouldAddErrors) {
 				tasks.push(
@@ -76,12 +82,14 @@ export class TestPlanItemValidator {
 	private async getErrors(issue: Issue): Promise<string | undefined> {
 		try {
 			const testPlan = parseTestPlanItem(issue.body, issue.author.name);
+
 			if (testPlan.issueRefs.length) {
 				// In the case of testing we don't test this due to the complexity of the API.
 				if (!this.token) {
 					return;
 				}
 				const octokit = new Octokit({ auth: this.token });
+
 				for (const referencedIssue of testPlan.issueRefs) {
 					if (typeof referencedIssue === "number") {
 						await octokit.issues.addLabels({
@@ -93,8 +101,11 @@ export class TestPlanItemValidator {
 					} else {
 						// If referenced issue is a string, it's a gh url so we need to extract the owner, repo, and issue number
 						const urlParts = referencedIssue.split("/");
+
 						const owner = urlParts[3];
+
 						const repo = urlParts[4];
+
 						const issueNumber = parseInt(urlParts[6]);
 						await octokit.issues.addLabels({
 							owner,
@@ -106,9 +117,11 @@ export class TestPlanItemValidator {
 				}
 			}
 			const currentMilestone = issue.milestone;
+
 			if (currentMilestone === null) {
 				const currentRepoMilestone =
 					await this.github.getCurrentRepoMilestone();
+
 				if (currentRepoMilestone) {
 					await this.github.setMilestone(currentRepoMilestone);
 				}
@@ -116,6 +129,7 @@ export class TestPlanItemValidator {
 			return;
 		} catch (error) {
 			const err = error as Error;
+
 			return err.message;
 		}
 	}

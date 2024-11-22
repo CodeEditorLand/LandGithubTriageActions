@@ -42,9 +42,11 @@ export class FeatureRequestQueryer {
 		query += this.config.labelsToExclude
 			.map((l) => `-label:"${l}"`)
 			.join(" ");
+
 		for await (const page of this.github.query({ q: query })) {
 			for (const issue of page) {
 				const issueData = await issue.getIssue();
+
 				if (
 					issueData.open &&
 					issueData.milestone?.milestoneId ===
@@ -71,6 +73,7 @@ export class FeatureRequestQueryer {
 
 	private async actOn(issue: GitHubIssue): Promise<void> {
 		const issueData = await issue.getIssue();
+
 		if (!issueData.reactions)
 			throw Error(
 				"No reaction data in issue " + JSON.stringify(issueData),
@@ -93,6 +96,7 @@ export class FeatureRequestQueryer {
 				initTimestamp?: number;
 				warnTimestamp?: number;
 			} = {};
+
 			for await (const page of issue.getComments()) {
 				for (const comment of page) {
 					if (comment.body.includes(CREATE_MARKER)) {
@@ -179,6 +183,7 @@ export class FeatureRequestOnMilestone {
 
 	async run(): Promise<void> {
 		const issue = await this.github.getIssue();
+
 		if (issue.open && issue.milestone?.milestoneId === this.milestone) {
 			await this.github.postComment(CREATE_MARKER + "\n" + this.comment);
 		}

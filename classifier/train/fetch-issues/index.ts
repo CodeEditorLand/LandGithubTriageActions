@@ -12,9 +12,13 @@ import { createDataDirectories } from "./createDataDir";
 import { download } from "./download";
 
 const endCursor = getInput("cursor");
+
 const owner = getRequiredInput("owner");
+
 const repo = getRequiredInput("repo");
+
 const areas = getRequiredInput("areas").split("|");
+
 const assignees = getRequiredInput("assignees").split("|");
 
 class FetchIssues extends Action {

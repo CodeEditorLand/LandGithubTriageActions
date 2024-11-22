@@ -11,8 +11,11 @@ import { AuthorVerifiedLabeler } from "./AuthorVerified";
 const requestVerificationComment = getRequiredInput(
 	"requestVerificationComment",
 );
+
 const releasedLabel = getRequiredInput("releasedLabel");
+
 const verifiedLabel = getRequiredInput("verifiedLabel");
+
 const authorVerificationRequestedLabel = getRequiredInput(
 	"authorVerificationRequestedLabel",
 );

@@ -18,16 +18,21 @@ export class NewRelease {
 
 	async run() {
 		const release = await loadLatestRelease("stable");
+
 		if (!(release && release.timestamp))
 			throw Error("Could not load latest release");
+
 		const daysSinceRelease =
 			(Date.now() - release.timestamp) / (24 * 60 * 60 * 1000);
 
 		const issue = await this.github.getIssue();
+
 		const cleansed = issue.body.replace(/<!-- .* -->/g, "");
+
 		const productVersion = release.productVersion.endsWith(".0")
 			? release.productVersion.replace(/\.0$/, "")
 			: release.productVersion;
+
 		if (
 			this.oldVersionMessage &&
 			!/insider/i.test(cleansed) &&
@@ -41,6 +46,7 @@ export class NewRelease {
 					release.productVersion,
 				),
 			);
+
 			return;
 		}
 
@@ -50,6 +56,7 @@ export class NewRelease {
 				"New release window passed. Globally deleting label " +
 					this.label,
 			);
+
 			return this.github.deleteLabel(this.label);
 		}
 

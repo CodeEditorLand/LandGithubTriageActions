@@ -10,6 +10,7 @@ import { RegexFlagger } from "./RegexLabeler";
 
 class RegexFlaggerActon extends Action {
 	id = "RegexFlagger";
+
 	async onOpened(issue: OctoKitIssue) {
 		await new RegexFlagger(
 			issue,

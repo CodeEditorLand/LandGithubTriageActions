@@ -80,6 +80,7 @@ export const download = async (
 	endCursor?: string,
 ) => {
 	const token = await getAuthenticationToken();
+
 	const data = await axios
 		.post(
 			"https://api.github.com/graphql",
@@ -186,6 +187,7 @@ export const download = async (
 	);
 
 	const pageInfo = response.repository.issues.pageInfo;
+
 	const rateInfo = response.rateLimit;
 
 	console.log({
@@ -195,6 +197,7 @@ export const download = async (
 	});
 
 	endCursor = pageInfo.endCursor;
+
 	if (pageInfo.hasNextPage) {
 		return new Promise<void>((resolve) => {
 			setTimeout(async () => {
@@ -209,6 +212,7 @@ const extractLabelEvents = (
 	_issue: IssueResponse["nodes"][number],
 ): LabelEvent[] => {
 	const issue = _issue;
+
 	const events: ({ timestamp: number } & (
 		| { type: "labeled"; label: string; actor: string }
 		| { type: "titleEdited"; new: string; old: string }
@@ -283,11 +287,13 @@ const extractLabelEvents = (
 	let currentTitle =
 		(events.find((event) => event.type === "titleEdited") as any)?.old ??
 		issue.title;
+
 	let currentBody =
 		(events.find((event) => event.type === "bodyEdited") as any)?.new ??
 		issue.body;
 
 	const labelEvents: LabelEvent[] = [];
+
 	for (const event of events) {
 		if (event.type === "labeled") {
 			labelEvents.push({

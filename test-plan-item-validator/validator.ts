@@ -40,30 +40,40 @@ export interface ParsedTestPlanItem {
 
 // Make sure all platform assignments have similar groups
 const MacPlatformTerm = `(mac(os)?)`;
+
 const MacPlatformAssignment: RegExp = new RegExp(
 	`\\[([\\sx])\\]\\s+${MacPlatformTerm}\\s*:?\\s*`,
 	"i",
 );
+
 const IPadPlatformTerm = `(ipad(os)?|(ios))`;
+
 const IPadPlatformAssignment: RegExp = new RegExp(
 	`\\[([\\sx])\\]\\s+${IPadPlatformTerm}\\s*:?\\s*`,
 	"i",
 );
+
 const WindowsPlatformTerm = `(win(dows)?|(wsl))`;
+
 const WindowsPlatformAssignment: RegExp = new RegExp(
 	`\\[([\\sx])\\]\\s+${WindowsPlatformTerm}\\s*:?\\s*`,
 	"i",
 );
+
 const LinuxPlatformTerm = `(linux)`;
+
 const LinuxPlatformAssignment: RegExp = new RegExp(
 	`\\[([\\sx])\\]\\s+${LinuxPlatformTerm}\\s*:?\\s*`,
 	"i",
 );
+
 const AnyPlatformTerm = `(any\\s*(os)?|ssh|dev\\s?container|web)`;
+
 const AnyPlatformAssignment: RegExp = new RegExp(
 	`\\[([\\sx])\\]\\s+${AnyPlatformTerm}\\s*:?\\s*`,
 	"i",
 );
+
 const InvalidAssignment: RegExp = new RegExp(
 	`\\[[\\sx]\\]\\s+(?!(${MacPlatformTerm}|${WindowsPlatformTerm}|${LinuxPlatformTerm}|${IPadPlatformTerm}|${AnyPlatformTerm}))\\s*:?\\s*`,
 	"i",
@@ -74,6 +84,7 @@ export function parseTestPlanItem(
 	author: string,
 ): ParsedTestPlanItem {
 	const headerRange = parseHeaderRange(body);
+
 	const testPlanItem: ParsedTestPlanItem = {
 		complexity: 3,
 		assignments: [],
@@ -82,6 +93,7 @@ export function parseTestPlanItem(
 		authors: [],
 		headerRange,
 	};
+
 	const header = body.substring(
 		testPlanItem.headerRange[0],
 		testPlanItem.headerRange[1],
@@ -127,6 +139,7 @@ export function parseTestPlanItem(
 	}
 
 	let matches = InvalidAssignment.exec(header);
+
 	if (matches && matches.length) {
 		throw new Error(
 			`Test plan item has invalid assignments - ${header.substring(matches.index).split("\n")[0]}`,
@@ -138,6 +151,7 @@ export function parseTestPlanItem(
 
 export function parseHeaderRange(body: string): [number, number] {
 	const matches = /(\r\n|\n)----*\s*(\r\n|\n)/i.exec(body);
+
 	if (matches && matches.length) {
 		return [0, matches.index];
 	}
@@ -146,12 +160,15 @@ export function parseHeaderRange(body: string): [number, number] {
 
 function parseRefs(body: string): (string | number)[] {
 	const refsRegex = /(ref(s)?)\s*[:-]?\s*(.*)/i;
+
 	const refsMatches = refsRegex.exec(body);
+
 	if (!refsMatches || !refsMatches[3]) {
 		return [];
 	}
 
 	const referencedIssues = refsMatches[3].split(",");
+
 	const issues: (string | number)[] = [];
 
 	for (let ref of referencedIssues) {
@@ -163,6 +180,7 @@ function parseRefs(body: string): (string | number)[] {
 			// Check if the issue is a valid github issue by checking if it has a valid url
 			const issueUrlRegex =
 				/https:\/\/github.com\/.*\/.*\/issues\/(\d+)/i;
+
 			const issueUrlMatches = issueUrlRegex.exec(ref);
 			// Extract the url and push it back to the issues array
 			if (issueUrlMatches && issueUrlMatches.length) {
@@ -178,6 +196,7 @@ function parseComplexity(body: string): number {
 	const complexityMatches = /\**(complexity|size)\s*[:-]?\s*\**\s*(\d)/i.exec(
 		body,
 	);
+
 	return complexityMatches && complexityMatches[2]
 		? parseInt(complexityMatches[2])
 		: 3;
@@ -185,11 +204,15 @@ function parseComplexity(body: string): number {
 
 function parseRoles(body: string): TesterRole[] | undefined {
 	const roleMatches = /role(s)?\s*[:-]?\s*(<\!--.*-->)*(.*)/i.exec(body);
+
 	if (roleMatches && roleMatches[3]) {
 		const result: TesterRole[] = [];
+
 		const roles = roleMatches[3].toLowerCase().trim().split(",");
+
 		for (let role of roles) {
 			role = role.trim();
+
 			if (role === TesterRole.CONTENT_DEVELOPER.toLowerCase()) {
 				if (!result.includes(TesterRole.CONTENT_DEVELOPER)) {
 					result.push(TesterRole.CONTENT_DEVELOPER);
@@ -228,10 +251,12 @@ function parseRoles(body: string): TesterRole[] | undefined {
 
 function parseAuthors(body: string): string[] {
 	const matches = /author(s)?\s*[:-]?\s*(<\!--.*-->)*(.*)/i.exec(body);
+
 	if (!matches || !matches[3]) {
 		return [];
 	}
 	const authors: string[] = [];
+
 	for (const value of matches[3].trim().split(",")) {
 		for (const author of value.trim().split(" ")) {
 			authors.push(author.startsWith("@") ? author.substring(1) : author);
@@ -247,8 +272,11 @@ function parsePlatformAssignment(
 	platformAssignments: PlatformAssigment[],
 ): void {
 	let matches = regex.exec(body);
+
 	let startIndex = 0;
+
 	let endIndex = 0;
+
 	while (matches && matches.length) {
 		const platformAssignment: PlatformAssigment = {
 			platform,
@@ -259,6 +287,7 @@ function parsePlatformAssignment(
 		};
 		platformAssignments.push(platformAssignment);
 		startIndex = endIndex + matches.index;
+
 		setUserAssignment(
 			body,
 			{ match: matches[0], start: startIndex },
@@ -280,7 +309,9 @@ function parseAnyPlatformAssignments(
 	platformAssignments: PlatformAssigment[],
 ): void {
 	const anyPlatforms = [Platform.MAC, Platform.WINDOWS, Platform.LINUX];
+
 	let startIndex = 0;
+
 	while (startIndex !== -1) {
 		startIndex = parseAnyPlatformAssignmentsStartingFrom(
 			body,
@@ -298,12 +329,15 @@ function parseAnyPlatformAssignmentsStartingFrom(
 	platformAssignments: PlatformAssigment[],
 ): number {
 	const matches = AnyPlatformAssignment.exec(body.substring(fromIndex));
+
 	if (matches && matches.length) {
 		let platformAssignmentsCount: [Platform, number] | undefined;
+
 		for (const platform of anyPlatforms) {
 			const count = platformAssignments.filter(
 				(a) => a.platform === platform,
 			).length;
+
 			if (
 				!platformAssignmentsCount ||
 				count < platformAssignmentsCount[1]
@@ -321,12 +355,15 @@ function parseAnyPlatformAssignmentsStartingFrom(
 			range: [-1, -1],
 		};
 		platformAssignments.push(platformAssignment);
+
 		const startIndex = fromIndex + matches.index;
+
 		setUserAssignment(
 			body,
 			{ match: matches[0], start: startIndex },
 			platformAssignment,
 		);
+
 		const endIndex = findEOLIndex(body, matches[0], startIndex);
 		platformAssignment.range = [
 			findStartIndex(body, matches[0], startIndex),
@@ -334,6 +371,7 @@ function parseAnyPlatformAssignmentsStartingFrom(
 		];
 		platformAssignment.checked =
 			matches[1] === "x" && !!platformAssignment.user;
+
 		return endIndex;
 	}
 	return -1;
@@ -345,7 +383,9 @@ function setUserAssignment(
 	platformAssignment: PlatformAssigment,
 ): void {
 	let from = start + match.length;
+
 	const matches = /^@([^\s\*\r\n]+)\s*/i.exec(body.substring(from));
+
 	if (matches && matches.length) {
 		platformAssignment.user = matches[1] ? matches[1].trim() : void 0;
 		platformAssignment.userRange = [
@@ -354,6 +394,7 @@ function setUserAssignment(
 		];
 	} else {
 		const trimmedText = rtrimSpaceAndEOL(match);
+
 		const index = start + trimmedText.length;
 		platformAssignment.userRange = [index, index];
 	}
@@ -365,9 +406,11 @@ function findStartIndex(
 	matchStartIndex: number,
 ): number {
 	const trimmedText = rtrimSpaceAndEOL(match);
+
 	const eolIndex = body
 		.substring(0, matchStartIndex + trimmedText.length)
 		.lastIndexOf("\n");
+
 	return eolIndex !== -1 ? eolIndex + 1 : 0;
 }
 
@@ -377,7 +420,9 @@ function findEOLIndex(
 	matchStartIndex: number,
 ): number {
 	const trimmedText = rtrimSpaceAndEOL(match);
+
 	const eolIndex = body.indexOf("\n", matchStartIndex + trimmedText.length);
+
 	if (eolIndex === -1) {
 		return body.length;
 	}
@@ -394,6 +439,7 @@ export function rtrimSpaceAndEOL(haystack: string): string {
 
 	const endsWith = (needle: string, offset: number): boolean => {
 		idx = haystack.lastIndexOf(needle, offset - needle.length);
+
 		return idx !== -1 && idx + needle.length === offset;
 	};
 
@@ -405,6 +451,7 @@ export function rtrimSpaceAndEOL(haystack: string): string {
 			offset = offset - 1;
 		} else if (endsWith("\n", offset)) {
 			offset = offset - 1;
+
 			if (endsWith("\r", offset)) {
 				offset = offset - 1;
 			}
@@ -424,8 +471,10 @@ function distinct<T>(array: T[], keyFn?: (t: T) => string): T[] {
 	}
 
 	const seen: { [key: string]: boolean } = Object.create(null);
+
 	return array.filter((elem) => {
 		const key = keyFn(elem);
+
 		if (seen[key]) {
 			return false;
 		}

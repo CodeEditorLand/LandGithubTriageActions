@@ -62,6 +62,7 @@ export class ReviewReminder {
 				emoji: true,
 			},
 		};
+
 		const messageBlock: SectionBlock = {
 			type: "section",
 			text: {
@@ -69,6 +70,7 @@ export class ReviewReminder {
 				text: `You've completed *${numberOfReviews}* code reviews in the past 7 days. Thank you! If you were wondering, the top reviewer has completed ${topReviewer} reviews in the past 7 days. Just a friendly reminder to keep an eye on the #codereview channel!`,
 			},
 		};
+
 		return [headerBlock, { type: "divider" }, messageBlock];
 	}
 
@@ -79,6 +81,7 @@ export class ReviewReminder {
 	): KnownBlock[] {
 		const medalEmoji =
 			place === "first" ? "🥇" : place === "second" ? "🥈" : "🥉";
+
 		const headerBlock: HeaderBlock = {
 			type: "header",
 			text: {
@@ -87,6 +90,7 @@ export class ReviewReminder {
 				emoji: true,
 			},
 		};
+
 		const messageBlock: SectionBlock = {
 			type: "section",
 			text: {
@@ -94,6 +98,7 @@ export class ReviewReminder {
 				text: `Thank you for helping out with code reviews this week! You have completed *${numberOfReviewsPatWeek}* reviews in the past 7 days, putting you in ${place}! In the past 30 days you have completed an amazing *${numberOfReviewsPastMonth}* reviews! You're awesome 🎉🎉🎉`,
 			},
 		};
+
 		return [headerBlock, { type: "divider" }, messageBlock];
 	}
 
@@ -104,7 +109,9 @@ export class ReviewReminder {
 	private async *getRepositories(octokit: Octokit) {
 		// Inject a few extra repos that aren't in the VS Code org
 		yield { owner: { login: "microsoft" }, name: "vscode-jupyter" };
+
 		yield { owner: { login: "microsoft" }, name: "vscode-python" };
+
 		const it = octokit.paginate.iterator(
 			octokit.rest.apps.listReposAccessibleToInstallation,
 			{
@@ -114,6 +121,7 @@ export class ReviewReminder {
 
 		for await (const response of it) {
 			console.log(`Processing GitHubApp installation ${response.data}`);
+
 			for (const repository of response.data.repositories) {
 				if (repository.archived) {
 					continue;
@@ -137,6 +145,7 @@ export class ReviewReminder {
 		numberOfDays = 30,
 	) {
 		const data: IReview[] = [];
+
 		const durations = [];
 
 		console.log(
@@ -159,6 +168,7 @@ export class ReviewReminder {
 			},
 		)) {
 			let pastTimeInterval = false;
+
 			for (const pr of response.data) {
 				const hasWriteAccess = teamMembers.has(
 					pr.user?.login ?? "No Member",
@@ -171,6 +181,7 @@ export class ReviewReminder {
 				// If PR is over a week old then stop
 				if (new Date(pr.created_at) < timeWindowToQuery) {
 					pastTimeInterval = true;
+
 					break;
 				}
 
@@ -204,10 +215,12 @@ export class ReviewReminder {
 
 					if (!review.submitted_at) {
 						console.log("BOGOUS", review);
+
 						continue;
 					}
 
 					const ts = new Date(review.submitted_at).getTime();
+
 					if (ts < first.submitted_ts) {
 						first.submitted_ts = ts;
 						first.submitted_at = review.submitted_at;
@@ -217,6 +230,7 @@ export class ReviewReminder {
 
 				if (first.reviewer === "void") {
 					console.log(`SKIPPING, no reviews: ${pr.html_url}`);
+
 					continue;
 				}
 
@@ -286,7 +300,9 @@ export class ReviewReminder {
 		percentile: number,
 	): Promise<Map<string, number>> {
 		const sorted = [...stats.entries()].sort((a, b) => a[1] - b[1]);
+
 		const bottom = Math.ceil(sorted.length * percentile);
+
 		return new Map(sorted.slice(0, bottom));
 	}
 
@@ -299,8 +315,10 @@ export class ReviewReminder {
 		teamMembers: Map<string, ITeamMember>,
 	): Promise<IReviewStats> {
 		let data: IReview[] = [];
+
 		for await (const repository of this.getRepositories(this.octokit)) {
 			const owner = repository.owner.login;
+
 			const repo = repository.name;
 			data = data.concat(
 				await this.processRepository(
@@ -312,6 +330,7 @@ export class ReviewReminder {
 		}
 		// Calculate number of reviews done by each reviewer
 		const monthlyStats = new Map<string, number>();
+
 		const weeklyStats = new Map<string, number>();
 
 		// Intialize the map with all team members
@@ -327,9 +346,13 @@ export class ReviewReminder {
 
 			// Check review.submittedAt is within the last week
 			const submittedAt = new Date(review.submittedAt);
+
 			const now = new Date();
+
 			const diff = now.getTime() - submittedAt.getTime();
+
 			const diffDays = diff / (1000 * 3600 * 24);
+
 			if (diffDays < 7) {
 				const weeklyCount = weeklyStats.get(review.reviewer) ?? 0;
 				weeklyStats.set(review.reviewer, weeklyCount + 1);
@@ -338,13 +361,16 @@ export class ReviewReminder {
 
 		// Get the bottom 20% of reviewers for the week and months
 		const monthlyBottom20 = await this.getBottomPercent(monthlyStats, 0.2);
+
 		const weeklyBottom20 = await this.getBottomPercent(weeklyStats, 0.2);
 
 		// Filter the bottom to just bottom reviewers who are bottom reviewers for the week and the month
 		const bottomReviewers = new Set(
 			[...monthlyBottom20.keys()].filter((x) => weeklyBottom20.has(x)),
 		);
+
 		const bottomReviewerStats: IReviewerStat[] = [];
+
 		for (const reviewer of bottomReviewers) {
 			bottomReviewerStats.push({
 				reviewer,
@@ -358,11 +384,14 @@ export class ReviewReminder {
 			(p, c) => p + c,
 			0,
 		);
+
 		const totalWeeklyReviews = [...weeklyStats.values()].reduce(
 			(p, c) => p + c,
 			0,
 		);
+
 		const monthlyAvg = totalMonthlyReviews / monthlyStats.size;
+
 		const weeklyAvg = totalWeeklyReviews / weeklyStats.size;
 		console.log(
 			`Average number of reviews per person completed this month: ${monthlyAvg} out of ${totalMonthlyReviews} total reviews.`,
@@ -375,7 +404,9 @@ export class ReviewReminder {
 		const weeklySorted = Array.from(weeklyStats).sort(
 			(a, b) => b[1] - a[1],
 		);
+
 		const topReviewerStats: IReviewerStat[] = [];
+
 		for (let i = 0; i < 3; i++) {
 			const reviewer = weeklySorted[i][0];
 			topReviewerStats.push({
@@ -426,19 +457,24 @@ export class ReviewReminder {
 				channel: conversation.id,
 				limit: 1,
 			});
+
 			const lastMessage = history.messages
 				? history.messages[0]
 				: undefined;
+
 			if (lastMessage && lastMessage.ts) {
 				const lastMessageDate = new Date(
 					parseInt(lastMessage.ts) * 1000,
 				);
+
 				const tenDaysAgo = new Date();
 				tenDaysAgo.setDate(tenDaysAgo.getDate() - 10);
+
 				if (lastMessageDate > tenDaysAgo && !skipCooldown) {
 					console.log(
 						`Skipping DM as last message was ${lastMessageDate}`,
 					);
+
 					return;
 				}
 			}
@@ -466,9 +502,11 @@ export class ReviewReminder {
 	 */
 	async run() {
 		console.time("Review Reminder Action");
+
 		const accounts = await this.toolsAPI.getTeamMembers();
 		// Mapping of GitHub accounts to entry in blob storage
 		const teamMembers = new Map<string, ITeamMember>();
+
 		for (const account of accounts) {
 			// Don't include the high level managers and non devs. Eventually we will have nice API to skip them
 			if (
@@ -488,12 +526,15 @@ export class ReviewReminder {
 		// Send DM to top reviewers
 		for (const reviewer of stats.topReviewers) {
 			const account = teamMembers.get(reviewer.reviewer);
+
 			if (!account) {
 				console.log(`Could not find account this is definitely a bug!`);
+
 				continue;
 			}
 			if (!account.slack) {
 				safeLog(`No slack account for ${account.id}`);
+
 				continue;
 			}
 			await this.sendSlackDM(
@@ -511,12 +552,15 @@ export class ReviewReminder {
 
 		for (const reviewer of stats.bottomReviewers) {
 			const account = teamMembers.get(reviewer.reviewer);
+
 			if (!account) {
 				safeLog(`Could not find account this is definitely a bug!`);
+
 				continue;
 			}
 			if (!account.slack) {
 				safeLog(`No slack account for ${account.id}`);
+
 				continue;
 			}
 			// Generate a random unix timestamp in the next 4 hours

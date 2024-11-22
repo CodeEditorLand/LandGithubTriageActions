@@ -26,7 +26,9 @@ class IssueLabels extends Action {
 			repo: context.repo.repo,
 			issue_number: context.issue.number,
 		});
+
 		const labels = result.data.map((label) => label.name);
+
 		const hasNeedsOrTPI = labels.some(
 			(label) =>
 				label.startsWith("needs") ||
@@ -52,6 +54,7 @@ class IssueLabels extends Action {
 			);
 		}
 		const knownTriagers = JSON.parse(getRequiredInput("triagers"));
+
 		const currentAssignees = await github.rest.issues
 			.get({
 				owner: context.repo.owner,
@@ -61,6 +64,7 @@ class IssueLabels extends Action {
 			.then((result) => result.data.assignees!.map((a) => a.login));
 		console.log("Known triagers:", JSON.stringify(knownTriagers));
 		console.log("Current assignees:", JSON.stringify(currentAssignees));
+
 		const assigneesToRemove = currentAssignees.filter(
 			(a) => !knownTriagers.includes(a),
 		);

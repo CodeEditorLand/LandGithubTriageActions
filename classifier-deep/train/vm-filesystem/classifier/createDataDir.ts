@@ -51,6 +51,7 @@ const normalizeIssue = (issue: {
 
 	const isBug =
 		body.includes("bug_report_template") || /Issue Type:.*Bug.*/.test(body);
+
 	const isFeatureRequest =
 		body.includes("feature_request_template") ||
 		/Issue Type:.*Feature Request.*/.test(body);
@@ -114,6 +115,7 @@ const createDataDirectories = async (areas: string[], assignees: string[]) => {
 	];
 
 	const dumpFile = path.join(__dirname, "issues.json");
+
 	const issues: JSONOutputLine[] = fs
 		.readFileSync(dumpFile, { encoding: "utf8" })
 		.split("\n")
@@ -138,6 +140,7 @@ const createDataDirectories = async (areas: string[], assignees: string[]) => {
 				.filter((x): x is string => !!x)
 				.reduce((record: Record<string, number>, label) => {
 					record[label] = (record[label] ?? 0) + 1;
+
 					return record;
 				}, {}),
 		)
@@ -146,7 +149,9 @@ const createDataDirectories = async (areas: string[], assignees: string[]) => {
 
 		for (const issue of issues) {
 			const category = categoryPriorityFn(categoriesExtractor(issue));
+
 			const isDuplicate = issue.labels.includes("*duplicate");
+
 			const isHumanLabeled = !!issue.labelEvents.find(
 				(event) =>
 					event.type === "added" &&
@@ -181,7 +186,9 @@ const createDataDirectories = async (areas: string[], assignees: string[]) => {
 				const filepath = path.join(__dirname, DATA_DIR, name, category);
 
 				const { title, body } = normalizeIssue(issue);
+
 				const filename = `${issue.number}.txt`;
+
 				const content = `${title}\n\n${body}`;
 				fs.writeFileSync(path.join(filepath, filename), content);
 

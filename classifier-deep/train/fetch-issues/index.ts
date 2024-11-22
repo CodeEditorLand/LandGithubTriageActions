@@ -13,8 +13,11 @@ import { uploadBlobFile } from "../../blobStorage";
 import { download } from "./download";
 
 const endCursor = getInput("cursor");
+
 const owner = getRequiredInput("owner");
+
 const repo = getRequiredInput("repo");
+
 const blobContainer = getRequiredInput("blobContainerName");
 
 class FetchIssues extends Action {

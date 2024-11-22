@@ -62,8 +62,11 @@ class FeatureRequest extends Action {
 
 	async onTriggered(_github: OctoKit) {
 		const auth = await this.getToken();
+
 		const repo = getRequiredInput("repo");
+
 		const owner = getRequiredInput("owner");
+
 		const github = new OctoKit(auth, { owner, repo });
 		await new FeatureRequestQueryer(github, config).run();
 	}

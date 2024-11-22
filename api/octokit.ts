@@ -21,6 +21,7 @@ export class OctoKit implements GitHub {
 	private _octokit: ReturnType<typeof getOctokit>;
 	public get octokit(): ReturnType<typeof getOctokit> {
 		numRequests++;
+
 		return this._octokit;
 	}
 
@@ -47,7 +48,9 @@ export class OctoKit implements GitHub {
 	// TODO: just iterate over the issues in a page here instead of making caller do it
 	async *query(query: Query): AsyncIterableIterator<GitHubIssue[]> {
 		const q = query.q + ` repo:${this.params.owner}/${this.params.repo}`;
+
 		const per_page = query.per_page ?? 100;
+
 		const options = {
 			...query,
 			q,
@@ -75,10 +78,12 @@ export class OctoKit implements GitHub {
 		)) {
 			await timeout();
 			numRequests++;
+
 			const page = pageResponse.data;
 			safeLog(
 				`Page ${++pageNum}: ${page.map(({ number }) => number).join(" ")}`,
 			);
+
 			yield page.map(
 				(issue) =>
 					new OctoKitIssue(
@@ -98,6 +103,7 @@ export class OctoKit implements GitHub {
 		body: string,
 	): Promise<void> {
 		safeLog(`Creating issue \`${title}\` on ${owner}/${repo}`);
+
 		if (!this.options.readonly)
 			await this.octokit.rest.issues.create({ owner, repo, title, body });
 	}
@@ -167,18 +173,22 @@ export class OctoKit implements GitHub {
 	}
 
 	private writeAccessCache: Record<string, boolean> = {};
+
 	async hasWriteAccess(username: string): Promise<boolean> {
 		if (username in this.writeAccessCache) {
 			safeLog("Got permissions from cache for " + username);
+
 			return this.writeAccessCache[username];
 		}
 		safeLog("Fetching permissions for " + username);
+
 		const permissions = (
 			await this.octokit.rest.repos.getCollaboratorPermissionLevel({
 				...this.params,
 				username: username,
 			})
 		).data.permission;
+
 		return (this.writeAccessCache[username] =
 			permissions === "admin" ||
 			permissions === "write" ||
@@ -188,9 +198,11 @@ export class OctoKit implements GitHub {
 	async repoHasLabel(name: string): Promise<boolean> {
 		try {
 			await this.octokit.rest.issues.getLabel({ ...this.params, name });
+
 			return true;
 		} catch (err) {
 			const statusErorr = err as RequestError;
+
 			if (statusErorr.status === 404) {
 				return this.options.readonly && this.mockLabels.has(name);
 			}
@@ -204,6 +216,7 @@ export class OctoKit implements GitHub {
 		description: string,
 	): Promise<void> {
 		safeLog("Creating label " + name);
+
 		if (!this.options.readonly)
 			await this.octokit.rest.issues.createLabel({
 				...this.params,
@@ -211,11 +224,13 @@ export class OctoKit implements GitHub {
 				description,
 				name,
 			});
+
 		else this.mockLabels.add(name);
 	}
 
 	async deleteLabel(name: string): Promise<void> {
 		safeLog("Deleting label " + name);
+
 		try {
 			if (!this.options.readonly)
 				await this.octokit.rest.issues.deleteLabel({
@@ -224,6 +239,7 @@ export class OctoKit implements GitHub {
 				});
 		} catch (err) {
 			const statusErorr = err as RequestError;
+
 			if (statusErorr.status === 404) {
 				return;
 			}
@@ -233,7 +249,9 @@ export class OctoKit implements GitHub {
 
 	async readConfig(configPath: string, configRepo?: string): Promise<any> {
 		safeLog("Reading config at " + configPath);
+
 		const repoPath = `.github/${configPath}.json`;
+
 		try {
 			const data = (
 				await this.octokit.rest.repos.getContent({
@@ -242,6 +260,7 @@ export class OctoKit implements GitHub {
 					path: repoPath,
 				})
 			).data;
+
 			if ("type" in data && data.type === "file" && "content" in data) {
 				if (data.encoding === "base64" && data.content) {
 					return JSON.parse(
@@ -271,7 +290,9 @@ export class OctoKit implements GitHub {
 		commit: string,
 	): Promise<"yes" | "no" | "unknown"> {
 		const isHash = (s: string) => /^[a-fA-F0-9]*$/.test(s);
+
 		if (!isHash(release) || !isHash(commit)) return "unknown";
+
 		return new Promise((resolve, reject) =>
 			exec(
 				`git -C ./repo merge-base --is-ancestor ${commit} ${release}`,
@@ -316,7 +337,9 @@ export class OctoKit implements GitHub {
 				direction: "asc",
 			})
 		).data;
+
 		const currentDate = new Date();
+
 		const possibleMilestones = allMilestones
 			.filter(
 				(milestone) =>
@@ -333,6 +356,7 @@ export class OctoKit implements GitHub {
 					+new Date(a.due_on ?? currentDate) -
 					+new Date(b.due_on ?? currentDate),
 			);
+
 		if (possibleMilestones.length === 0) {
 			return undefined;
 		}
@@ -347,6 +371,7 @@ export class OctoKit implements GitHub {
 
 	async dispatch(title: string): Promise<void> {
 		safeLog("Dispatching " + title);
+
 		if (!this.options.readonly)
 			await this.octokit.rest.repos.createDispatchEvent({
 				...this.params,
@@ -368,6 +393,7 @@ export class OctoKitIssue extends OctoKit implements GitHubIssue {
 
 	async addAssignee(assignee: string): Promise<void> {
 		safeLog("Adding assignee " + assignee + " to " + this.issueData.number);
+
 		if (!this.options.readonly) {
 			await this.octokit.rest.issues.addAssignees({
 				...this.params,
@@ -381,6 +407,7 @@ export class OctoKitIssue extends OctoKit implements GitHubIssue {
 		safeLog(
 			"Removing assignee " + assignee + " to " + this.issueData.number,
 		);
+
 		if (!this.options.readonly) {
 			await this.octokit.rest.issues.removeAssignees({
 				...this.params,
@@ -392,6 +419,7 @@ export class OctoKitIssue extends OctoKit implements GitHubIssue {
 
 	async closeIssue(reason: "completed" | "not_planned"): Promise<void> {
 		safeLog("Closing issue " + this.issueData.number);
+
 		if (!this.options.readonly) {
 			const issue = await this.octokit.rest.issues.get({
 				...this.params,
@@ -416,6 +444,7 @@ export class OctoKitIssue extends OctoKit implements GitHubIssue {
 
 	async lockIssue(): Promise<void> {
 		safeLog("Locking issue " + this.issueData.number);
+
 		if (!this.options.readonly)
 			await this.octokit.rest.issues.lock({
 				...this.params,
@@ -425,6 +454,7 @@ export class OctoKitIssue extends OctoKit implements GitHubIssue {
 
 	async unlockIssue(): Promise<void> {
 		safeLog("Unlocking issue " + this.issueData.number);
+
 		if (!this.options.readonly)
 			await this.octokit.rest.issues.unlock({
 				...this.params,
@@ -437,10 +467,12 @@ export class OctoKitIssue extends OctoKit implements GitHubIssue {
 			safeLog(
 				"Got issue data from query result " + this.issueData.number,
 			);
+
 			return this.issueData;
 		}
 
 		safeLog("Fetching issue " + this.issueData.number);
+
 		const issue = (
 			await this.octokit.rest.issues.get({
 				...this.params,
@@ -448,11 +480,13 @@ export class OctoKitIssue extends OctoKit implements GitHubIssue {
 				mediaType: { previews: ["squirrel-girl"] },
 			})
 		).data;
+
 		return (this.issueData = this.octokitIssueToIssue(issue));
 	}
 
 	async postComment(body: string): Promise<void> {
 		safeLog(`Posting comment on ${this.issueData.number}`);
+
 		if (!this.options.readonly)
 			await this.octokit.rest.issues.createComment({
 				...this.params,
@@ -463,6 +497,7 @@ export class OctoKitIssue extends OctoKit implements GitHubIssue {
 
 	async deleteComment(id: number): Promise<void> {
 		safeLog(`Deleting comment ${id} on ${this.issueData.number}`);
+
 		if (!this.options.readonly)
 			await this.octokit.rest.issues.deleteComment({
 				owner: this.params.owner,
@@ -475,6 +510,7 @@ export class OctoKitIssue extends OctoKit implements GitHubIssue {
 		safeLog(
 			`Setting milestone for ${this.issueData.number} to ${milestoneId}`,
 		);
+
 		if (!this.options.readonly)
 			await this.octokit.rest.issues.update({
 				...this.params,
@@ -500,6 +536,7 @@ export class OctoKitIssue extends OctoKit implements GitHubIssue {
 
 		for await (const page of response) {
 			numRequests++;
+
 			yield page.data.map((comment) => ({
 				author: {
 					name: comment.user?.login ?? "",
@@ -514,6 +551,7 @@ export class OctoKitIssue extends OctoKit implements GitHubIssue {
 
 	async addLabel(name: string): Promise<void> {
 		safeLog(`Adding label ${name} to ${this.issueData.number}`);
+
 		if (!(await this.repoHasLabel(name))) {
 			throw Error(
 				`Action could not execute becuase label ${name} is not defined.`,
@@ -540,7 +578,9 @@ export class OctoKitIssue extends OctoKit implements GitHubIssue {
 			options,
 		)) {
 			numRequests++;
+
 			const timelineEvents = event.data;
+
 			for (const timelineEvent of timelineEvents) {
 				if (
 					timelineEvent.event === "assigned" &&
@@ -567,6 +607,7 @@ export class OctoKitIssue extends OctoKit implements GitHubIssue {
 
 	async removeLabel(name: string): Promise<void> {
 		safeLog(`Removing label ${name} from ${this.issueData.number}`);
+
 		try {
 			if (!this.options.readonly)
 				await this.octokit.rest.issues.removeLabel({
@@ -576,8 +617,10 @@ export class OctoKitIssue extends OctoKit implements GitHubIssue {
 				});
 		} catch (err) {
 			const statusErorr = err as RequestError;
+
 			if (statusErorr.status === 404) {
 				safeLog(`Label ${name} not found on issue`);
+
 				return;
 			}
 			throw err;
@@ -603,10 +646,13 @@ export class OctoKitIssue extends OctoKit implements GitHubIssue {
 			...this.params,
 			issue_number: this.issueData.number,
 		};
+
 		let closingCommit:
 			| { hash: string | undefined; timestamp: number }
 			| undefined;
+
 		const crossReferencing: number[] = [];
+
 		for await (const event of this.octokit.paginate.iterator(
 			this.octokit.rest.issues.listEventsForTimeline,
 			options,
@@ -614,6 +660,7 @@ export class OctoKitIssue extends OctoKit implements GitHubIssue {
 			numRequests++;
 
 			const timelineEvents = event.data;
+
 			for (const timelineEvent of timelineEvents) {
 				if (
 					(timelineEvent.event === "closed" ||
@@ -681,6 +728,7 @@ export class OctoKitIssue extends OctoKit implements GitHubIssue {
 						) < 5000
 					) {
 						closingCommit = closed;
+
 						break;
 					}
 				}
@@ -690,6 +738,7 @@ export class OctoKitIssue extends OctoKit implements GitHubIssue {
 		safeLog(
 			`Got ${JSON.stringify(closingCommit)} as closing commit of ${this.issueData.number}`,
 		);
+
 		return closingCommit;
 	}
 }

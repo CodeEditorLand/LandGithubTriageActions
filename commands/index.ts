@@ -17,13 +17,17 @@ const repository: PayloadRepository = JSON.parse(
 
 const hydrate = (comment: string, issue: Issue) => {
 	const baseQueryString = `https://github.com/${repository.owner.login}/${repository.name}/issues?utf8=%E2%9C%93&q=is%3Aopen+is%3Aissue+`;
+
 	const importantLabels = issue.labels.filter(
 		(label) => label !== "*duplicate",
 	);
+
 	const labelsQueryString = encodeURIComponent(
 		importantLabels.map((label) => `label:"${label}"`).join(" "),
 	);
+
 	const url = baseQueryString + labelsQueryString;
+
 	return comment
 		.replace("${duplicateQuery}", url)
 		.replace("${author}", issue.author.name);
@@ -55,7 +59,9 @@ class CommandsRunner extends Action {
 		// This function is only called during a manual workspace dispatch event
 		// caused by a webhook, so we know to expect some inputs.
 		const auth = await this.getToken();
+
 		const event = getRequiredInput("event");
+
 		const issue = JSON.parse(getRequiredInput("issue"));
 
 		const octokitIssue = new OctoKitIssue(
@@ -66,8 +72,11 @@ class CommandsRunner extends Action {
 
 		if (event === "issue_comment") {
 			const commentObject = JSON.parse(getRequiredInput("comment"));
+
 			const comment = commentObject.body;
+
 			const actor = commentObject.user.login;
+
 			const commands = await octokitIssue.readConfig(
 				getRequiredInput("config-path"),
 				"vscode-engineering",
@@ -80,6 +89,7 @@ class CommandsRunner extends Action {
 			).run();
 		} else if (event === "issues") {
 			const action = getRequiredInput("action");
+
 			if (action !== "labeled") {
 				return;
 			}

@@ -13,6 +13,7 @@ class LatestReleaseMonitor extends Action {
 
 	private async update(quality: "stable" | "insider") {
 		let lastKnown: undefined | string = undefined;
+
 		try {
 			lastKnown = await downloadBlobText(
 				"latest-" + quality,
@@ -23,10 +24,14 @@ class LatestReleaseMonitor extends Action {
 		}
 
 		const latest = (await loadLatestRelease(quality))?.version;
+
 		if (latest && latest !== lastKnown) {
 			safeLog("found a new release of", quality);
+
 			const owner = "microsoft";
+
 			const repo = "vscode-engineering";
+
 			const token = await this.getToken();
 			await uploadBlobText(
 				"latest-" + quality,

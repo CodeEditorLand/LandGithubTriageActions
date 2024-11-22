@@ -23,6 +23,7 @@ export class NeedsMoreInfoCloser {
 
 	async run() {
 		const updatedTimestamp = daysAgoToHumanReadbleDate(this.closeDays);
+
 		const pingTimestamp = daysAgoToTimestamp(this.pingDays);
 
 		const query = `repo:${this.github.repoOwner}/${this.github.repoName} updated:<${updatedTimestamp} label:"${this.label}" is:open is:unlocked`;
@@ -30,9 +31,11 @@ export class NeedsMoreInfoCloser {
 		for await (const page of this.github.query({ q: query })) {
 			for (const issue of page) {
 				const hydrated = await issue.getIssue();
+
 				const lastCommentIterator = await issue
 					.getComments(true)
 					.next();
+
 				if (lastCommentIterator.done) {
 					throw Error("Unexpected comment data");
 				}
@@ -71,6 +74,7 @@ export class NeedsMoreInfoCloser {
 							safeLog(
 								`Last comment on ${hydrated.number} by rando. Pinging @${hydrated.assignee}`,
 							);
+
 							if (this.pingComment) {
 								await issue.postComment(
 									this.pingComment

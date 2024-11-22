@@ -9,6 +9,7 @@ import { getRequiredInput } from "../common/utils";
 import { enrollIssue, ReleasePipeline, unenrollIssue } from "./ReleasePipeline";
 
 const notYetReleasedLabel = getRequiredInput("notYetReleasedLabel");
+
 const insidersReleasedLabel = getRequiredInput("insidersReleasedLabel");
 
 class ReleasePipelineAction extends Action {

@@ -38,6 +38,7 @@ export const createDataDirectories = async (
 	];
 
 	const dumpFile = path.join(__dirname, "issues.json");
+
 	const issues: JSONOutputLine[] = fs
 		.readFileSync(dumpFile, { encoding: "utf8" })
 		.split("\n")
@@ -47,10 +48,12 @@ export const createDataDirectories = async (
 	for (const classification of classifications) {
 		const { name, categoryPriority, labelToCategory, categoriesExtractor } =
 			classification;
+
 		const labelToCategoryFn =
 			typeof labelToCategory === "function"
 				? labelToCategory
 				: (label: string) => labelToCategory[label];
+
 		const categoryPriorityFn =
 			typeof categoryPriority === "function"
 				? categoryPriority
@@ -72,6 +75,7 @@ export const createDataDirectories = async (
 				.filter((x): x is string => !!x)
 				.reduce((record: Record<string, number>, label) => {
 					record[label] = (record[label] ?? 0) + 1;
+
 					return record;
 				}, {}),
 		)
@@ -160,7 +164,9 @@ export const createDataDirectories = async (
 				);
 
 				const { title, body } = normalizeIssue(issue);
+
 				const filename = `${issue.number}.txt`;
+
 				const content = `${title}\n\n${body}`;
 				fs.writeFileSync(path.join(filepath, filename), content);
 

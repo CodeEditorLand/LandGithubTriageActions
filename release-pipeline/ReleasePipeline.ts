@@ -15,6 +15,7 @@ export class ReleasePipeline {
 
 	async run() {
 		const latestRelease = await loadLatestRelease("insider");
+
 		if (!latestRelease) throw Error("Error loading latest release");
 
 		const query = `is:closed label:${this.notYetReleasedLabel}`;
@@ -22,6 +23,7 @@ export class ReleasePipeline {
 		for await (const page of this.github.query({ q: query })) {
 			for (const issue of page) {
 				const issueData = await issue.getIssue();
+
 				if (
 					issueData.labels.includes(this.notYetReleasedLabel) &&
 					issueData.open === false
@@ -59,6 +61,7 @@ export class ReleasePipeline {
 		if (!closingHash) {
 			await issue.removeLabel(this.notYetReleasedLabel);
 			await this.commentUnableToFindCommitMessage(issue);
+
 			return;
 		}
 
@@ -86,12 +89,14 @@ export const enrollIssue = async (
 	notYetReleasedLabel: string,
 ) => {
 	const closingHash = (await issue.getClosingInfo())?.hash;
+
 	if (closingHash) {
 		await issue.addLabel(notYetReleasedLabel);
 		// Get the milestone linked to the current release and set it if the issue doesn't have one
 		const releaseMilestone = (await issue.getIssue()).milestone
 			? undefined
 			: await issue.getCurrentRepoMilestone();
+
 		if (releaseMilestone !== undefined) {
 			await issue.setMilestone(releaseMilestone);
 		}

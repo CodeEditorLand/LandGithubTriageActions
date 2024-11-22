@@ -25,8 +25,10 @@ export const normalizeIssue = (issue: {
 	let { body, title } = issue;
 	body = body ?? "";
 	title = title ?? "";
+
 	const isBug =
 		body.includes("bug_report_template") || /Issue Type:.*Bug.*/.test(body);
+
 	const isFeatureRequest =
 		body.includes("feature_request_template") ||
 		/Issue Type:.*Feature Request.*/.test(body);
@@ -105,6 +107,7 @@ export const daysAgoToHumanReadbleDate = (days: number) =>
 export const getRateLimit = async (token: string) => {
 	const usageData = (await getOctokit(token).rest.rateLimit.get()).data
 		.resources;
+
 	const usage = {} as { core: number; graphql: number; search: number };
 	(["core", "graphql", "search"] as const).forEach(async (category) => {
 		if (usageData[category]) {
@@ -114,12 +117,14 @@ export const getRateLimit = async (token: string) => {
 					(usageData[category]?.limit ?? 1);
 		}
 	});
+
 	return usage;
 };
 
 export const errorLoggingIssue = (repoName: string, repoOwner: string) => {
 	try {
 		const repo = repoOwner.toLowerCase() + "/" + repoName.toLowerCase();
+
 		if (
 			repo === "microsoft/vscode" ||
 			repo === "microsoft/vscode-remote-release"
@@ -142,6 +147,7 @@ export const errorLoggingIssue = (repoName: string, repoOwner: string) => {
 		}
 	} catch (e) {
 		console.error(e);
+
 		return undefined;
 	}
 };
@@ -155,7 +161,9 @@ export const logErrorToIssue = async (
 ): Promise<void> => {
 	// Attempt to wait out abuse detection timeout if present
 	await new Promise((resolve) => setTimeout(resolve, 10000));
+
 	const dest = errorLoggingIssue(repoName, repoOwner);
+
 	if (!dest)
 		return console.log("no error logging repo defined. swallowing error.");
 
@@ -205,13 +213,18 @@ export async function readAccountsFromBlobStorage(
 ) {
 	if (!connectionString) {
 		safeLog("Connection string missing.");
+
 		return [];
 	}
 	const blobServiceClient =
 		BlobServiceClient.fromConnectionString(connectionString);
+
 	const containerClient = blobServiceClient.getContainerClient("config");
+
 	const createContainerResponse =
 		containerClient.getBlockBlobClient("accounts.json");
+
 	const buf = await createContainerResponse.downloadToBuffer();
+
 	return JSON.parse(buf.toString()) as Accounts[];
 }

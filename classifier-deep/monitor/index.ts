@@ -15,7 +15,9 @@ class DeepClassifierMonitor extends Action {
 		assignee: string,
 	): Promise<void> {
 		safeLog(`Assigned to ${assignee}`);
+
 		const assigner = await issue.getAssigner(assignee);
+
 		if (assigner !== getRequiredInput("botName")) {
 			safeLog(`Assigner: ${assigner}`);
 			await issue.removeLabel("triage-needed");

@@ -42,7 +42,9 @@ export class AuthorVerifiedLabeler {
 			issue.labels.includes(this.releasedLabel)
 		) {
 			const latestRelease = await loadLatestRelease("insider");
+
 			if (!latestRelease) throw Error("Error loading latest release");
+
 			if (!issue.labels.includes(this.verifiedLabel)) {
 				if (issue.locked) {
 					await this.github.unlockIssue();

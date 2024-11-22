@@ -47,6 +47,7 @@ export interface GitHubIssue extends GitHub {
 
 	postComment(body: string): Promise<void>;
 	deleteComment(id: number): Promise<void>;
+
 	getComments(last?: boolean): AsyncIterableIterator<Comment[]>;
 
 	closeIssue(reason: "completed" | "not_planned"): Promise<void>;

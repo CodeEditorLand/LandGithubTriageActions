@@ -29,6 +29,7 @@ export abstract class Action {
 	async getToken(): Promise<string> {
 		// Temporary workaround until all workflows have been updated to authenticating with a GitHub App
 		const token = getInput("token") ?? (await getAuthenticationToken());
+
 		return token;
 	}
 
@@ -42,6 +43,7 @@ export abstract class Action {
 
 	getIssueNumber() {
 		const issueNumber = +(getInput("issue_number") ?? 0);
+
 		return (
 			(issueNumber > 0 ? issueNumber : undefined) ??
 			context.issue?.number ??
@@ -51,7 +53,9 @@ export abstract class Action {
 
 	getAssignee(): string {
 		const payload = getInput("payload");
+
 		let assignee = "";
+
 		if (payload) {
 			assignee = JSON.parse(payload).assignee;
 		} else {
@@ -62,7 +66,9 @@ export abstract class Action {
 
 	getComment() {
 		const payload = getInput("comment");
+
 		let comment = "";
+
 		if (payload) {
 			comment = JSON.parse(payload)?.body;
 		} else {
@@ -73,7 +79,9 @@ export abstract class Action {
 
 	getCommentAuthor() {
 		const payload = getInput("comment");
+
 		let author = "";
+
 		if (payload) {
 			author = JSON.parse(payload).user?.login;
 		} else {
@@ -84,7 +92,9 @@ export abstract class Action {
 
 	getLabel() {
 		const payload = getInput("payload");
+
 		let label = "";
+
 		if (payload) {
 			label = JSON.parse(payload).label;
 		} else {
@@ -96,6 +106,7 @@ export abstract class Action {
 	public async run() {
 		if (errorLoggingIssue) {
 			const errorIssue = errorLoggingIssue(this.repoName, this.repoOwner);
+
 			if (
 				this.repoName === errorIssue?.repo &&
 				this.repoOwner === errorIssue.owner &&
@@ -109,8 +120,11 @@ export abstract class Action {
 
 		try {
 			const token = await this.getToken();
+
 			const readonly = !!getInput("readonly");
+
 			const event = getInput("event") ?? context.eventName;
+
 			if (this.issue) {
 				const octokit = new OctoKitIssue(
 					token,
@@ -118,6 +132,7 @@ export abstract class Action {
 					{ number: this.issue },
 					{ readonly },
 				);
+
 				if (event === "issue_comment") {
 					await this.onCommented(
 						octokit,
@@ -130,41 +145,60 @@ export abstract class Action {
 					event === "pull_request_target"
 				) {
 					const action = getInput("action") ?? context.payload.action;
+
 					switch (action) {
 						case "opened":
 						case "ready_for_review":
 							await this.onOpened(octokit, context.payload);
+
 							break;
+
 						case "reopened":
 							await this.onReopened(octokit);
+
 							break;
+
 						case "closed":
 							await this.onClosed(octokit, context.payload);
+
 							break;
+
 						case "labeled":
 							await this.onLabeled(octokit, this.getLabel());
+
 							break;
+
 						case "assigned":
 							await this.onAssigned(octokit, this.getAssignee());
+
 							break;
+
 						case "unassigned":
 							await this.onUnassigned(
 								octokit,
 								this.getAssignee(),
 							);
+
 							break;
+
 						case "edited":
 							await this.onEdited(octokit);
+
 							break;
+
 						case "milestoned":
 							await this.onMilestoned(octokit);
+
 							break;
+
 						case "converted_to_draft":
 							await this.onConvertedToDraft(
 								octokit,
 								context.payload,
 							);
+
 							break;
+
 						default:
 							throw Error("Unexpected action: " + action);
 					}
@@ -191,6 +225,7 @@ export abstract class Action {
 		} catch (e) {
 			const err = e as Error;
 			safeLog(err?.stack || err?.message || String(e));
+
 			try {
 				await this.error(err);
 			} catch {
@@ -202,6 +237,7 @@ export abstract class Action {
 
 	private async error(error: Error) {
 		const token = await this.getToken();
+
 		const username = getOctokit(token)
 			.rest.users.getAuthenticated()
 			.then(
@@ -303,10 +339,14 @@ ID: ${details.id}
 
 export async function getAuthenticationToken(): Promise<string> {
 	const appId = getInput("app_id");
+
 	const installationId = getInput("app_installation_id");
+
 	const privateKey = getInput("app_private_key");
+
 	if (appId && installationId && privateKey) {
 		const appAuth = createAppAuth({ appId, installationId, privateKey });
+
 		return (await appAuth({ type: "installation" })).token;
 	} else {
 		throw Error(

@@ -22,7 +22,9 @@ import {
 } from "./CodeReviewChat";
 
 const slackToken = getRequiredInput("slack_token");
+
 const elevatedUserToken = getInput("slack_user_token");
+
 const channelId = getRequiredInput("notification_channel_id");
 
 class CodeReviewChatAction extends Action {
@@ -72,6 +74,7 @@ class CodeReviewChatAction extends Action {
 		}
 
 		const auth = await this.getToken();
+
 		const github = new Octokit({ auth });
 
 		await new Promise((resolve) => setTimeout(resolve, 1 * 60 * 1000));
@@ -126,15 +129,20 @@ class CodeReviewChatAction extends Action {
 		if (payload.pull_request.state === 'closed') {
 			// PR was merged and a review was submitted after merge. Skip posting message
 			safeLog(`PR was already merged. Skipping posting message`);
+
 			return;
 		}
 
 		const toolsAPI = new VSCodeToolsAPIManager();
+
 		const teamMembers = new Set(
 			(await toolsAPI.getTeamMembers()).map((t) => t.id),
 		);
+
 		const auth = await this.getToken();
+
 		const github = new Octokit({ auth });
+
 		const meetsThreshold = await meetsReviewThreshold(
 			github,
 			teamMembers,
@@ -155,6 +163,7 @@ class CodeReviewChatAction extends Action {
 
 		// Check if the PR author is in the team
 		const author = payload.pull_request.user.login;
+
 		if (
 			!teamMembers.has(author) &&
 			payload.pull_request.user?.type !== "Bot"
@@ -162,6 +171,7 @@ class CodeReviewChatAction extends Action {
 			safeLog(
 				"PR author is not in the team, checking if they need to be posted for another review",
 			);
+
 			const teamMemberReviews = await getTeamMemberReviews(
 				github,
 				teamMembers,
@@ -176,8 +186,10 @@ class CodeReviewChatAction extends Action {
 			// Get only the approving reviews from team members
 			const approvingReviews = teamMemberReviews?.filter((review) => {
 				safeLog(`Reviewer: ${review?.user?.login} - ${review.state}`);
+
 				return review.state === "APPROVED";
 			});
+
 			if (approvingReviews && approvingReviews.length === 1) {
 				safeLog(
 					`External PR with one review received, posting to receive a second`,
@@ -207,6 +219,7 @@ class CodeReviewChatAction extends Action {
 				// Log the assigner and remove the 'triage-needed' label
 				safeLog(`Assigner: ${assigner}`);
 				await issue.removeLabel('triage-needed');
+
 				return;
 			}
 		}
@@ -216,18 +229,25 @@ class CodeReviewChatAction extends Action {
 		// This function is only called during a manual workspace dispatch event
 		// caused by a webhook, so we know to expect some inputs.
 		const action = getRequiredInput("action");
+
 		const pull_request = JSON.parse(getRequiredInput("pull_request"));
+
 		const draft = pull_request.draft || false;
+
 		if (draft) {
 			safeLog("PR is draft, ignoring");
+
 			return;
 		}
 
 		const repository: PayloadRepository = JSON.parse(
 			getRequiredInput("repository"),
 		);
+
 		const pr_number: number = parseInt(getRequiredInput("pr_number"));
+
 		const auth = await this.getToken();
+
 		const octokitIssue = new OctoKitIssue(
 			auth,
 			{ owner: repository.owner.login, repo: repository.name },
@@ -235,28 +255,39 @@ class CodeReviewChatAction extends Action {
 		);
 
 		const payload: WebhookPayload = { repository, pull_request };
+
 		switch (action) {
 			case "opened":
 			case "ready_for_review":
 				await this.onOpened(octokitIssue, payload);
+
 				break;
+
 			case "submitted":
 				await this.onSubmitReview(octokitIssue, payload);
+
 				break;
+
 			case "closed":
 				await this.onClosed(octokitIssue, payload);
+
 				break;
+
 			case "converted_to_draft":
 				await this.onConvertedToDraft(octokitIssue, payload);
+
 				break;
 			// These are part of the webhook chain, let's no-op but allow the CI to pass
 			case "dismissed":
 			case "synchronize":
 			case "reopened":
 				break;
+
 			case 'assigned':
 				await this.onAssignedReview(octokitIssue, payload);
+
 				break;
+
 			default:
 				throw Error(`Unknown action: ${action}`);
 		}

@@ -14,6 +14,7 @@ export async function downloadBlobFile(name: string, container: string) {
 		"https://vscodegithubautomation.blob.core.windows.net",
 		credential,
 	);
+
 	const containerClient = blobServiceClient.getContainerClient(container);
 
 	const createContainerResponse = containerClient.getBlockBlobClient(name);
@@ -25,6 +26,7 @@ export async function uploadBlobFile(name: string, container: string) {
 		"https://vscodegithubautomation.blob.core.windows.net",
 		credential,
 	);
+
 	const containerClient = blobServiceClient.getContainerClient(container);
 
 	const createContainerResponse = containerClient.getBlockBlobClient(name);

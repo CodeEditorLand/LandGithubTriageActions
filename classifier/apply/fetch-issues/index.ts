@@ -17,10 +17,15 @@ import {
 import { downloadBlobFile } from "../../blobStorage";
 
 const minToDay = 0.0007;
+
 const from = daysAgoToHumanReadbleDate(+getRequiredInput("from") * minToDay);
+
 const until = daysAgoToHumanReadbleDate(+getRequiredInput("until") * minToDay);
+
 const owner = getRequiredInput("owner");
+
 const repo = getRequiredInput("repo");
+
 const blobContainer = getRequiredInput("blobContainerName");
 
 class FetchIssues extends Action {
@@ -32,9 +37,11 @@ class FetchIssues extends Action {
 		safeLog(`Querying for issues: ${query}`);
 
 		const data: { number: number; contents: string }[] = [];
+
 		for await (const page of github.query({ q: query })) {
 			for (const issue of page) {
 				const issueData = await issue.getIssue();
+
 				const cleansed = normalizeIssue(issueData);
 				data.push({
 					number: issueData.number,

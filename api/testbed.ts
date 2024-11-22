@@ -180,6 +180,7 @@ export class TestbedIssue extends Testbed implements GitHubIssue {
 
 	async getIssue(): Promise<Issue> {
 		const labels = [...this.issueConfig.labels];
+
 		return { ...this.issueConfig.issue, labels };
 	}
 

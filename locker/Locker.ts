@@ -20,15 +20,19 @@ export class Locker {
 
 	async run() {
 		const closedTimestamp = daysAgoToHumanReadbleDate(this.daysSinceClose);
+
 		const updatedTimestamp = daysAgoToHumanReadbleDate(
 			this.daysSinceUpdate,
 		);
+
 		const milestones = this.ignoredMilestones
 			? this.ignoredMilestones.split(",")
 			: [];
+
 		const milestonesQuery = milestones
 			.map((milestone) => ` -milestone:"${milestone}"`)
 			.join("");
+
 		const query =
 			`repo:${this.github.repoOwner}/${this.github.repoName} closed:<${closedTimestamp} updated:<${updatedTimestamp} is:unlocked` +
 			(this.label ? ` -label:${this.label}` : "") +
@@ -62,10 +66,12 @@ export class Locker {
 
 					if (!skipDueToIgnoreLabel) {
 						safeLog(`Locking issue ${hydrated.number}`);
+
 						try {
 							await issue.lockIssue();
 						} catch (e) {
 							safeLog(`Failed to lock issue ${hydrated.number}`);
+
 							const err = e as Error;
 							safeLog(err?.stack || err?.message || String(e));
 						}

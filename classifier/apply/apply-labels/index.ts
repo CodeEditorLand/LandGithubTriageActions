@@ -11,7 +11,9 @@ import { Action, getAuthenticationToken } from "../../../common/Action";
 import { getInput, getRequiredInput, safeLog } from "../../../common/utils";
 
 const debug = !!getInput("__debug");
+
 const owner = getRequiredInput("owner");
+
 const repo = getRequiredInput("repo");
 
 type ClassifierConfig = {
@@ -33,9 +35,11 @@ class ApplyLabels extends Action {
 
 	async onTriggered(github: OctoKit) {
 		const token = await getAuthenticationToken();
+
 		const config: ClassifierConfig = await github.readConfig(
 			getRequiredInput("config-path"),
 		);
+
 		const labelings: { number: number; area: string; assignee: string }[] =
 			JSON.parse(
 				readFileSync(join(__dirname, "../issue_labels.json"), {
@@ -49,14 +53,17 @@ class ApplyLabels extends Action {
 				{ owner, repo },
 				{ number: labeling.number },
 			);
+
 			const issueData = await issue.getIssue();
 
 			if (!debug && issueData.assignee) {
 				safeLog("skipping, already assigned to: ", issueData.assignee);
+
 				continue;
 			}
 
 			const assignee = labeling.assignee;
+
 			if (assignee) {
 				safeLog("has assignee:", assignee);
 
@@ -69,6 +76,7 @@ class ApplyLabels extends Action {
 				}
 
 				const assigneeConfig = config.assignees?.[assignee];
+
 				if (assigneeConfig) {
 					safeLog(JSON.stringify({ assigneeConfig }));
 
@@ -85,9 +93,11 @@ class ApplyLabels extends Action {
 				}
 			} else if (config.randomAssignment && config.labels) {
 				safeLog("could not find assignee, picking a random one...");
+
 				const available = Object.keys(config.labels).reduce(
 					(acc, area) => {
 						const areaConfig = config.labels?.[area];
+
 						if (areaConfig?.assign) {
 							acc.push(...areaConfig.assign);
 						}
@@ -95,6 +105,7 @@ class ApplyLabels extends Action {
 					},
 					[] as string[],
 				);
+
 				if (available) {
 					// Shuffle the array
 					for (let i = available.length - 1; i > 0; i--) {
@@ -112,6 +123,7 @@ class ApplyLabels extends Action {
 						);
 
 						await issue.addLabel("triage-needed");
+
 						const randomSelection = available[0];
 						safeLog("assigning", randomSelection);
 						await issue.addAssignee(randomSelection);
@@ -122,6 +134,7 @@ class ApplyLabels extends Action {
 			}
 
 			const label = labeling.area;
+
 			if (label) {
 				safeLog(`adding label ${label} to issue ${issueData.number}`);
 

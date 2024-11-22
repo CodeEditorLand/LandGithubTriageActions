@@ -35,14 +35,17 @@ export class ValidtyChecker {
 	async run() {
 		const issue = await this.github.getIssue();
 		safeLog(`Checking issue validty for #${issue.number}...`);
+
 		const hasKeyword = keywords.some(
 			(keyword) =>
 				issue.title.includes(keyword) || issue.body.includes(keyword),
 		);
 
 		const isBadAuthor = issue.author.name === "ghost";
+
 		if (hasKeyword || isBadAuthor) {
 			safeLog(`Issue #${issue.number} is not a valid issue, closing...`);
+
 			try {
 				await this.github.addLabel("invalid");
 				await this.github.closeIssue("not_planned");

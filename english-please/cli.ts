@@ -41,6 +41,7 @@ const main = async () => {
 	// Check if it's a promise
 
 	const args = await argv;
+
 	const [, owner, repo] = /(.*)\/(.*)/.exec(args.repo)!;
 	await new LanguageSpecificLabeler(
 		new OctoKitIssue(

@@ -17,13 +17,16 @@ export class RegexFlagger {
 
 	async run() {
 		const issue = await this.github.getIssue();
+
 		const stripped = issue.body.replace(/<!--.*?-->/g, "");
+
 		if (
 			(this.mustNotMatch &&
 				new RegExp(this.mustNotMatch, "i").test(stripped)) ||
 			(this.mustMatch && !new RegExp(this.mustMatch, "i").test(stripped))
 		) {
 			safeLog("Flagging");
+
 			if (this.label) {
 				await this.github.addLabel(this.label);
 			}

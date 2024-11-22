@@ -44,10 +44,13 @@ export class Commands {
 
 		if ("label" in this.action) {
 			if (!(command.type === "label")) return false;
+
 			const regexMatch =
 				command.regex &&
 				new RegExp(command.regex).test(this.action.label);
+
 			const nameMatch = this.action.label === command.name;
+
 			return !!(nameMatch || regexMatch);
 		} else {
 			return !!(
@@ -78,6 +81,7 @@ export class Commands {
 			(command.name === "label" || command.name === "assign")
 		) {
 			const args: { task: "add" | "remove"; name: string }[] = [];
+
 			let argList = (
 				this.action.comment.match(
 					new RegExp(
@@ -85,12 +89,15 @@ export class Commands {
 					),
 				)?.[1] ?? ""
 			).trim();
+
 			while (argList) {
 				const task = argList[0] === "-" ? "remove" : "add";
+
 				if (task === "remove") argList = argList.slice(1);
 
 				if (argList[0] === '"') {
 					const endIndex = argList.indexOf('"', 1);
+
 					if (endIndex === -1)
 						throw Error(
 							"Unable to parse arglist. Could not find matching double quote",
@@ -99,6 +106,7 @@ export class Commands {
 					argList = argList.slice(endIndex + 1).trim();
 				} else {
 					const endIndex = argList.indexOf(" ", 1);
+
 					if (endIndex === -1) {
 						args.push({ task, name: argList });
 						argList = "";
@@ -169,6 +177,7 @@ export class Commands {
 
 	async run() {
 		const issue = await this.github.getIssue();
+
 		return Promise.all(
 			this.config.map((command) => this.perform(command, issue)),
 		);

@@ -12,7 +12,9 @@ class TriageInfoNeeded extends Action {
 
 	async onCommented(octoKitIssue: OctoKitIssue) {
 		const action = getRequiredInput("action");
+
 		const github = octoKitIssue.octokit;
+
 		if (action === "add") {
 			await this.addLabel(github);
 		} else {
@@ -26,13 +28,17 @@ class TriageInfoNeeded extends Action {
 			repo: context.repo.repo,
 			issue_number: context.issue.number,
 		});
+
 		const commentAuthor = context.payload.comment!.user.login;
+
 		const commentBody = context.payload.comment!.body;
+
 		const isTeamMember = JSON.parse(getRequiredInput("triagers")).includes(
 			commentAuthor,
 		);
 
 		const keywords = JSON.parse(getRequiredInput("keywords"));
+
 		const isRequestForInfo = new RegExp(keywords.join("|"), "i").test(
 			commentBody,
 		);
@@ -58,8 +64,11 @@ class TriageInfoNeeded extends Action {
 			repo: context.repo.repo,
 			issue_number: context.issue.number,
 		});
+
 		const commentAuthor = context.payload.comment!.user.login;
+
 		const issueAuthor = issue.data.user!.login;
+
 		if (commentAuthor === issueAuthor) {
 			await github.rest.issues.removeLabel({
 				owner: context.repo.owner,
@@ -67,6 +76,7 @@ class TriageInfoNeeded extends Action {
 				issue_number: context.issue.number,
 				name: "info-needed",
 			});
+
 			return;
 		}
 		if (JSON.parse(getRequiredInput("triagers")).includes(commentAuthor)) {
@@ -80,6 +90,7 @@ class TriageInfoNeeded extends Action {
 			repo: context.repo.repo,
 			issue_number: context.issue.number,
 		});
+
 		for (const comment of comments.data.slice().reverse()) {
 			if (
 				!JSON.parse(getRequiredInput("triagers")).includes(
@@ -89,9 +100,11 @@ class TriageInfoNeeded extends Action {
 				continue;
 			}
 			const matches = comment.body!.match(/@\w+/g) || [];
+
 			const mentionedUsernames = matches.map((match) =>
 				match.replace("@", ""),
 			);
+
 			if (mentionedUsernames.includes(commentAuthor)) {
 				await github.rest.issues.removeLabel({
 					owner: context.repo.owner,
@@ -99,6 +112,7 @@ class TriageInfoNeeded extends Action {
 					issue_number: context.issue.number,
 					name: "info-needed",
 				});
+
 				break;
 			}
 		}
