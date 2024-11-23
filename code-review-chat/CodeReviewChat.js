@@ -368,75 +368,55 @@ class CodeReviewChat extends Chatter {
 	}
 }
 exports.CodeReviewChat = CodeReviewChat;
-async function getTeamMemberReviews(
-	octokit,
-	teamMembers,
-	prNumber,
-	repo,
-	owner,
-	ghIssue,
-) {
-	var _a, _b, _c;
-	const reviews = await octokit.pulls.listReviews({
-		pull_number: prNumber,
-		owner,
-		repo,
-	});
-	// Get author of PR
-	const author = (await ghIssue.getIssue()).author.name;
-	// Get timestamp of last commit
-	const lastCommitTimestamp =
-		(_c =
-			(_b =
-				(_a = (
-					await octokit.pulls.listCommits({
-						pull_number: prNumber,
-						owner,
-						repo,
-					})
-				).data[0]) === null || _a === void 0
-					? void 0
-					: _a.commit) === null || _b === void 0
-				? void 0
-				: _b.committer) === null || _c === void 0
-			? void 0
-			: _c.date;
-	// Convert date string into unix timestamp
-	const lastCommitUnixTimestamp = lastCommitTimestamp
-		? new Date(lastCommitTimestamp).getTime()
-		: 0;
-	// Only take the latest review of each user
-	const latestReviews = new Map();
-	for (const review of reviews.data) {
-		if (!review.user) {
-			continue;
-		}
-		if (review.user.name === author || review.user.login === author) {
-			continue;
-		}
-		if (review.state === "COMMENTED") {
-			continue;
-		}
-		const isTeamMember = teamMembers.has(review.user.login);
-		if (!isTeamMember) {
-			continue;
-		}
-		const reviewTimestamp = review.submitted_at
-			? new Date(review.submitted_at).getTime()
-			: 0;
-		// Check that the review occured after the last commit
-		if (reviewTimestamp < lastCommitUnixTimestamp) {
-			continue;
-		}
-		const existingReview = latestReviews.get(review.user.login);
-		if (
-			!existingReview ||
-			reviewTimestamp > new Date(existingReview.submitted_at).getTime()
-		) {
-			latestReviews.set(review.user.login, review);
-		}
-	}
-	return Array.from(latestReviews.values());
+async function getTeamMemberReviews(octokit, teamMembers, prNumber, repo, owner, ghIssue, isExternalPR) {
+    var _a, _b, _c;
+    const reviews = await octokit.pulls.listReviews({
+        pull_number: prNumber,
+        owner,
+        repo,
+    });
+    // Get author of PR
+    const author = (await ghIssue.getIssue()).author.name;
+    // Get timestamp of last commit
+    const lastCommitTimestamp = (_c = (_b = (_a = (await octokit.pulls.listCommits({
+        pull_number: prNumber,
+        owner,
+        repo,
+    })).data[0]) === null || _a === void 0 ? void 0 : _a.commit) === null || _b === void 0 ? void 0 : _b.committer) === null || _c === void 0 ? void 0 : _c.date;
+    // Convert date string into unix timestamp
+    const lastCommitUnixTimestamp = lastCommitTimestamp ? new Date(lastCommitTimestamp).getTime() : 0;
+    // Only take the latest review of each user
+    const latestReviews = new Map();
+    for (const review of reviews.data) {
+        if (!review.user) {
+            continue;
+        }
+        if (review.user.name === author || review.user.login === author) {
+            continue;
+        }
+        if (review.state === 'COMMENTED') {
+            continue;
+        }
+        const isTeamMember = teamMembers.has(review.user.login);
+        if (!isTeamMember) {
+            continue;
+        }
+        const reviewTimestamp = review.submitted_at ? new Date(review.submitted_at).getTime() : 0;
+        // Check that the review occured after the last commit
+        if (reviewTimestamp < lastCommitUnixTimestamp) {
+            continue;
+        }
+        // Check that the team member review occurred in the last 24 hours for external PRs
+        const twentyFourHoursAgo = Date.now() - 24 * 60 * 60 * 1000;
+        if (isExternalPR && reviewTimestamp < twentyFourHoursAgo) {
+            continue;
+        }
+        const existingReview = latestReviews.get(review.user.login);
+        if (!existingReview || reviewTimestamp > new Date(existingReview.submitted_at).getTime()) {
+            latestReviews.set(review.user.login, review);
+        }
+    }
+    return Array.from(latestReviews.values());
 }
 exports.getTeamMemberReviews = getTeamMemberReviews;
 async function meetsReviewThreshold(

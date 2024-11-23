@@ -179,6 +179,7 @@ class CodeReviewChatAction extends Action {
 				payload.repository.name,
 				payload.repository.owner.login,
 				issue,
+				true /* isExternalPR */,
 			);
 			safeLog(
 				`Found ${teamMemberReviews?.length ?? 0} reviews from team members`,
