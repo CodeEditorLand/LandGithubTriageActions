@@ -224,7 +224,6 @@ export class OctoKit implements GitHub {
 				description,
 				name,
 			});
-
 		else this.mockLabels.add(name);
 	}
 

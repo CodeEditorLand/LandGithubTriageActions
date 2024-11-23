@@ -126,7 +126,7 @@ class CodeReviewChatAction extends Action {
 			throw Error("expected payload to contain pull request url");
 		}
 
-		if (payload.pull_request.state === 'closed') {
+		if (payload.pull_request.state === "closed") {
 			// PR was merged and a review was submitted after merge. Skip posting message
 			safeLog(`PR was already merged. Skipping posting message`);
 
@@ -200,25 +200,31 @@ class CodeReviewChatAction extends Action {
 	}
 
 	// Handles the event when a review is assigned to a pull request
-	private async onAssignedReview(issue: OctoKitIssue, payload: WebhookPayload): Promise<void> {
+	private async onAssignedReview(
+		issue: OctoKitIssue,
+		payload: WebhookPayload,
+	): Promise<void> {
 		// Ensure the payload contains pull request and repository information
 		if (!payload.pull_request || !payload.repository) {
-			throw Error('expected payload to contain pull request url');
+			throw Error("expected payload to contain pull request url");
 		}
 
 		// Get the issue data
 		const issueData = await issue.getIssue();
 
 		// If there are multiple assignees and the issue has the 'triage-needed' label
-		if (issueData.assignees.length > 1 && issueData.labels.includes('triage-needed')) {
+		if (
+			issueData.assignees.length > 1 &&
+			issueData.labels.includes("triage-needed")
+		) {
 			// Get the username of the assigner of the first assignee
 			const assigner = await issue.getAssigner(issueData.assignees[0]);
 
 			// If the assigner is not the bot itself
-			if (assigner !== getRequiredInput('botName')) {
+			if (assigner !== getRequiredInput("botName")) {
 				// Log the assigner and remove the 'triage-needed' label
 				safeLog(`Assigner: ${assigner}`);
-				await issue.removeLabel('triage-needed');
+				await issue.removeLabel("triage-needed");
 
 				return;
 			}
@@ -283,7 +289,7 @@ class CodeReviewChatAction extends Action {
 			case "reopened":
 				break;
 
-			case 'assigned':
+			case "assigned":
 				await this.onAssignedReview(octokitIssue, payload);
 
 				break;
