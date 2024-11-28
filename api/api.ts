@@ -80,6 +80,7 @@ type SortVar =
 	| "created"
 	| "updated";
 type SortOrder = "asc" | "desc";
+
 export type Reactions = {
 	"+1": number;
 	"-1": number;

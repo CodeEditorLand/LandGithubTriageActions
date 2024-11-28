@@ -11,6 +11,7 @@ import axios from "axios";
 import { OctoKitIssue } from "../api/octokit";
 
 export const getInput = (name: string) => core.getInput(name) || undefined;
+
 export const getRequiredInput = (name: string) =>
 	core.getInput(name, { required: true });
 

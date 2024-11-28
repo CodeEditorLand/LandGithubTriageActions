@@ -40,10 +40,15 @@ export interface ITeamMember {
 }
 
 export const TRIAGE_DUTY = "triage";
+
 export const ENDGAME_DUTY = "endgame";
+
 export const TESTING_DUTY = "testing";
+
 export const BUILD_DUTY = "build";
+
 export const TWITTER_DUTY = "twitter";
+
 export const DISCUSSIONS_DUTY = "discussions";
 
 export enum RotatingMode {

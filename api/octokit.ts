@@ -15,6 +15,7 @@ import { safeLog } from "../common/utils";
 import { Comment, GitHub, GitHubIssue, Issue, Milestone, Query } from "./api";
 
 let numRequests = 0;
+
 export const getNumRequests = () => numRequests;
 
 export class OctoKit implements GitHub {
