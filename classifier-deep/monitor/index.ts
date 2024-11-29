@@ -20,7 +20,9 @@ class DeepClassifierMonitor extends Action {
 
 		if (assigner !== getRequiredInput("botName")) {
 			safeLog(`Assigner: ${assigner}`);
+
 			await issue.removeLabel("triage-needed");
+
 			await issue.removeLabel("stale");
 		}
 	}

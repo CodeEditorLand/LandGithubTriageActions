@@ -17,28 +17,39 @@ import { safeLog } from "../common/utils";
 
 interface IReview {
 	prUrl: string;
+
 	prAssignee?: string;
+
 	createdAt: string;
+
 	submittedAt: string;
+
 	timeToReview: number;
+
 	reviewer: string;
+
 	wasRequestedReviewer: boolean;
 }
 
 interface IReviewerStat {
 	reviewer: string;
+
 	monthlyCount: number;
+
 	weeklyCount: number;
+
 	place?: "first" | "second" | "third";
 }
 
 interface IReviewStats {
 	topReviewers: IReviewerStat[];
+
 	bottomReviewers: IReviewerStat[];
 }
 
 export class ReviewReminder {
 	private readonly slackClient: WebClient;
+
 	private readonly octokit: Octokit;
 
 	constructor(
@@ -47,6 +58,7 @@ export class ReviewReminder {
 		private readonly toolsAPI: VSCodeToolsAPIManager,
 	) {
 		this.slackClient = new WebClient(slackToken);
+
 		this.octokit = new Octokit({ auth: gitHubToken });
 	}
 
@@ -154,6 +166,7 @@ export class ReviewReminder {
 
 		// The timeslot to query for
 		const timeWindowToQuery = new Date();
+
 		timeWindowToQuery.setDate(timeWindowToQuery.getDate() - numberOfDays);
 
 		for await (const response of octokit.paginate.iterator(
@@ -223,7 +236,9 @@ export class ReviewReminder {
 
 					if (ts < first.submitted_ts) {
 						first.submitted_ts = ts;
+
 						first.submitted_at = review.submitted_at;
+
 						first.reviewer = review.user?.login ?? "MISSING";
 					}
 				}
@@ -249,6 +264,7 @@ export class ReviewReminder {
 
 				const duration =
 					first.submitted_ts - new Date(pr.created_at).getTime();
+
 				durations.push(duration);
 
 				data.push({
@@ -281,9 +297,11 @@ export class ReviewReminder {
 			durations.sort()[
 				durations.length === 1 ? 0 : Math.ceil(durations.length / 2)
 			];
+
 		console.log(`MEDIAN time to review ${median / (1000 * 60)}mins`);
 
 		const avg = durations.reduce((p, c) => p + c, 0) / durations.length;
+
 		console.log(`AVG time to review ${avg / (1000 * 60)}mins`);
 
 		return data;
@@ -320,6 +338,7 @@ export class ReviewReminder {
 			const owner = repository.owner.login;
 
 			const repo = repository.name;
+
 			data = data.concat(
 				await this.processRepository(
 					this.octokit,
@@ -336,12 +355,14 @@ export class ReviewReminder {
 		// Intialize the map with all team members
 		for (const member of teamMembers.values()) {
 			monthlyStats.set(member.id, 0);
+
 			weeklyStats.set(member.id, 0);
 		}
 
 		// Calculate the stats
 		for (const review of data) {
 			const monthlyCount = monthlyStats.get(review.reviewer) ?? 0;
+
 			monthlyStats.set(review.reviewer, monthlyCount + 1);
 
 			// Check review.submittedAt is within the last week
@@ -355,6 +376,7 @@ export class ReviewReminder {
 
 			if (diffDays < 7) {
 				const weeklyCount = weeklyStats.get(review.reviewer) ?? 0;
+
 				weeklyStats.set(review.reviewer, weeklyCount + 1);
 			}
 		}
@@ -393,9 +415,11 @@ export class ReviewReminder {
 		const monthlyAvg = totalMonthlyReviews / monthlyStats.size;
 
 		const weeklyAvg = totalWeeklyReviews / weeklyStats.size;
+
 		console.log(
 			`Average number of reviews per person completed this month: ${monthlyAvg} out of ${totalMonthlyReviews} total reviews.`,
 		);
+
 		console.log(
 			`Average number of reviews per person completed this week: ${weeklyAvg} out of ${totalWeeklyReviews} total reviews.`,
 		);
@@ -409,6 +433,7 @@ export class ReviewReminder {
 
 		for (let i = 0; i < 3; i++) {
 			const reviewer = weeklySorted[i][0];
+
 			topReviewerStats.push({
 				reviewer,
 				monthlyCount: monthlyStats.get(reviewer) ?? 0,
@@ -468,6 +493,7 @@ export class ReviewReminder {
 				);
 
 				const tenDaysAgo = new Date();
+
 				tenDaysAgo.setDate(tenDaysAgo.getDate() - 10);
 
 				if (lastMessageDate > tenDaysAgo && !skipCooldown) {
@@ -517,10 +543,12 @@ export class ReviewReminder {
 			) {
 				continue;
 			}
+
 			teamMembers.set(account.id, account);
 		}
 
 		const stats = await this.processAllRepositories(teamMembers);
+
 		console.log(stats.bottomReviewers.length);
 
 		// Send DM to top reviewers
@@ -532,11 +560,13 @@ export class ReviewReminder {
 
 				continue;
 			}
+
 			if (!account.slack) {
 				safeLog(`No slack account for ${account.id}`);
 
 				continue;
 			}
+
 			await this.sendSlackDM(
 				account.slack,
 				"Top Reviewer!",
@@ -558,6 +588,7 @@ export class ReviewReminder {
 
 				continue;
 			}
+
 			if (!account.slack) {
 				safeLog(`No slack account for ${account.id}`);
 
@@ -567,6 +598,7 @@ export class ReviewReminder {
 			const timestampToSend =
 				Math.floor(Date.now() / 1000) +
 				Math.floor(Math.random() * 14400);
+
 			await this.sendSlackDM(
 				account.slack,
 				"Review Reminder!",

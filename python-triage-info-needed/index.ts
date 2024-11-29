@@ -79,6 +79,7 @@ class TriageInfoNeeded extends Action {
 
 			return;
 		}
+
 		if (JSON.parse(getRequiredInput("triagers")).includes(commentAuthor)) {
 			// If one of triagers made a comment, ignore it
 			return;
@@ -99,6 +100,7 @@ class TriageInfoNeeded extends Action {
 			) {
 				continue;
 			}
+
 			const matches = comment.body!.match(/@\w+/g) || [];
 
 			const mentionedUsernames = matches.map((match) =>

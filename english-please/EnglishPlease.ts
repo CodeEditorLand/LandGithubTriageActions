@@ -41,6 +41,7 @@ export class EnglishPleaseLabler {
 
 			return true;
 		}
+
 		return false;
 	}
 }
@@ -57,6 +58,7 @@ export class LanguageSpecificLabeler {
 
 	private async detectLanguage(chunk: string): Promise<string | undefined> {
 		const hashedKey = this.cognitiveServicesAPIKey.replace(/./g, "*");
+
 		safeLog(
 			"attempting to detect language...",
 			chunk.slice(0, 30),
@@ -89,6 +91,7 @@ export class LanguageSpecificLabeler {
 					// Something happened in setting up the request that triggered an Error
 					safeLog("Error", error.message);
 				}
+
 				safeLog("CONFIG: " + JSON.stringify(error.config));
 			});
 
@@ -100,6 +103,7 @@ export class LanguageSpecificLabeler {
 		to: string,
 	): Promise<string | undefined> {
 		const hashedKey = this.cognitiveServicesAPIKey.replace(/./g, "*");
+
 		safeLog("attempting to translate...", hashedKey, text.slice(0, 20), to);
 
 		const result = await axios
@@ -153,7 +157,9 @@ export class LanguageSpecificLabeler {
 			);
 
 			if (languagelabel) await this.issue.removeLabel(languagelabel);
+
 			await this.issue.removeLabel(this.englishPleaseLabel);
+
 			await this.issue.removeLabel(this.needsMoreInfoLabel);
 		} else if (language) {
 			const label =
@@ -161,12 +167,14 @@ export class LanguageSpecificLabeler {
 
 			if (!(await this.issue.repoHasLabel(label))) {
 				safeLog("Globally creating label " + label);
+
 				await this.issue.createLabel(
 					label,
 					this.translatorRequestedLabelColor,
 					"",
 				);
 			}
+
 			await this.issue.addLabel(label);
 
 			if (this.needsMoreInfoLabel)

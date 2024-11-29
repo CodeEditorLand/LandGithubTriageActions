@@ -18,6 +18,7 @@ export class VSCodeToolsAPIManager {
 
 	constructor() {
 		const credential = new AzureCliCredential();
+
 		this.serviceClient = new ServiceClient(credential, {
 			credentialScopes: CREDENTIAL_SCOPES,
 		});
@@ -54,6 +55,7 @@ export class VSCodeToolsAPIManager {
 		if (!response.bodyAsText) {
 			throw new Error("No body in response");
 		}
+
 		return JSON.parse(response.bodyAsText);
 	}
 }

@@ -13,12 +13,19 @@ import { isInsiderFrozen, safeLog } from "../common/utils";
 
 interface PR {
 	number: number;
+
 	body: string;
+
 	additions: number;
+
 	deletions: number;
+
 	changed_files: number;
+
 	url: string;
+
 	owner: string;
+
 	draft: boolean;
 	/**
 	 * The branch you're merging into i.e main
@@ -28,7 +35,9 @@ interface PR {
 	 * The branch the PR is created from i.e. feature/foo
 	 */
 	headBranchName: string;
+
 	title: string;
+
 	headLabel: string;
 
 	fork: boolean;
@@ -37,7 +46,9 @@ interface PR {
 // Some slack typings since the API isn't the best in terms of typings
 interface SlackReaction {
 	name: string;
+
 	count: number;
+
 	users: string[];
 }
 
@@ -45,20 +56,30 @@ interface SlackMessage {
 	type: "message";
 	// Tombstone if deleted, channel_join if it's a join message.
 	subtype: "tombstone" | "channel_join" | undefined;
+
 	text: string;
+
 	reply_count?: number;
+
 	ts: string;
+
 	reactions?: SlackReaction[];
 }
 
 export interface Options {
 	slackToken: string;
+
 	codereviewChannelId: string;
+
 	payload: {
 		owner: string;
+
 		repo: string;
+
 		repo_full_name: string;
+
 		repo_url: string | undefined;
+
 		pr: PR;
 	};
 }
@@ -97,6 +118,7 @@ class Chatter {
 				`Slack channel not provided: ${this.notificationChannelID}`,
 			);
 		}
+
 		return { client: web, channel: this.notificationChannelID };
 	}
 }
@@ -111,6 +133,7 @@ export class CodeReviewChatDeleter extends Chatter {
 		private prUrl: string,
 	) {
 		super(slackToken, notificationChannelId);
+
 		this.elevatedClient = slackElevatedUserToken
 			? new WebClient(slackElevatedUserToken)
 			: undefined;
@@ -127,6 +150,7 @@ export class CodeReviewChatDeleter extends Chatter {
 		if (!response.ok || !response.messages) {
 			throw Error("Error getting channel history");
 		}
+
 		const messages = response.messages as SlackMessage[];
 
 		const messagesToDelete = messages.filter((message) => {
@@ -135,10 +159,12 @@ export class CodeReviewChatDeleter extends Chatter {
 			if (message.subtype) {
 				return true;
 			}
+
 			const hasWhiteCheckMark = message.reactions?.some(
 				(reaction) => reaction.name === "white_check_mark",
 			);
 			// Extract PR URL from the chat message. It is in the form https://https://github.com/{repo}/pull/{number}
+
 			const prUrl =
 				message.text.match(
 					/https:\/\/github.com\/.*\/pull\/\d+/,
@@ -149,6 +175,7 @@ export class CodeReviewChatDeleter extends Chatter {
 					`${prUrl} was closed or met review threshold. Deleting the message.`,
 				);
 			}
+
 			if (this.elevatedClient && message.reactions) {
 				if (hasWhiteCheckMark) {
 					safeLog(
@@ -158,6 +185,7 @@ export class CodeReviewChatDeleter extends Chatter {
 				// If we have an elevated client we can delete the message as long it has a "white_check_mark" reaction
 				return isCodeReviewMessage || hasWhiteCheckMark;
 			}
+
 			return isCodeReviewMessage;
 		});
 
@@ -182,6 +210,7 @@ export class CodeReviewChatDeleter extends Chatter {
 				}
 			}
 		}
+
 		messagesToDelete.push(...replies);
 
 		if (messagesToDelete.length === 0) {
@@ -189,6 +218,7 @@ export class CodeReviewChatDeleter extends Chatter {
 
 			return;
 		}
+
 		try {
 			// Attempt to use the correct client to delete the messages
 			for (const message of messagesToDelete) {
@@ -197,6 +227,7 @@ export class CodeReviewChatDeleter extends Chatter {
 				if (message.subtype === "tombstone") {
 					continue;
 				}
+
 				if (this.elevatedClient) {
 					await this.elevatedClient.chat.delete({
 						channel,
@@ -257,7 +288,9 @@ export class CodeReviewChat extends Chatter {
 
 			return;
 		}
+
 		const message = this.getSlackMessage(pr);
+
 		await this.postMessage(message);
 	}
 
@@ -349,7 +382,9 @@ export class CodeReviewChat extends Chatter {
 			if (!data.milestone && currentMilestone) {
 				externalTasks.push(this.issue.setMilestone(currentMilestone));
 			}
+
 			externalTasks.push(this.postExternalPRMessage(pr));
+
 			await Promise.all(externalTasks);
 
 			return;
@@ -369,6 +404,7 @@ export class CodeReviewChat extends Chatter {
 
 			return;
 		}
+
 		const tasks = [];
 
 		if (!data.assignee && !author.isGitHubApp) {
@@ -412,11 +448,14 @@ export class CodeReviewChat extends Chatter {
 
 				if (hasExisting) {
 					safeLog("had existing review requests, exiting");
+
 					process.exit(0);
 				}
 
 				const message = this.getSlackMessage(pr);
+
 				safeLog(message);
+
 				await this.postMessage(message);
 			})(),
 		);
@@ -462,17 +501,21 @@ export async function getTeamMemberReviews(
 		if (!review.user) {
 			continue;
 		}
+
 		if (review.user.name === author || review.user.login === author) {
 			continue;
 		}
+
 		if (review.state === "COMMENTED") {
 			continue;
 		}
+
 		const isTeamMember = teamMembers.has(review.user.login);
 
 		if (!isTeamMember) {
 			continue;
 		}
+
 		const reviewTimestamp = review.submitted_at
 			? new Date(review.submitted_at).getTime()
 			: 0;
@@ -483,6 +526,7 @@ export async function getTeamMemberReviews(
 
 		// Check that the team member review occurred in the last 24 hours for external PRs
 		const twentyFourHoursAgo = Date.now() - 24 * 60 * 60 * 1000;
+
 		if (isExternalPR && reviewTimestamp < twentyFourHoursAgo) {
 			continue;
 		}
@@ -496,6 +540,7 @@ export async function getTeamMemberReviews(
 			latestReviews.set(review.user.login, review);
 		}
 	}
+
 	return Array.from(latestReviews.values());
 }
 
@@ -534,5 +579,6 @@ export async function meetsReviewThreshold(
 	if (meetsReviewThreshold) {
 		safeLog(`Met review threshold: ${reviewerNames.join(", ")}`);
 	}
+
 	return meetsReviewThreshold;
 }

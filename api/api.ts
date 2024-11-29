@@ -5,6 +5,7 @@
 
 export interface GitHub {
 	repoOwner: string;
+
 	repoName: string;
 
 	query(query: Query): AsyncIterableIterator<GitHubIssue[]>;
@@ -12,11 +13,13 @@ export interface GitHub {
 	hasWriteAccess(username: string): Promise<boolean>;
 
 	repoHasLabel(label: string): Promise<boolean>;
+
 	createLabel(
 		label: string,
 		color: string,
 		description: string,
 	): Promise<void>;
+
 	deleteLabel(label: string): Promise<void>;
 
 	readConfig(path: string): Promise<any>;
@@ -46,20 +49,25 @@ export interface GitHubIssue extends GitHub {
 	getIssue(): Promise<Issue>;
 
 	postComment(body: string): Promise<void>;
+
 	deleteComment(id: number): Promise<void>;
 
 	getComments(last?: boolean): AsyncIterableIterator<Comment[]>;
 
 	closeIssue(reason: "completed" | "not_planned"): Promise<void>;
+
 	lockIssue(): Promise<void>;
+
 	unlockIssue(): Promise<void>;
 
 	setMilestone(milestoneId: number): Promise<void>;
 
 	addLabel(label: string): Promise<void>;
+
 	removeLabel(label: string): Promise<void>;
 
 	addAssignee(assignee: string): Promise<void>;
+
 	removeAssignee(assignee: string): Promise<void>;
 
 	getClosingInfo(): Promise<
@@ -84,56 +92,92 @@ type SortOrder = "asc" | "desc";
 export type Reactions = {
 	"+1": number;
 	"-1": number;
+
 	laugh: number;
+
 	hooray: number;
+
 	confused: number;
+
 	heart: number;
+
 	rocket: number;
+
 	eyes: number;
 };
 
 export interface User {
 	name: string;
+
 	isGitHubApp?: boolean;
 }
 export interface Comment {
 	author: User;
+
 	body: string;
+
 	id: number;
+
 	timestamp: number;
 }
 export interface Issue {
 	author: User;
+
 	body: string;
+
 	title: string;
+
 	labels: string[];
+
 	open: boolean;
+
 	locked: boolean;
+
 	number: number;
+
 	isPr: boolean;
+
 	numComments: number;
+
 	reactions: Reactions;
+
 	milestone: Milestone | null;
+
 	assignee?: string;
+
 	assignees: string[];
+
 	createdAt: number;
+
 	updatedAt: number;
+
 	closedAt?: number;
 }
 export interface Milestone {
 	milestoneId: number;
+
 	title: string;
+
 	description: string;
+
 	numClosedIssues: number;
+
 	numOpenIssues: number;
+
 	dueOn: Date | null;
+
 	createdAt: Date | null;
+
 	closedAt: Date | null;
+
 	state: "open" | "closed";
 }
 export interface Query {
 	q: string;
+
 	sort?: SortVar;
+
 	order?: SortOrder;
+
 	per_page?: number;
 }

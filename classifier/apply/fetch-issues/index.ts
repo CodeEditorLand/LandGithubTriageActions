@@ -43,6 +43,7 @@ class FetchIssues extends Action {
 				const issueData = await issue.getIssue();
 
 				const cleansed = normalizeIssue(issueData);
+
 				data.push({
 					number: issueData.number,
 					contents: `${cleansed.title}\n\n${cleansed.body}`,
@@ -56,9 +57,11 @@ class FetchIssues extends Action {
 		);
 
 		await downloadBlobFile("area-model.pickle", blobContainer);
+
 		await downloadBlobFile("area-model-config.json", blobContainer);
 
 		await downloadBlobFile("assignee-model.pickle", blobContainer);
+
 		await downloadBlobFile("assignee-model-config.json", blobContainer);
 	}
 }

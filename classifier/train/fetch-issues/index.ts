@@ -34,7 +34,9 @@ class FetchIssues extends Action {
 				await download({ owner, repo });
 			}
 		}
+
 		await new Promise((resolve) => setTimeout(resolve, 1000));
+
 		await createDataDirectories(areas, assignees);
 	}
 }

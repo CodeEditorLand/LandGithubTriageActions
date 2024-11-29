@@ -17,14 +17,19 @@ export const getRequiredInput = (name: string) =>
 
 export const normalizeIssue = (issue: {
 	body: string;
+
 	title: string;
 }): {
 	body: string;
+
 	title: string;
+
 	issueType: "bug" | "feature_request" | "unknown";
 } => {
 	let { body, title } = issue;
+
 	body = body ?? "";
+
 	title = title ?? "";
 
 	const isBug =
@@ -77,7 +82,9 @@ export const normalizeIssue = (issue: {
 
 export interface Release {
 	productVersion: string;
+
 	timestamp: number;
+
 	version: string;
 }
 
@@ -195,12 +202,15 @@ export const safeLog = (
 	...args: (string | number | string[])[]
 ): void => {
 	const clean = (val: any) => ("" + val).replace(/:|#/g, "");
+
 	console.log(clean(message), ...args.map(clean));
 };
 
 export interface Accounts {
 	github: string;
+
 	slack: string;
+
 	vsts: string;
 }
 
@@ -217,6 +227,7 @@ export async function readAccountsFromBlobStorage(
 
 		return [];
 	}
+
 	const blobServiceClient =
 		BlobServiceClient.fromConnectionString(connectionString);
 

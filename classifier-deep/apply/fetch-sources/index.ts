@@ -58,13 +58,16 @@ class FetchIssues extends Action {
 
 					try {
 						await issue.addLabel("invalid");
+
 						await issue.closeIssue("not_planned");
+
 						await issue.lockIssue();
 					} catch (e) {
 						safeLog(
 							`Failed to triage invalid issue #${issueData.number}: ${e}`,
 						);
 					}
+
 					continue;
 				}
 
@@ -75,6 +78,7 @@ class FetchIssues extends Action {
 				if (issueData.isPr) {
 					if (await github.hasWriteAccess(issueData.author.name)) {
 						await issue.addAssignee(issueData.author.name);
+
 						performedPRAssignment = true;
 					} else {
 						try {
@@ -94,6 +98,7 @@ class FetchIssues extends Action {
 
 								const normalized =
 									normalizeIssue(linkedIssueData);
+
 								additionalInfo = `\n\n${normalized.title}\n\n${normalized.body}`;
 
 								const linkedIssueAssignee =
@@ -104,9 +109,11 @@ class FetchIssues extends Action {
 										"linked issue is assigned to",
 										linkedIssueAssignee,
 									);
+
 									await issue.addAssignee(
 										linkedIssueAssignee,
 									);
+
 									performedPRAssignment = true;
 								} else {
 									safeLog(
@@ -121,8 +128,10 @@ class FetchIssues extends Action {
 						}
 					}
 				}
+
 				if (!performedPRAssignment) {
 					const cleansed = normalizeIssue(issueData);
+
 					data.push({
 						number: issueData.number,
 						contents:
@@ -139,14 +148,18 @@ class FetchIssues extends Action {
 		);
 
 		const config = await github.readConfig(getRequiredInput("configPath"));
+
 		writeFileSync(
 			join(__dirname, "../configuration.json"),
 			JSON.stringify(config),
 		);
 
 		safeLog("dowloading area model");
+
 		await downloadBlobFile("area_model.zip", blobContainer);
+
 		safeLog("dowloading assignee model");
+
 		await downloadBlobFile("assignee_model.zip", blobContainer);
 
 		const classifierDeepRoot = join(__dirname, "..", "..");
@@ -156,10 +169,13 @@ class FetchIssues extends Action {
 		const models = join(classifierDeepRoot, "apply");
 
 		safeLog("unzipping area model");
+
 		execSync(
 			`unzip -q ${join(blobStorage, "area_model.zip")} -d ${join(models, "area_model")}`,
 		);
+
 		safeLog("unzipping assignee model");
+
 		execSync(
 			`unzip -q ${join(blobStorage, "assignee_model.zip")} -d ${join(models, "assignee_model")}`,
 		);

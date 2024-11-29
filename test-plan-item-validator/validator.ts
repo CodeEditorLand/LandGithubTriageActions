@@ -23,18 +23,27 @@ export enum TesterRole {
 
 export interface PlatformAssigment {
 	platform: Platform;
+
 	checked?: boolean;
+
 	user?: string;
+
 	userRange: [number, number];
+
 	range: [number, number];
 }
 
 export interface ParsedTestPlanItem {
 	headerRange: [number, number];
+
 	issueRefs: (string | number)[];
+
 	complexity: number;
+
 	assignments: PlatformAssigment[];
+
 	authors: string[];
+
 	roles: TesterRole[] | undefined;
 }
 
@@ -98,36 +107,45 @@ export function parseTestPlanItem(
 		testPlanItem.headerRange[0],
 		testPlanItem.headerRange[1],
 	);
+
 	testPlanItem.issueRefs = parseRefs(header);
+
 	testPlanItem.complexity = parseComplexity(header);
+
 	testPlanItem.roles = parseRoles(header);
+
 	testPlanItem.authors = distinct([author, ...parseAuthors(header)]);
 
 	testPlanItem.assignments = [];
+
 	parsePlatformAssignment(
 		header,
 		Platform.MAC,
 		MacPlatformAssignment,
 		testPlanItem.assignments,
 	);
+
 	parsePlatformAssignment(
 		header,
 		Platform.WINDOWS,
 		WindowsPlatformAssignment,
 		testPlanItem.assignments,
 	);
+
 	parsePlatformAssignment(
 		header,
 		Platform.LINUX,
 		LinuxPlatformAssignment,
 		testPlanItem.assignments,
 	);
+
 	parsePlatformAssignment(
 		header,
 		Platform.IPAD,
 		IPadPlatformAssignment,
 		testPlanItem.assignments,
 	);
+
 	parseAnyPlatformAssignments(header, testPlanItem.assignments);
 
 	if (testPlanItem.complexity < 1 || testPlanItem.complexity > 5) {
@@ -155,6 +173,7 @@ export function parseHeaderRange(body: string): [number, number] {
 	if (matches && matches.length) {
 		return [0, matches.index];
 	}
+
 	throw new Error("Test plan item should have header");
 }
 
@@ -217,35 +236,46 @@ function parseRoles(body: string): TesterRole[] | undefined {
 				if (!result.includes(TesterRole.CONTENT_DEVELOPER)) {
 					result.push(TesterRole.CONTENT_DEVELOPER);
 				}
+
 				continue;
 			}
+
 			if (role === TesterRole.DESIGNER.toLowerCase()) {
 				if (!result.includes(TesterRole.DESIGNER)) {
 					result.push(TesterRole.DESIGNER);
 				}
+
 				continue;
 			}
+
 			if (role === TesterRole.DEVELOPER.toLowerCase()) {
 				if (!result.includes(TesterRole.DEVELOPER)) {
 					result.push(TesterRole.DEVELOPER);
 				}
+
 				continue;
 			}
+
 			if (role === TesterRole.ENGINEERING_MANAGER.toLowerCase()) {
 				if (!result.includes(TesterRole.ENGINEERING_MANAGER)) {
 					result.push(TesterRole.ENGINEERING_MANAGER);
 				}
+
 				continue;
 			}
+
 			if (role === TesterRole.PROGRAM_MANAGER.toLowerCase()) {
 				if (!result.includes(TesterRole.PROGRAM_MANAGER)) {
 					result.push(TesterRole.PROGRAM_MANAGER);
 				}
+
 				continue;
 			}
 		}
+
 		return result.length ? result : undefined;
 	}
+
 	return undefined;
 }
 
@@ -255,6 +285,7 @@ function parseAuthors(body: string): string[] {
 	if (!matches || !matches[3]) {
 		return [];
 	}
+
 	const authors: string[] = [];
 
 	for (const value of matches[3].trim().split(",")) {
@@ -262,6 +293,7 @@ function parseAuthors(body: string): string[] {
 			authors.push(author.startsWith("@") ? author.substring(1) : author);
 		}
 	}
+
 	return authors;
 }
 
@@ -285,7 +317,9 @@ function parsePlatformAssignment(
 			user: undefined,
 			userRange: [-1, -1],
 		};
+
 		platformAssignments.push(platformAssignment);
+
 		startIndex = endIndex + matches.index;
 
 		setUserAssignment(
@@ -293,13 +327,17 @@ function parsePlatformAssignment(
 			{ match: matches[0], start: startIndex },
 			platformAssignment,
 		);
+
 		endIndex = findEOLIndex(body, matches[0], startIndex);
+
 		platformAssignment.range = [
 			findStartIndex(body, matches[0], startIndex),
 			endIndex,
 		];
+
 		platformAssignment.checked =
 			matches[1] === "x" && !!platformAssignment.user;
+
 		matches = regex.exec(body.substring(endIndex));
 	}
 }
@@ -345,6 +383,7 @@ function parseAnyPlatformAssignmentsStartingFrom(
 				platformAssignmentsCount = [platform, count];
 			}
 		}
+
 		const platformAssignment: PlatformAssigment = {
 			platform: platformAssignmentsCount
 				? platformAssignmentsCount[0]
@@ -354,6 +393,7 @@ function parseAnyPlatformAssignmentsStartingFrom(
 			userRange: [-1, -1],
 			range: [-1, -1],
 		};
+
 		platformAssignments.push(platformAssignment);
 
 		const startIndex = fromIndex + matches.index;
@@ -365,15 +405,18 @@ function parseAnyPlatformAssignmentsStartingFrom(
 		);
 
 		const endIndex = findEOLIndex(body, matches[0], startIndex);
+
 		platformAssignment.range = [
 			findStartIndex(body, matches[0], startIndex),
 			endIndex,
 		];
+
 		platformAssignment.checked =
 			matches[1] === "x" && !!platformAssignment.user;
 
 		return endIndex;
 	}
+
 	return -1;
 }
 
@@ -388,6 +431,7 @@ function setUserAssignment(
 
 	if (matches && matches.length) {
 		platformAssignment.user = matches[1] ? matches[1].trim() : void 0;
+
 		platformAssignment.userRange = [
 			from + matches.index,
 			from + matches.index + matches[0].length,
@@ -396,6 +440,7 @@ function setUserAssignment(
 		const trimmedText = rtrimSpaceAndEOL(match);
 
 		const index = start + trimmedText.length;
+
 		platformAssignment.userRange = [index, index];
 	}
 }
@@ -426,9 +471,11 @@ function findEOLIndex(
 	if (eolIndex === -1) {
 		return body.length;
 	}
+
 	if (body[eolIndex - 1] === "\r") {
 		return eolIndex - 1;
 	}
+
 	return eolIndex;
 }
 

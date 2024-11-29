@@ -43,6 +43,7 @@ const main = async () => {
 	const args = await argv;
 
 	const [, owner, repo] = /(.*)\/(.*)/.exec(args.repo)!;
+
 	await new LanguageSpecificLabeler(
 		new OctoKitIssue(
 			args.token,

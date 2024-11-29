@@ -13,6 +13,7 @@ class TestPlanItemValidatorAction extends Action {
 
 	async runValidation(issue: OctoKitIssue) {
 		const auth = await this.getToken();
+
 		await new TestPlanItemValidator(
 			issue,
 			auth ?? getRequiredInput("token"),

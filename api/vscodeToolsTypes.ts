@@ -30,12 +30,19 @@ export enum Availability {
 
 export interface ITeamMember {
 	id: string;
+
 	platforms: Platform[];
+
 	team: Region;
+
 	role: Role;
+
 	availability: Availability;
+
 	duties?: string[];
+
 	email?: string;
+
 	slack?: string;
 }
 
@@ -59,23 +66,34 @@ export enum RotatingMode {
 
 export interface IDuty {
 	name: string;
+
 	description: string;
+
 	rotating: RotatingMode;
+
 	rotateLocations: boolean;
+
 	needsBuddy: boolean;
 }
 
 export interface IDutyAssignment {
 	id: string;
+
 	duty: string;
+
 	comparableId: number;
+
 	name: string;
+
 	champ: string;
+
 	buddy?: string;
+
 	comment?: string;
 }
 
 export interface IDutyAssignmentsDto {
 	previous: IDutyAssignment[];
+
 	assignments: IDutyAssignment[];
 }

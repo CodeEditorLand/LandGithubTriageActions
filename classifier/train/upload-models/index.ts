@@ -14,19 +14,27 @@ class UploadModels extends Action {
 
 	async onTriggered() {
 		safeLog("uploading area-model.pickle");
+
 		await uploadBlobFile("area-model.pickle", blobContainer);
+
 		safeLog("done");
 
 		safeLog("uploading area-model-config.json");
+
 		await uploadBlobFile("area-model-config.json", blobContainer);
+
 		safeLog("done");
 
 		safeLog("uploading assignee-model.pickle");
+
 		await uploadBlobFile("assignee-model.pickle", blobContainer);
+
 		safeLog("done");
 
 		safeLog("uploading assignee-model-config.json");
+
 		await uploadBlobFile("assignee-model-config.json", blobContainer);
+
 		safeLog("done");
 	}
 }

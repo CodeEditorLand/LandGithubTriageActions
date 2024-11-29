@@ -13,6 +13,7 @@ let safeLog: (message: string, ...args: any[]) => void; // utils.ts needs GITHUB
 
 if (require.main === module) {
 	process.env.GITHUB_REPOSITORY = "microsoft/vscode-remote-containers";
+
 	safeLog = require("../common/utils").safeLog;
 
 	const auth = `token ${process.env.GITHUB_TOKEN}`;
@@ -38,9 +39,13 @@ if (require.main === module) {
 
 export interface Options {
 	slackToken?: string;
+
 	storageConnectionString?: string;
+
 	notifyAuthors?: boolean;
+
 	notificationChannel?: string;
+
 	logChannel?: string;
 }
 
@@ -58,11 +63,13 @@ export async function buildChat(
 	const repo = parts[parts.length - 4];
 
 	const runId = parseInt(parts[parts.length - 1], 10);
+
 	await handleNotification(octokit, owner, repo, runId, options);
 }
 
 interface UserOrChannel {
 	id: string;
+
 	name: string;
 }
 
@@ -94,6 +101,7 @@ async function handleNotification(
 		if (options.logChannel && !logChannel) {
 			safeLog(`Log channel not found: ${options.logChannel}`);
 		}
+
 		if (logChannel) {
 			for (const logMessage of results.logMessages) {
 				await web.chat.postMessage({
@@ -124,15 +132,18 @@ async function handleNotification(
 				`Notification channel not found: ${options.notificationChannel}`,
 			);
 		}
+
 		for (const message of results.messages) {
 			const notificationChannels: UserOrChannel[] = [];
 
 			if (logChannel) {
 				notificationChannels.push(logChannel);
 			}
+
 			if (notificationChannel) {
 				notificationChannels.push(notificationChannel);
 			}
+
 			if (options.notifyAuthors) {
 				for (const slackAuthor of message.slackAuthors) {
 					const user = usersByName[slackAuthor];
@@ -143,6 +154,7 @@ async function handleNotification(
 								users: user.id,
 							})
 						).channel as UserOrChannel;
+
 						notificationChannels.push(channel);
 					} else {
 						safeLog(`Slack user not found: ${slackAuthor}`);
@@ -160,10 +172,12 @@ async function handleNotification(
 			}
 		}
 	}
+
 	if (!options.slackToken) {
 		for (const message of results.logMessages) {
 			safeLog(message);
 		}
+
 		for (const message of results.messages) {
 			safeLog(message.text);
 		}
@@ -214,6 +228,7 @@ async function buildComplete(
 			run.status === "completed" &&
 			conclusions.indexOf(run.conclusion || "success") !== -1,
 	);
+
 	buildResults.sort((a, b) => -a.created_at.localeCompare(b.created_at));
 
 	const currentBuildIndex = buildResults.findIndex(
@@ -222,6 +237,7 @@ async function buildComplete(
 
 	if (currentBuildIndex === -1) {
 		safeLog("Build not on first page. Terminating.");
+
 		safeLog(
 			JSON.stringify(
 				buildResults.map(({ id, status, conclusion }) => ({
@@ -234,6 +250,7 @@ async function buildComplete(
 
 		throw new Error("Build not on first page. Terminating.");
 	}
+
 	const slicedResults = buildResults.slice(
 		currentBuildIndex,
 		currentBuildIndex + 2,
@@ -259,6 +276,7 @@ async function buildComplete(
 		(build, i, array) =>
 			i < array.length - 1 && transitioned(build, array[i + 1]),
 	);
+
 	await Promise.all(
 		transitionedBuilds.map(async (build) => {
 			if (build.previousSourceVersion) {
@@ -276,8 +294,10 @@ async function buildComplete(
 					...commits.map((c: any) => c.author.login),
 					...commits.map((c: any) => c.committer.login),
 				]);
+
 				authors.delete("web-flow"); // GitHub Web UI committer
 				build.authors = [...authors];
+
 				build.changesHtmlUrl = `https://github.com/${owner}/${repo}/compare/${build.previousSourceVersion.substr(
 					0,
 					7,
@@ -338,9 +358,11 @@ function transitioned(newer: Build, older: Build) {
 	if (newerResult === olderResult) {
 		return false;
 	}
+
 	if (conclusions.indexOf(newerResult) > conclusions.indexOf(olderResult)) {
 		newer.degraded = true;
 	}
+
 	return true;
 }
 
@@ -379,12 +401,15 @@ function githubToAccounts(accounts: Accounts[]) {
 
 interface Channel {
 	id: string;
+
 	name: string;
+
 	is_member: boolean;
 }
 
 interface ConversationsList {
 	channels: Channel[];
+
 	response_metadata?: {
 		next_cursor?: string;
 	};
@@ -401,6 +426,7 @@ async function listAllMemberships(web: WebClient) {
 			cursor: groups?.response_metadata?.next_cursor,
 			limit: 100,
 		})) as unknown as ConversationsList;
+
 		channels.push(...groups.channels);
 	} while (groups.response_metadata?.next_cursor);
 
@@ -409,9 +435,14 @@ async function listAllMemberships(web: WebClient) {
 
 interface Build {
 	data: ActionsListWorkflowRunsResponseWorkflowRunsItem;
+
 	previousSourceVersion: string | undefined;
+
 	authors: string[];
+
 	buildHtmlUrl: string;
+
 	changesHtmlUrl: string;
+
 	degraded?: boolean;
 }

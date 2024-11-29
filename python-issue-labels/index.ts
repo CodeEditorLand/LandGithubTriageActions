@@ -53,6 +53,7 @@ class IssueLabels extends Action {
 				'This issue already has a "needs __", "iteration-plan", "release-plan", or the "testplan-item" label, do not add the "triage-needed" label.',
 			);
 		}
+
 		const knownTriagers = JSON.parse(getRequiredInput("triagers"));
 
 		const currentAssignees = await github.rest.issues
@@ -62,13 +63,17 @@ class IssueLabels extends Action {
 				issue_number: context.issue.number,
 			})
 			.then((result) => result.data.assignees!.map((a) => a.login));
+
 		console.log("Known triagers:", JSON.stringify(knownTriagers));
+
 		console.log("Current assignees:", JSON.stringify(currentAssignees));
 
 		const assigneesToRemove = currentAssignees.filter(
 			(a) => !knownTriagers.includes(a),
 		);
+
 		console.log("Assignees to remove:", JSON.stringify(assigneesToRemove));
+
 		github.rest.issues.removeAssignees({
 			owner: context.repo.owner,
 			repo: context.repo.repo,

@@ -15,6 +15,7 @@ class ReviewReminderAction extends Action {
 
 	async onTriggered() {
 		const auth = await this.getToken();
+
 		await new ReviewReminder(
 			auth,
 			slackToken,

@@ -11,40 +11,57 @@ type LabelEvent = AddedLabelEvent | RemovedLabelEvent;
 
 type AddedLabelEvent = {
 	type: "added";
+
 	label: string;
+
 	actor: string;
+
 	title: string;
+
 	body: string;
 };
 
 type RemovedLabelEvent = {
 	type: "removed";
+
 	label: string;
 };
 
 type JSONOutputLine = {
 	number: number;
+
 	title: string;
+
 	body: string;
+
 	createdAt: number;
+
 	labels: string[];
+
 	assignees: string[];
+
 	labelEvents: LabelEvent[];
+
 	closedWithCode: boolean;
 };
 
 interface Classification {
 	name: string;
+
 	categoryPriority: string[];
+
 	categoriesExtractor: (issue: JSONOutputLine) => string[];
 }
 
 const normalizeIssue = (issue: {
 	body: string;
+
 	title: string;
 }): {
 	body: string;
+
 	title: string;
+
 	issueType: "bug" | "feature_request" | "unknown";
 } => {
 	const { body, title } = issue;
@@ -173,6 +190,7 @@ const createDataDirectories = async (areas: string[], assignees: string[]) => {
 			) {
 				if (!seen[category]) {
 					seen[category] = 0;
+
 					fs.mkdirSync(
 						path.join(__dirname, DATA_DIR, name, category),
 						{
@@ -190,11 +208,13 @@ const createDataDirectories = async (areas: string[], assignees: string[]) => {
 				const filename = `${issue.number}.txt`;
 
 				const content = `${title}\n\n${body}`;
+
 				fs.writeFileSync(path.join(filepath, filename), content);
 
 				seen[category]++;
 			}
 		}
+
 		console.log("Ignored", ignoredLabels);
 	}
 };

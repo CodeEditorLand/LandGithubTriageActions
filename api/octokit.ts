@@ -20,6 +20,7 @@ export const getNumRequests = () => numRequests;
 
 export class OctoKit implements GitHub {
 	private _octokit: ReturnType<typeof getOctokit>;
+
 	public get octokit(): ReturnType<typeof getOctokit> {
 		numRequests++;
 
@@ -30,6 +31,7 @@ export class OctoKit implements GitHub {
 	protected mockLabels: Set<string> = new Set();
 
 	public readonly repoName: string;
+
 	public readonly repoOwner: string;
 
 	constructor(
@@ -38,7 +40,9 @@ export class OctoKit implements GitHub {
 		protected options: { readonly: boolean } = { readonly: false },
 	) {
 		this._octokit = getOctokit(token);
+
 		this.repoName = params.repo;
+
 		this.repoOwner = params.owner;
 	}
 
@@ -78,9 +82,11 @@ export class OctoKit implements GitHub {
 			options,
 		)) {
 			await timeout();
+
 			numRequests++;
 
 			const page = pageResponse.data;
+
 			safeLog(
 				`Page ${++pageNum}: ${page.map(({ number }) => number).join(" ")}`,
 			);
@@ -150,6 +156,7 @@ export class OctoKit implements GitHub {
 		if (milestone?.number === undefined) {
 			return null;
 		}
+
 		return {
 			title: milestone.title,
 			milestoneId: milestone.number,
@@ -181,6 +188,7 @@ export class OctoKit implements GitHub {
 
 			return this.writeAccessCache[username];
 		}
+
 		safeLog("Fetching permissions for " + username);
 
 		const permissions = (
@@ -207,6 +215,7 @@ export class OctoKit implements GitHub {
 			if (statusErorr.status === 404) {
 				return this.options.readonly && this.mockLabels.has(name);
 			}
+
 			throw err;
 		}
 	}
@@ -225,6 +234,7 @@ export class OctoKit implements GitHub {
 				description,
 				name,
 			});
+
 		else this.mockLabels.add(name);
 	}
 
@@ -243,6 +253,7 @@ export class OctoKit implements GitHub {
 			if (statusErorr.status === 404) {
 				return;
 			}
+
 			throw err;
 		}
 	}
@@ -267,10 +278,12 @@ export class OctoKit implements GitHub {
 						Buffer.from(data.content, "base64").toString("utf-8"),
 					);
 				}
+
 				throw Error(
 					`Could not read contents "${data.content}" in encoding "${data.encoding}"`,
 				);
 			}
+
 			throw Error(
 				"Found directory at config path when expecting file" +
 					JSON.stringify(data),
@@ -388,6 +401,7 @@ export class OctoKitIssue extends OctoKit implements GitHubIssue {
 		options: { readonly: boolean } = { readonly: false },
 	) {
 		super(token, params, options);
+
 		safeLog("running bot on issue", issueData.number);
 	}
 
@@ -429,6 +443,7 @@ export class OctoKitIssue extends OctoKit implements GitHubIssue {
 			if (issue.data.state === "closed") {
 				return;
 			}
+
 			await this.octokit.rest.issues
 				.update({
 					...this.params,
@@ -557,6 +572,7 @@ export class OctoKitIssue extends OctoKit implements GitHubIssue {
 				`Action could not execute becuase label ${name} is not defined.`,
 			);
 		}
+
 		if (!this.options.readonly)
 			await this.octokit.rest.issues.addLabels({
 				...this.params,
@@ -589,6 +605,7 @@ export class OctoKitIssue extends OctoKit implements GitHubIssue {
 					assigner = timelineEvent.actor?.login;
 				}
 			}
+
 			if (assigner) {
 				break;
 			}
@@ -623,6 +640,7 @@ export class OctoKitIssue extends OctoKit implements GitHubIssue {
 
 				return;
 			}
+
 			throw err;
 		}
 	}
@@ -633,6 +651,7 @@ export class OctoKitIssue extends OctoKit implements GitHubIssue {
 		if (alreadyChecked.includes(this.issueData.number)) {
 			return undefined;
 		}
+
 		alreadyChecked.push(this.issueData.number);
 
 		if ((await this.getIssue()).open) {
@@ -678,9 +697,11 @@ export class OctoKitIssue extends OctoKit implements GitHubIssue {
 						timestamp: +new Date(timelineEvent.created_at),
 					};
 				}
+
 				if (timelineEvent.event === "reopened") {
 					closingCommit = undefined;
 				}
+
 				if (
 					timelineEvent.created_at &&
 					timelineEvent.event === "commented" &&
@@ -696,6 +717,7 @@ export class OctoKitIssue extends OctoKit implements GitHubIssue {
 						timestamp: +new Date(timelineEvent.created_at),
 					};
 				}
+
 				if (
 					timelineEvent.event === "cross-referenced" &&
 					(timelineEvent as any).source?.issue?.number &&

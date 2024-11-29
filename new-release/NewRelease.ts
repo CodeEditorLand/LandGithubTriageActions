@@ -72,6 +72,7 @@ export class NewRelease {
 					"First release issue found. Globally creating label " +
 						this.label,
 				);
+
 				await this.github.createLabel(
 					this.label,
 					this.labelColor,
@@ -80,6 +81,7 @@ export class NewRelease {
 			}
 
 			safeLog("New release issue found. Adding label " + this.label);
+
 			await this.github.addLabel(this.label);
 		}
 	}

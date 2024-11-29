@@ -15,14 +15,20 @@ import { errorLoggingIssue, logErrorToIssue, safeLog } from "./utils";
 
 export abstract class Action {
 	abstract id: string;
+
 	repoName: string;
+
 	repoOwner: string;
+
 	issue: number | undefined;
 
 	constructor() {
 		console.log("::stop-commands::" + uuid());
+
 		this.repoName = this.getRepoName();
+
 		this.repoOwner = this.getRepoOwner();
+
 		this.issue = this.getIssueNumber();
 	}
 
@@ -61,6 +67,7 @@ export abstract class Action {
 		} else {
 			assignee = context.payload.assignee.login;
 		}
+
 		return assignee;
 	}
 
@@ -74,6 +81,7 @@ export abstract class Action {
 		} else {
 			comment = context.payload.comment?.body;
 		}
+
 		return comment;
 	}
 
@@ -87,6 +95,7 @@ export abstract class Action {
 		} else {
 			author = context.payload.comment?.user?.login;
 		}
+
 		return author;
 	}
 
@@ -100,6 +109,7 @@ export abstract class Action {
 		} else {
 			label = context.payload.label?.name;
 		}
+
 		return label;
 	}
 
@@ -224,6 +234,7 @@ export abstract class Action {
 			}
 		} catch (e) {
 			const err = e as Error;
+
 			safeLog(err?.stack || err?.message || String(e));
 
 			try {
@@ -262,6 +273,7 @@ Actor: ${details.user}
 
 ID: ${details.id}
 `;
+
 		await logErrorToIssue(
 			rendered,
 			true,
@@ -276,6 +288,7 @@ ID: ${details.id}
 	protected async onTriggered(_octokit: OctoKit): Promise<void> {
 		throw Error("not implemented");
 	}
+
 	protected async onCreated(
 		_octokit: OctoKit,
 		_ref: string,
@@ -283,51 +296,61 @@ ID: ${details.id}
 	): Promise<void> {
 		throw Error("not implemented");
 	}
+
 	protected async onEdited(_issue: OctoKitIssue): Promise<void> {
 		throw Error("not implemented");
 	}
+
 	protected async onLabeled(
 		_issue: OctoKitIssue,
 		_label: string,
 	): Promise<void> {
 		throw Error("not implemented");
 	}
+
 	protected async onAssigned(
 		_issue: OctoKitIssue,
 		_assignee: string,
 	): Promise<void> {
 		throw Error("not implemented");
 	}
+
 	protected async onUnassigned(
 		_issue: OctoKitIssue,
 		_assignee: string,
 	): Promise<void> {
 		throw Error("not implemented");
 	}
+
 	protected async onOpened(
 		_issue: OctoKitIssue,
 		_payload: WebhookPayload,
 	): Promise<void> {
 		throw Error("not implemented");
 	}
+
 	protected async onReopened(_issue: OctoKitIssue): Promise<void> {
 		throw Error("not implemented");
 	}
+
 	protected async onClosed(
 		_issue: OctoKitIssue,
 		_payload: WebhookPayload,
 	): Promise<void> {
 		throw Error("not implemented");
 	}
+
 	protected async onConvertedToDraft(
 		_issue: OctoKitIssue,
 		_payload: WebhookPayload,
 	): Promise<void> {
 		throw Error("not implemented");
 	}
+
 	protected async onMilestoned(_issue: OctoKitIssue): Promise<void> {
 		throw Error("not implemented");
 	}
+
 	protected async onCommented(
 		_issue: OctoKitIssue,
 		_comment: string,

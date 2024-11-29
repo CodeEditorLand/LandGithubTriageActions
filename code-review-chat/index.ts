@@ -41,6 +41,7 @@ class CodeReviewChatAction extends Action {
 		) {
 			throw Error("expected payload to contain pull request url");
 		}
+
 		await new CodeReviewChatDeleter(
 			slackToken,
 			elevatedUserToken,
@@ -93,6 +94,7 @@ class CodeReviewChatAction extends Action {
 				"expected payload to contain pull request and repository",
 			);
 		}
+
 		return new CodeReviewChat(
 			github,
 			new VSCodeToolsAPIManager(),
@@ -156,6 +158,7 @@ class CodeReviewChatAction extends Action {
 			safeLog(
 				`Review threshold met, deleting ${payload.pull_request.html_url}}`,
 			);
+
 			await this.closedOrDraftHandler(issue, payload);
 		}
 
@@ -181,6 +184,7 @@ class CodeReviewChatAction extends Action {
 				issue,
 				true /* isExternalPR */,
 			);
+
 			safeLog(
 				`Found ${teamMemberReviews?.length ?? 0} reviews from team members`,
 			);
@@ -195,6 +199,7 @@ class CodeReviewChatAction extends Action {
 				safeLog(
 					`External PR with one review received, posting to receive a second`,
 				);
+
 				await this.executeCodeReviewChat(github, issue, payload, true);
 			}
 		}
@@ -225,6 +230,7 @@ class CodeReviewChatAction extends Action {
 			if (assigner !== getRequiredInput("botName")) {
 				// Log the assigner and remove the 'triage-needed' label
 				safeLog(`Assigner: ${assigner}`);
+
 				await issue.removeLabel("triage-needed");
 
 				return;
@@ -298,6 +304,7 @@ class CodeReviewChatAction extends Action {
 			default:
 				throw Error(`Unknown action: ${action}`);
 		}
+
 		return;
 	}
 }

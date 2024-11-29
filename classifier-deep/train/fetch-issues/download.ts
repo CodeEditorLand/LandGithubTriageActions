@@ -12,38 +12,54 @@ import { safeLog } from "../../../common/utils";
 
 type Response = {
 	rateLimit: RateLimitResponse;
+
 	repository: { issues: IssueResponse };
 };
 
 type GHLabelEvent = {
 	createdAt: string;
+
 	__typename: "LabeledEvent" | "UnlabeledEvent";
+
 	label: { name: string };
+
 	actor: { login: string };
 };
 type GHRenameEvent = {
 	createdAt: string;
+
 	__typename: "RenamedTitleEvent";
+
 	currentTitle: string;
+
 	previousTitle: string;
 };
 
 type GHCloseEvent = {
 	__typename: "ClosedEvent";
+
 	closer: { __typename: "Commit" | "PullRequest" } | null;
 };
 
 type RateLimitResponse = { cost: number; remaining: number };
 type IssueResponse = {
 	pageInfo: { startCursor: string; hasPreviousPage: boolean };
+
 	nodes: {
 		body: string;
+
 		title: string;
+
 		number: number;
+
 		createdAt: number;
+
 		userContentEdits: { nodes: { editedAt: string; diff: string }[] };
+
 		assignees: { nodes: { login: string }[] };
+
 		labels: { nodes: { name: string; color: string }[] };
+
 		timelineItems: {
 			nodes: (GHLabelEvent | GHRenameEvent | GHCloseEvent)[];
 		};
@@ -52,12 +68,19 @@ type IssueResponse = {
 
 export type JSONOutputLine = {
 	number: number;
+
 	title: string;
+
 	body: string;
+
 	createdAt: number;
+
 	labels: { name: string; color: string }[];
+
 	assignees: string[];
+
 	labelEvents: LabelEvent[];
+
 	closedWithCode: boolean;
 };
 
@@ -65,14 +88,19 @@ export type LabelEvent = AddedLabelEvent | RemovedLabelEvent;
 
 export type AddedLabelEvent = {
 	type: "added";
+
 	label: string;
+
 	actor: string;
+
 	title: string;
+
 	body: string;
 };
 
 export type RemovedLabelEvent = {
 	type: "removed";
+
 	label: string;
 };
 
@@ -105,17 +133,20 @@ export const download = async (
                 diff
               }
             }
+
             assignees(first: 100) {
               nodes {
                 login
               }
             }
+
             labels(first: 100) {
               nodes {
                 name
                 color
               }
             }
+
             timelineItems(itemTypes: [LABELED_EVENT, RENAMED_TITLE_EVENT, UNLABELED_EVENT, CLOSED_EVENT], first: 100) {
               nodes {
                 __typename
@@ -169,9 +200,11 @@ export const download = async (
 
 			return;
 		}
+
 		return new Promise<void>((resolve) => {
 			setTimeout(async () => {
 				await download(repo, startCursor, true);
+
 				resolve();
 			}, 60000);
 		});
@@ -222,6 +255,7 @@ export const download = async (
 		return new Promise<void>((resolve) => {
 			setTimeout(async () => {
 				await download(repo, startCursor);
+
 				resolve();
 			}, 5000);
 		});

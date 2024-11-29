@@ -30,9 +30,11 @@ export class RegexFlagger {
 			if (this.label) {
 				await this.github.addLabel(this.label);
 			}
+
 			if (this.comment) {
 				await this.github.postComment(this.comment);
 			}
+
 			await this.github.closeIssue("not_planned");
 		}
 	}

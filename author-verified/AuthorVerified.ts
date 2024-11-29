@@ -30,6 +30,7 @@ export class AuthorVerifiedLabeler {
 				}
 			}
 		}
+
 		await this.github.postComment(`${key}\n${comment}`);
 	}
 
@@ -49,6 +50,7 @@ export class AuthorVerifiedLabeler {
 				if (issue.locked) {
 					await this.github.unlockIssue();
 				}
+
 				await this.commentVerficationRequest(
 					this.comment
 						.replace("${commit}", latestRelease.version)

@@ -20,11 +20,15 @@ type ClassifierConfig = {
 	labels?: {
 		[area: string]: {
 			applyLabel?: boolean;
+
 			comment?: string;
+
 			assign?: [string];
 		};
 	};
+
 	randomAssignment?: boolean;
+
 	assignees?: {
 		[assignee: string]: { assign: boolean; comment?: string };
 	};
@@ -70,8 +74,10 @@ class ApplyLabels extends Action {
 				if (debug) {
 					if (!(await github.repoHasLabel(assignee))) {
 						safeLog(`creating assignee label`);
+
 						await github.createLabel(assignee, "ffa5a1", "");
 					}
+
 					await issue.addLabel(assignee);
 				}
 
@@ -101,6 +107,7 @@ class ApplyLabels extends Action {
 						if (areaConfig?.assign) {
 							acc.push(...areaConfig.assign);
 						}
+
 						return acc;
 					},
 					[] as string[],
@@ -115,6 +122,7 @@ class ApplyLabels extends Action {
 							available[i],
 						];
 					}
+
 					if (!debug) {
 						const issue = new OctoKitIssue(
 							token,
@@ -125,7 +133,9 @@ class ApplyLabels extends Action {
 						await issue.addLabel("triage-needed");
 
 						const randomSelection = available[0];
+
 						safeLog("assigning", randomSelection);
+
 						await issue.addAssignee(randomSelection);
 					}
 				} else {
@@ -141,11 +151,13 @@ class ApplyLabels extends Action {
 				if (debug) {
 					if (!(await github.repoHasLabel(label))) {
 						safeLog(`creating label`);
+
 						await github.createLabel(label, "f1d9ff", "");
 					}
 				}
 
 				const labelConfig = config.labels?.[label];
+
 				await Promise.all<any>([
 					labelConfig?.applyLabel || debug
 						? issue.addLabel(label)

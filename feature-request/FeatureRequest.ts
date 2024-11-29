@@ -14,20 +14,32 @@ export const ACCEPT_MARKER = "<!-- 9078ab2c-c9e0-7adb-d31b-1f23430222f4 -->"; //
 export type FeatureRequestConfig = {
 	milestones: {
 		candidateID: number;
+
 		backlogID?: number;
+
 		candidateName: string;
 	};
+
 	featureRequestLabel: string;
+
 	upvotesRequired: number;
+
 	numCommentsOverride: number;
+
 	labelsToExclude: string[];
+
 	comments: {
 		init?: string;
+
 		warn: string;
+
 		accept?: string;
+
 		reject: string;
+
 		rejectLabel?: string;
 	};
+
 	delays: { warn: number; close: number };
 };
 
@@ -39,6 +51,7 @@ export class FeatureRequestQueryer {
 
 	async run(): Promise<void> {
 		let query = `repo:${this.github.repoOwner}/${this.github.repoName} is:open is:issue milestone:"${this.config.milestones.candidateName}" label:"${this.config.featureRequestLabel}"`;
+
 		query += this.config.labelsToExclude
 			.map((l) => `-label:"${l}"`)
 			.join(" ");
@@ -85,6 +98,7 @@ export class FeatureRequestQueryer {
 			this.config.milestones.backlogID
 		) {
 			safeLog(`Issue #${issueData.number} sucessfully promoted`);
+
 			await Promise.all([
 				issue.setMilestone(this.config.milestones.backlogID),
 				issue.postComment(
@@ -94,6 +108,7 @@ export class FeatureRequestQueryer {
 		} else if (issueData.numComments < this.config.numCommentsOverride) {
 			const state: {
 				initTimestamp?: number;
+
 				warnTimestamp?: number;
 			} = {};
 
@@ -102,11 +117,13 @@ export class FeatureRequestQueryer {
 					if (comment.body.includes(CREATE_MARKER)) {
 						state.initTimestamp = comment.timestamp;
 					}
+
 					if (comment.body.includes(WARN_MARKER)) {
 						state.warnTimestamp = comment.timestamp;
 					}
 				}
 			}
+
 			if (!state.initTimestamp) {
 				if (this.config.comments.init) {
 					await new FeatureRequestOnMilestone(
@@ -121,6 +138,7 @@ export class FeatureRequestQueryer {
 					this.config.delays.close - this.config.delays.warn
 				) {
 					safeLog(`Issue #${issueData.number} nearing rejection`);
+
 					await issue.postComment(
 						WARN_MARKER + "\n" + this.config.comments.warn,
 					);
@@ -129,9 +147,11 @@ export class FeatureRequestQueryer {
 				this.daysSince(state.warnTimestamp) > this.config.delays.warn
 			) {
 				safeLog(`Issue #${issueData.number} rejected`);
+
 				await issue.postComment(
 					REJECT_MARKER + "\n" + this.config.comments.reject,
 				);
+
 				await issue.closeIssue("not_planned");
 
 				if (this.config.comments.rejectLabel) {

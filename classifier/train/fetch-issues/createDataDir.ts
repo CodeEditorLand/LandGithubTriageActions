@@ -11,8 +11,11 @@ import { JSONOutputLine } from "./download";
 
 interface Classification {
 	name: string;
+
 	categoryPriority: string[] | ((candidates: string[]) => string | undefined);
+
 	labelToCategory: Record<string, string> | ((label: string) => string);
+
 	categoriesExtractor: (issue: JSONOutputLine) => string[];
 }
 
@@ -122,6 +125,7 @@ export const createDataDirectories = async (
 			) {
 				if (!seen[category]) {
 					seen[category] = 0;
+
 					fs.mkdirSync(
 						path.join(
 							__dirname,
@@ -135,6 +139,7 @@ export const createDataDirectories = async (
 							recursive: true,
 						},
 					);
+
 					fs.mkdirSync(
 						path.join(
 							__dirname,
@@ -168,11 +173,13 @@ export const createDataDirectories = async (
 				const filename = `${issue.number}.txt`;
 
 				const content = `${title}\n\n${body}`;
+
 				fs.writeFileSync(path.join(filepath, filename), content);
 
 				seen[category]++;
 			}
 		}
+
 		safeLog("Ignored", ignoredLabels);
 	}
 };

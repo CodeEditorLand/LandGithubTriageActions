@@ -13,8 +13,11 @@ export type Command = { name: string } & (
 	| { type: "label"; regex?: string }
 ) & { action?: "close"; reason?: "not_planned" | "completed" } & Partial<{
 		comment: string;
+
 		addLabel: string;
+
 		removeLabel: string;
+
 		assign: string[];
 	}> &
 	Partial<{ requireLabel: string; disallowLabel: string }>;
@@ -35,6 +38,7 @@ export class Commands {
 		) {
 			return false;
 		}
+
 		if (
 			command.disallowLabel &&
 			issue.labels.includes(command.disallowLabel)
@@ -72,6 +76,7 @@ export class Commands {
 
 	private async perform(command: Command, issue: Issue) {
 		if (!(await this.matches(command, issue))) return;
+
 		safeLog(`Running command ${command.name}:`);
 
 		const tasks = [];
@@ -102,16 +107,20 @@ export class Commands {
 						throw Error(
 							"Unable to parse arglist. Could not find matching double quote",
 						);
+
 					args.push({ task, name: argList.slice(1, endIndex) });
+
 					argList = argList.slice(endIndex + 1).trim();
 				} else {
 					const endIndex = argList.indexOf(" ", 1);
 
 					if (endIndex === -1) {
 						args.push({ task, name: argList });
+
 						argList = "";
 					} else {
 						args.push({ task, name: argList.slice(0, endIndex) });
+
 						argList = argList.slice(endIndex + 1).trim();
 					}
 				}

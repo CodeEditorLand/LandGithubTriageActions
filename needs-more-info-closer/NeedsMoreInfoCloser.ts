@@ -39,6 +39,7 @@ export class NeedsMoreInfoCloser {
 				if (lastCommentIterator.done) {
 					throw Error("Unexpected comment data");
 				}
+
 				const lastComment = lastCommentIterator.value[0];
 
 				if (
@@ -62,9 +63,11 @@ export class NeedsMoreInfoCloser {
 								`No comments on ${hydrated.number}. Closing.`,
 							);
 						}
+
 						if (this.closeComment) {
 							await issue.postComment(this.closeComment);
 						}
+
 						await issue.closeIssue("not_planned");
 					} else {
 						if (

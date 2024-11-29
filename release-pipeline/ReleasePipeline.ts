@@ -29,6 +29,7 @@ export class ReleasePipeline {
 					issueData.open === false
 				) {
 					await this.update(issue, latestRelease);
+
 					await new Promise((resolve) => setTimeout(resolve, 1000));
 				} else {
 					safeLog(
@@ -60,6 +61,7 @@ export class ReleasePipeline {
 
 		if (!closingHash) {
 			await issue.removeLabel(this.notYetReleasedLabel);
+
 			await this.commentUnableToFindCommitMessage(issue);
 
 			return;
@@ -71,14 +73,17 @@ export class ReleasePipeline {
 
 		if (releaseContainsCommit === "yes") {
 			await issue.removeLabel(this.notYetReleasedLabel);
+
 			await issue.addLabel(this.insidersReleasedLabel);
 		} else if (releaseContainsCommit === "no") {
 			await issue.removeLabel(this.insidersReleasedLabel);
+
 			await issue.addLabel(this.notYetReleasedLabel);
 		} else if (
 			(await issue.getIssue()).labels.includes(this.notYetReleasedLabel)
 		) {
 			await issue.removeLabel(this.notYetReleasedLabel);
+
 			await this.commentUnableToFindCommitMessage(issue);
 		}
 	}
@@ -109,5 +114,6 @@ export const unenrollIssue = async (
 	insidersReleasedLabel: string,
 ) => {
 	await issue.removeLabel(insidersReleasedLabel);
+
 	await issue.removeLabel(notYetReleasedLabel);
 };

@@ -8,9 +8,13 @@ import { Comment, GitHub, GitHubIssue, Issue, Query } from "./api";
 
 type TestbedConfig = {
 	globalLabels: string[];
+
 	configs: Record<string, any>;
+
 	writers: string[];
+
 	releasedCommits: string[];
+
 	queryRunner: (
 		query: Query,
 	) => AsyncIterableIterator<(TestbedIssueConstructorArgs | TestbedIssue)[]>;
@@ -22,6 +26,7 @@ export class Testbed implements GitHub {
 	public config: TestbedConfig;
 
 	public readonly repoName: string = "test-repo";
+
 	public readonly repoOwner: string = "test-owner";
 
 	constructor(config?: TestbedConstructorArgs) {
@@ -102,8 +107,11 @@ export class Testbed implements GitHub {
 
 type TestbedIssueConfig = {
 	issue: Omit<Issue, "labels">;
+
 	comments: Comment[];
+
 	labels: string[];
+
 	closingCommit: { hash: string | undefined; timestamp: number } | undefined;
 };
 
@@ -121,9 +129,13 @@ export class TestbedIssue extends Testbed implements GitHubIssue {
 		issueConfig?: TestbedIssueConstructorArgs,
 	) {
 		super(globalConfig);
+
 		issueConfig = issueConfig ?? {};
+
 		issueConfig.comments = issueConfig?.comments ?? [];
+
 		issueConfig.labels = issueConfig?.labels ?? [];
+
 		issueConfig.issue = {
 			author: { name: "JacksonKearl" },
 			body: "issue body",

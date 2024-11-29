@@ -33,11 +33,13 @@ class LatestReleaseMonitor extends Action {
 			const repo = "vscode-engineering";
 
 			const token = await this.getToken();
+
 			await uploadBlobText(
 				"latest-" + quality,
 				latest,
 				"latest-releases",
 			);
+
 			await new OctoKit(token, { owner, repo }).dispatch(
 				"released-" + quality,
 			);
@@ -46,6 +48,7 @@ class LatestReleaseMonitor extends Action {
 
 	async onTriggered() {
 		await this.update("insider");
+
 		await this.update("stable");
 	}
 }

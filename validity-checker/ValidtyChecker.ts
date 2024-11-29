@@ -34,6 +34,7 @@ export class ValidtyChecker {
 
 	async run() {
 		const issue = await this.github.getIssue();
+
 		safeLog(`Checking issue validty for #${issue.number}...`);
 
 		const hasKeyword = keywords.some(
@@ -48,7 +49,9 @@ export class ValidtyChecker {
 
 			try {
 				await this.github.addLabel("invalid");
+
 				await this.github.closeIssue("not_planned");
+
 				await this.github.lockIssue();
 			} catch (e) {
 				safeLog(`Failed to close issue #${issue.number}: ${e}`);

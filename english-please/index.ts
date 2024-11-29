@@ -38,6 +38,7 @@ class EnglishPlease extends Action {
 	async onEdited(issue: OctoKitIssue) {
 		await this.doLanguageSpecific(issue);
 	}
+
 	async onLabeled(issue: OctoKitIssue, label: string) {
 		if (label == nonEnglishLabel) await this.doLanguageSpecific(issue);
 	}

@@ -40,6 +40,7 @@ class CommandsRunner extends Action {
 		const commands = await issue.readConfig(
 			getRequiredInput("config-path"),
 		);
+
 		await new Commands(
 			issue,
 			commands,
@@ -52,6 +53,7 @@ class CommandsRunner extends Action {
 		const commands = await issue.readConfig(
 			getRequiredInput("config-path"),
 		);
+
 		await new Commands(issue, commands, { label }, hydrate).run();
 	}
 
@@ -81,6 +83,7 @@ class CommandsRunner extends Action {
 				getRequiredInput("config-path"),
 				"vscode-engineering",
 			);
+
 			await new Commands(
 				octokitIssue,
 				commands,
@@ -99,6 +102,7 @@ class CommandsRunner extends Action {
 					getRequiredInput("config-path"),
 					"vscode-engineering",
 				);
+
 				await new Commands(
 					octokitIssue,
 					commands,
@@ -107,6 +111,7 @@ class CommandsRunner extends Action {
 				).run();
 			}
 		}
+
 		return;
 	}
 }

@@ -26,9 +26,11 @@ const owner = getRequiredInput("owner");
 
 type ClassifierConfig = {
 	vacation?: string[];
+
 	labels?: {
 		[area: string]: { accuracy?: number; assign?: [string] };
 	};
+
 	assignees?: {
 		[assignee: string]: { accuracy?: number };
 	};
@@ -127,10 +129,13 @@ class ApplyLabels extends Action {
 					if (confident) {
 						if (!(await github.repoHasLabel(category))) {
 							safeLog(`creating label`);
+
 							await github.createLabel(category, "f1d9ff", "");
 						}
+
 						await issue.addLabel(category);
 					}
+
 					await issue.postComment(
 						`confidence for label ${category}: ${confidence}. ${
 							confident ? "does" : "does not"
@@ -146,6 +151,7 @@ class ApplyLabels extends Action {
 					// Assign the issue to the proper person based on the label that was assigned
 					// This is configurable in the per repo config
 					const labelConfig = config.labels?.[category];
+
 					await Promise.all<any>([
 						...(labelConfig?.assign
 							? labelConfig.assign.map((assignee) =>
@@ -163,10 +169,13 @@ class ApplyLabels extends Action {
 					if (confident) {
 						if (!(await github.repoHasLabel(category))) {
 							safeLog(`creating assignee label`);
+
 							await github.createLabel(category, "ffa5a1", "");
 						}
+
 						await issue.addLabel(category);
 					}
+
 					await issue.postComment(
 						`confidence for assignee ${category}: ${confidence}. ${
 							confident ? "does" : "does not"
@@ -176,6 +185,7 @@ class ApplyLabels extends Action {
 
 				if (confident) {
 					safeLog("has assignee");
+
 					await addAssignee(category);
 				}
 			}
@@ -190,6 +200,7 @@ class ApplyLabels extends Action {
 
 					if (!hasBeenAssigned) {
 						await issue.addAssignee(assignee);
+
 						performedAssignment = true;
 
 						break;
@@ -204,6 +215,7 @@ class ApplyLabels extends Action {
 					const vscodeToolsAPI = new VSCodeToolsAPIManager();
 
 					const triagers = await vscodeToolsAPI.getTriagerGitHubIds();
+
 					safeLog("Acquired list of available triagers");
 
 					const available = triagers;
@@ -217,13 +229,16 @@ class ApplyLabels extends Action {
 								available[i],
 							];
 						}
+
 						if (!debug) {
 							await issue.addLabel("triage-needed");
 
 							let i = 0;
 
 							const randomSelection = available[i];
+
 							safeLog("assigning", randomSelection);
+
 							await issue.addAssignee(randomSelection);
 
 							const staleIssues = github.query({
@@ -239,11 +254,14 @@ class ApplyLabels extends Action {
 									if (i >= available.length) {
 										i = 0;
 									}
+
 									safeLog(
 										"assigning to stale issue",
 										available[i],
 									);
+
 									await issue.addAssignee(available[i]);
+
 									await issue.addLabel("stale");
 								}
 							}

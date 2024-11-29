@@ -49,12 +49,14 @@ export class TestPlanItemValidator {
 
 			if (priorComments) {
 				safeLog("Found prior comment. Deleting.");
+
 				tasks.push(
 					...priorComments.map((comment) =>
 						this.github.deleteComment(comment.id),
 					),
 				);
 			}
+
 			break;
 		}
 
@@ -67,12 +69,16 @@ export class TestPlanItemValidator {
 						`${commentTag}\n${this.comment}\n\n**Error:** ${errors}`,
 					),
 				);
+
 				tasks.push(this.github.addLabel(this.invalidLabel));
+
 				tasks.push(this.github.removeLabel(this.label));
 			}
 		} else {
 			safeLog("Valid testplan item found!");
+
 			tasks.push(this.github.removeLabel(this.invalidLabel));
+
 			tasks.push(this.github.addLabel(this.label));
 		}
 
@@ -88,6 +94,7 @@ export class TestPlanItemValidator {
 				if (!this.token) {
 					return;
 				}
+
 				const octokit = new Octokit({ auth: this.token });
 
 				for (const referencedIssue of testPlan.issueRefs) {
@@ -107,6 +114,7 @@ export class TestPlanItemValidator {
 						const repo = urlParts[4];
 
 						const issueNumber = parseInt(urlParts[6]);
+
 						await octokit.issues.addLabels({
 							owner,
 							repo,
@@ -116,6 +124,7 @@ export class TestPlanItemValidator {
 					}
 				}
 			}
+
 			const currentMilestone = issue.milestone;
 
 			if (currentMilestone === null) {
@@ -126,6 +135,7 @@ export class TestPlanItemValidator {
 					await this.github.setMilestone(currentRepoMilestone);
 				}
 			}
+
 			return;
 		} catch (error) {
 			const err = error as Error;

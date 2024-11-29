@@ -73,6 +73,7 @@ export class Locker {
 							safeLog(`Failed to lock issue ${hydrated.number}`);
 
 							const err = e as Error;
+
 							safeLog(err?.stack || err?.message || String(e));
 						}
 					} else {
