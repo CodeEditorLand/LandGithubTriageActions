@@ -30,179 +30,105 @@ class EnglishPleaseLabler {
 }
 exports.EnglishPleaseLabler = EnglishPleaseLabler;
 class LanguageSpecificLabeler {
-	constructor(
-		issue,
-		translatorRequestedLabelPrefix,
-		translatorRequestedLabelColor,
-		englishPleaseLabel,
-		needsMoreInfoLabel,
-		cognitiveServicesAPIKey,
-	) {
-		this.issue = issue;
-		this.translatorRequestedLabelPrefix = translatorRequestedLabelPrefix;
-		this.translatorRequestedLabelColor = translatorRequestedLabelColor;
-		this.englishPleaseLabel = englishPleaseLabel;
-		this.needsMoreInfoLabel = needsMoreInfoLabel;
-		this.cognitiveServicesAPIKey = cognitiveServicesAPIKey;
-	}
-	async detectLanguage(chunk) {
-		var _a, _b;
-		const hashedKey = this.cognitiveServicesAPIKey.replace(/./g, "*");
-		(0, utils_1.safeLog)(
-			"attempting to detect language...",
-			chunk.slice(0, 30),
-			hashedKey,
-		);
-		const result = await axios_1.default
-			.post(
-				"https://api.cognitive.microsofttranslator.com/detect?api-version=3.0",
-				[{ text: chunk.slice(0, 200) }],
-				{
-					headers: {
-						"Ocp-Apim-Subscription-Key":
-							this.cognitiveServicesAPIKey,
-						"Content-type": "application/json",
-					},
-				},
-			)
-			.catch((error) => {
-				if (error.response) {
-					// The request was made and the server responded with a status code
-					// that falls out of the range of 2xx
-					(0, utils_1.safeLog)(
-						"DATA: " + JSON.stringify(error.response.data),
-					);
-				} else if (error.request) {
-					// The request was made but no response was received
-					// `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-					// http.ClientRequest in node.js
-					(0, utils_1.safeLog)(
-						"REQUEST: " + JSON.stringify(error.request),
-					);
-				} else {
-					// Something happened in setting up the request that triggered an Error
-					(0, utils_1.safeLog)("Error", error.message);
-				}
-				(0, utils_1.safeLog)("CONFIG: " + JSON.stringify(error.config));
-			});
-		return (_b =
-			(_a =
-				result === null || result === void 0 ? void 0 : result.data) ===
-				null || _a === void 0
-				? void 0
-				: _a[0].language) !== null && _b !== void 0
-			? _b
-			: undefined;
-	}
-	async translate(text, to) {
-		var _a, _b, _c;
-		const hashedKey = this.cognitiveServicesAPIKey.replace(/./g, "*");
-		(0, utils_1.safeLog)(
-			"attempting to translate...",
-			hashedKey,
-			text.slice(0, 20),
-			to,
-		);
-		const result = await axios_1.default
-			.post(
-				"https://api.cognitive.microsofttranslator.com/translate?api-version=3.0&to=" +
-					to,
-				[{ text }],
-				{
-					headers: {
-						"Ocp-Apim-Subscription-Key":
-							this.cognitiveServicesAPIKey,
-						"Content-type": "application/json",
-					},
-				},
-			)
-			.catch((e) => {
-				(0, utils_1.safeLog)("error translating language", e);
-				throw e;
-			});
-		return (_c =
-			(_b =
-				(_a =
-					result === null || result === void 0
-						? void 0
-						: result.data) === null || _a === void 0
-					? void 0
-					: _a[0].translations) === null || _b === void 0
-				? void 0
-				: _b[0].text) !== null && _c !== void 0
-			? _c
-			: undefined;
-	}
-	async run() {
-		var _a, _b, _c;
-		const issue = await this.issue.getIssue();
-		const { body, title } = (0, utils_1.normalizeIssue)(issue);
-		const translationChunk = `${title} ${body}`;
-		for await (const page of this.issue.getComments()) {
-			for (const comment of page) {
-				if (
-					comment.body.includes(
-						"<!-- translation_requested_comment -->",
-					)
-				) {
-					return;
-				}
-			}
-		}
-		const language =
-			(_a = await this.detectLanguage(translationChunk)) === null ||
-			_a === void 0
-				? void 0
-				: _a.toLowerCase();
-		if (!language || language === "en") {
-			const languagelabel = issue.labels.find((label) =>
-				label.startsWith(this.translatorRequestedLabelPrefix),
-			);
-			if (languagelabel) await this.issue.removeLabel(languagelabel);
-			await this.issue.removeLabel(this.englishPleaseLabel);
-			await this.issue.removeLabel(this.needsMoreInfoLabel);
-		} else if (language) {
-			const label =
-				this.translatorRequestedLabelPrefix + commonNames[language];
-			if (!(await this.issue.repoHasLabel(label))) {
-				(0, utils_1.safeLog)("Globally creating label " + label);
-				await this.issue.createLabel(
-					label,
-					this.translatorRequestedLabelColor,
-					"",
-				);
-			}
-			await this.issue.addLabel(label);
-			if (this.needsMoreInfoLabel)
-				await this.issue.addLabel(this.needsMoreInfoLabel);
-			const targetLanguageComment =
-				(_c =
-					(_b = knownTranslations[language]) !== null && _b !== void 0
-						? _b
-						: await this.translate(
-								translation_data_json_1.baseString,
-								language,
-							)) !== null && _c !== void 0
-					? _c
-					: "ERR_TRANSLATION_FAILED";
-			const englishComment = knownTranslations["en"];
-			// check again, another bot may have commented in the mean time.
-			for await (const page of this.issue.getComments()) {
-				for (const comment of page) {
-					if (
-						comment.body.includes(
-							"<!-- translation_requested_comment -->",
-						)
-					) {
-						return;
-					}
-				}
-			}
-			await this.issue.postComment(
-				`${targetLanguageComment}\n\n---\n${englishComment}\n<!-- translation_requested_comment -->`,
-			);
-		}
-	}
+    constructor(issue, translatorRequestedLabelPrefix, translatorRequestedLabelColor, englishPleaseLabel, needsMoreInfoLabel, cognitiveServicesAPIKey) {
+        this.issue = issue;
+        this.translatorRequestedLabelPrefix = translatorRequestedLabelPrefix;
+        this.translatorRequestedLabelColor = translatorRequestedLabelColor;
+        this.englishPleaseLabel = englishPleaseLabel;
+        this.needsMoreInfoLabel = needsMoreInfoLabel;
+        this.cognitiveServicesAPIKey = cognitiveServicesAPIKey;
+    }
+    async detectLanguage(chunk) {
+        var _a, _b;
+        const hashedKey = this.cognitiveServicesAPIKey.replace(/./g, '*');
+        (0, utils_1.safeLog)('attempting to detect language...', chunk.slice(0, 30), hashedKey);
+        const result = await axios_1.default
+            .post('https://api.cognitive.microsofttranslator.com/detect?api-version=3.0', [{ text: chunk.slice(0, 200) }], {
+            headers: {
+                'Ocp-Apim-Subscription-Key': this.cognitiveServicesAPIKey,
+                'Content-type': 'application/json',
+            },
+        })
+            .catch((error) => {
+            if (error.response) {
+                // The request was made and the server responded with a status code
+                // that falls out of the range of 2xx
+                (0, utils_1.safeLog)('DATA: ' + JSON.stringify(error.response.data));
+            }
+            else if (error.request) {
+                // The request was made but no response was received
+                // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+                // http.ClientRequest in node.js
+                (0, utils_1.safeLog)('REQUEST: ' + JSON.stringify(error.request));
+            }
+            else {
+                // Something happened in setting up the request that triggered an Error
+                (0, utils_1.safeLog)('Error', error.message);
+            }
+            (0, utils_1.safeLog)('CONFIG: ' + JSON.stringify(error.config));
+        });
+        return (_b = (_a = result === null || result === void 0 ? void 0 : result.data) === null || _a === void 0 ? void 0 : _a[0].language) !== null && _b !== void 0 ? _b : undefined;
+    }
+    async translate(text, to) {
+        var _a, _b, _c;
+        const hashedKey = this.cognitiveServicesAPIKey.replace(/./g, '*');
+        (0, utils_1.safeLog)('attempting to translate...', hashedKey, text.slice(0, 20), to);
+        const result = await axios_1.default
+            .post('https://api.cognitive.microsofttranslator.com/translate?api-version=3.0&to=' + to, [{ text }], {
+            headers: {
+                'Ocp-Apim-Subscription-Key': this.cognitiveServicesAPIKey,
+                'Content-type': 'application/json',
+            },
+        })
+            .catch((e) => {
+            (0, utils_1.safeLog)('error translating language', e);
+            throw e;
+        });
+        return (_c = (_b = (_a = result === null || result === void 0 ? void 0 : result.data) === null || _a === void 0 ? void 0 : _a[0].translations) === null || _b === void 0 ? void 0 : _b[0].text) !== null && _c !== void 0 ? _c : undefined;
+    }
+    async run() {
+        var _a, _b, _c;
+        const issue = await this.issue.getIssue();
+        const { body, title } = (0, utils_1.normalizeIssue)(issue);
+        const translationChunk = `${title} ${body}`;
+        for await (const page of this.issue.getComments()) {
+            for (const comment of page) {
+                if (comment.body.includes('<!-- translation_requested_comment -->')) {
+                    return;
+                }
+            }
+        }
+        const language = (_a = (await this.detectLanguage(translationChunk))) === null || _a === void 0 ? void 0 : _a.toLowerCase();
+        (0, utils_1.safeLog)('Detected language:', language !== null && language !== void 0 ? language : 'undefined');
+        if (!language || language === 'en') {
+            const languagelabel = issue.labels.find((label) => label.startsWith(this.translatorRequestedLabelPrefix));
+            if (languagelabel)
+                await this.issue.removeLabel(languagelabel);
+            await this.issue.removeLabel(this.englishPleaseLabel);
+            await this.issue.removeLabel(this.needsMoreInfoLabel);
+        }
+        else if (language) {
+            const label = this.translatorRequestedLabelPrefix + commonNames[language];
+            if (!(await this.issue.repoHasLabel(label))) {
+                (0, utils_1.safeLog)('Globally creating label ' + label);
+                await this.issue.createLabel(label, this.translatorRequestedLabelColor, '');
+            }
+            await this.issue.addLabel(label);
+            if (this.needsMoreInfoLabel)
+                await this.issue.addLabel(this.needsMoreInfoLabel);
+            const targetLanguageComment = (_c = (_b = knownTranslations[language]) !== null && _b !== void 0 ? _b : (await this.translate(translation_data_json_1.baseString, language))) !== null && _c !== void 0 ? _c : 'ERR_TRANSLATION_FAILED';
+            const englishComment = knownTranslations['en'];
+            // check again, another bot may have commented in the mean time.
+            for await (const page of this.issue.getComments()) {
+                for (const comment of page) {
+                    if (comment.body.includes('<!-- translation_requested_comment -->')) {
+                        return;
+                    }
+                }
+            }
+            await this.issue.postComment(`${targetLanguageComment}\n\n---\n${englishComment}\n<!-- translation_requested_comment -->`);
+        }
+    }
 }
 exports.LanguageSpecificLabeler = LanguageSpecificLabeler;
 //# sourceMappingURL=EnglishPlease.js.map
