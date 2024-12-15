@@ -234,7 +234,6 @@ export class OctoKit implements GitHub {
 				description,
 				name,
 			});
-
 		else this.mockLabels.add(name);
 	}
 
@@ -259,7 +258,9 @@ export class OctoKit implements GitHub {
 	}
 
 	async readConfig(configPath: string, configRepo?: string): Promise<any> {
-		safeLog(`Reading config at ${configPath} from ${configRepo ?? this.params.repo}`);
+		safeLog(
+			`Reading config at ${configPath} from ${configRepo ?? this.params.repo}`,
+		);
 		const repoPath = `.github/${configPath}.json`;
 
 		try {
