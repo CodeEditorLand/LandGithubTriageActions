@@ -172,200 +172,151 @@ class CodeReviewChatDeleter extends Chatter {
 }
 exports.CodeReviewChatDeleter = CodeReviewChatDeleter;
 class CodeReviewChat extends Chatter {
-	constructor(
-		octokit,
-		toolsAPI,
-		issue,
-		options,
-		pullRequestNumber,
-		_externalContributorPR,
-	) {
-		super(options.slackToken, options.codereviewChannelId);
-		this.octokit = octokit;
-		this.toolsAPI = toolsAPI;
-		this.issue = issue;
-		this.options = options;
-		this.pullRequestNumber = pullRequestNumber;
-		this._externalContributorPR = _externalContributorPR;
-	}
-	async postMessage(message) {
-		const { client, channel } = await this.getChat();
-		await client.chat.postMessage({
-			text: message,
-			channel,
-			link_names: true,
-		});
-	}
-	async postExternalPRMessage(pr) {
-		const requestedReviewersAPIResponse =
-			await this.octokit.pulls.listRequestedReviewers({
-				owner: this.options.payload.owner,
-				repo: this.options.payload.repo,
-				pull_number: this.options.payload.pr.number,
-			});
-		const requestedReviewers = requestedReviewersAPIResponse.data.users.map(
-			(user) => user.login,
-		);
-		if (requestedReviewers.length !== 0) {
-			(0, utils_1.safeLog)(
-				"A secondary reviewer has been requested for this PR, skipping",
-			);
-			return;
-		}
-		const message = this.getSlackMessage(pr);
-		await this.postMessage(message);
-	}
-	getSlackMessage(pr) {
-		const cleanTitle = pr.title
-			.replace(/`/g, "")
-			.replace("https://github.com/", "");
-		const changedFilesMessage =
-			`${pr.changed_files} file` + (pr.changed_files > 1 ? "s" : "");
-		const diffMessage = `+${pr.additions.toLocaleString()} -${pr.deletions.toLocaleString()}, ${changedFilesMessage}`;
-		// The message that states which repo the PR is in, only populated for non microsoft/vscode PRs
-		const repoMessage =
-			this.options.payload.repo_full_name === "microsoft/vscode"
-				? ":"
-				: ` (in ${this.options.payload.repo_full_name}):`;
-		const githubUrl = `${pr.url}/files`;
-		const vscodeDevUrl = pr.url.replace(
-			"https://",
-			"https://insiders.vscode.dev/",
-		);
-		const externalPrefix = this._externalContributorPR
-			? "⚠️[EXTERNAL]⚠️ "
-			: "";
-		const message = `${externalPrefix}*${cleanTitle}* by _${pr.owner}_${repoMessage} \`${diffMessage}\` <${githubUrl}|Review (GH)> | <${vscodeDevUrl}|Review (VSCode)>`;
-		return message;
-	}
-	async run() {
-		var _a;
-		// Must request the PR again from the octokit api as it may have changed since creation
-		const prFromApi = (
-			await this.octokit.pulls.get({
-				pull_number: this.pullRequestNumber,
-				owner: this.options.payload.owner,
-				repo: this.options.payload.repo,
-			})
-		).data;
-		const pr = createPRObject(prFromApi);
-		if (pr.draft) {
-			(0, utils_1.safeLog)("PR is draft, ignoring");
-			return;
-		}
-		// A small set of repos which we don't want to be posted
-		const ignoredRepos = ["vscode-extensions-loc", "vscode-loc-drop"];
-		// Ignore PRs from ignored repos
-		if (ignoredRepos.includes(this.options.payload.repo)) {
-			(0, utils_1.safeLog)("PR is from ignored repo, ignoring");
-			return;
-		}
-		const default_branch = (
-			await this.octokit.repos.get({
-				owner: this.options.payload.owner,
-				repo: this.options.payload.repo,
-			})
-		).data.default_branch;
-		// TODO @lramos15 possibly make this configurable
-		if (
-			!pr.baseBranchName.startsWith(default_branch) ||
-			pr.baseBranchName.startsWith("release")
-		) {
-			(0, utils_1.safeLog)(
-				"PR is on a non-main or release branch, ignoring",
-			);
-			return;
-		}
-		const isEndGame =
-			(_a = await (0, utils_1.isInsiderFrozen)()) !== null &&
-			_a !== void 0
-				? _a
-				: false;
-		// This is an external PR which already received one review and is just awaiting a second
-		const data = await this.issue.getIssue();
-		if (this._externalContributorPR) {
-			const externalTasks = [];
-			const currentMilestone =
-				await this.issue.getCurrentRepoMilestone(isEndGame);
-			if (!data.milestone && currentMilestone) {
-				externalTasks.push(this.issue.setMilestone(currentMilestone));
-			}
-			externalTasks.push(this.postExternalPRMessage(pr));
-			await Promise.all(externalTasks);
-			return;
-		}
-		const teamMembers = new Set(
-			(await this.toolsAPI.getTeamMembers()).map((t) => t.id),
-		);
-		const author = data.author;
-		// Author must have write access to the repo or be a bot
-		if (
-			(!teamMembers.has(author.name) && !author.isGitHubApp) ||
-			author.name.includes("dependabot")
-		) {
-			(0, utils_1.safeLog)("Issue author not team member, ignoring");
-			return;
-		}
-		const tasks = [];
-		if (!data.assignee && !author.isGitHubApp) {
-			tasks.push(this.issue.addAssignee(author.name));
-		}
-		tasks.push(
-			(async () => {
-				const currentMilestone =
-					await this.issue.getCurrentRepoMilestone(isEndGame);
-				if (!data.milestone && currentMilestone) {
-					await this.issue.setMilestone(currentMilestone);
-				}
-			})(),
-		);
-		tasks.push(
-			(async () => {
-				var _a, _b;
-				const [hasExistingReview, existingRequests] = await Promise.all(
-					[
-						meetsReviewThreshold(
-							this.octokit,
-							teamMembers,
-							this.options.payload.pr.number,
-							this.options.payload.repo,
-							this.options.payload.owner,
-							this.issue,
-						),
-						this.octokit.pulls.listRequestedReviewers({
-							owner: this.options.payload.owner,
-							repo: this.options.payload.repo,
-							pull_number: this.options.payload.pr.number,
-						}),
-					],
-				);
-				// Check to see if there is an existing review or review request. We don't check if the author is part of the review request as that isn't possible
-				const hasExisting =
-					hasExistingReview ||
-					((_b =
-						(_a =
-							existingRequests === null ||
-							existingRequests === void 0
-								? void 0
-								: existingRequests.data) === null ||
-						_a === void 0
-							? void 0
-							: _a.users) === null || _b === void 0
-						? void 0
-						: _b.length);
-				if (hasExisting) {
-					(0, utils_1.safeLog)(
-						"had existing review requests, exiting",
-					);
-					process.exit(0);
-				}
-				const message = this.getSlackMessage(pr);
-				(0, utils_1.safeLog)(message);
-				await this.postMessage(message);
-			})(),
-		);
-		await Promise.all(tasks);
-	}
+    constructor(octokit, toolsAPI, issue, options, pullRequestNumber, _externalContributorPR) {
+        super(options.slackToken, options.codereviewChannelId);
+        this.octokit = octokit;
+        this.toolsAPI = toolsAPI;
+        this.issue = issue;
+        this.options = options;
+        this.pullRequestNumber = pullRequestNumber;
+        this._externalContributorPR = _externalContributorPR;
+    }
+    async postMessage(message) {
+        const { client, channel } = await this.getChat();
+        await client.chat.postMessage({
+            text: message,
+            channel,
+            link_names: true,
+        });
+    }
+    async postExternalPRMessage(pr) {
+        const requestedReviewersAPIResponse = await this.octokit.pulls.listRequestedReviewers({
+            owner: this.options.payload.owner,
+            repo: this.options.payload.repo,
+            pull_number: this.options.payload.pr.number,
+        });
+        const requestedReviewers = requestedReviewersAPIResponse.data.users.map((user) => user.login);
+        if (requestedReviewers.length !== 0) {
+            (0, utils_1.safeLog)('A secondary reviewer has been requested for this PR, skipping');
+            return;
+        }
+        const message = this.getSlackMessage(pr);
+        await this.postMessage(message);
+    }
+    getSlackMessage(pr) {
+        const cleanTitle = pr.title.replace(/`/g, '').replace('https://github.com/', '');
+        const changedFilesMessage = `${pr.changed_files} file` + (pr.changed_files > 1 ? 's' : '');
+        const diffMessage = `+${pr.additions.toLocaleString()} -${pr.deletions.toLocaleString()}, ${changedFilesMessage}`;
+        // The message that states which repo the PR is in, only populated for non microsoft/vscode PRs
+        const repoMessage = this.options.payload.repo_full_name === 'microsoft/vscode'
+            ? ':'
+            : ` (in ${this.options.payload.repo_full_name}):`;
+        const githubUrl = `${pr.url}/files`;
+        const vscodeDevUrl = pr.url.replace('https://', 'https://insiders.vscode.dev/');
+        const externalPrefix = this._externalContributorPR ? '⚠️[EXTERNAL]⚠️ ' : '';
+        const message = `${externalPrefix}*${cleanTitle}* by _${pr.owner}_${repoMessage} \`${diffMessage}\` <${githubUrl}|Review (GH)> | <${vscodeDevUrl}|Review (VSCode)>`;
+        return message;
+    }
+    async run() {
+        var _a;
+        // Must request the PR again from the octokit api as it may have changed since creation
+        const prFromApi = (await this.octokit.pulls.get({
+            pull_number: this.pullRequestNumber,
+            owner: this.options.payload.owner,
+            repo: this.options.payload.repo,
+        })).data;
+        const pr = createPRObject(prFromApi);
+        if (pr.draft) {
+            (0, utils_1.safeLog)('PR is draft, ignoring');
+            return;
+        }
+        // A small set of repos which we don't want to be posted
+        const ignoredRepos = ['vscode-extensions-loc', 'vscode-loc-drop'];
+        // Ignore PRs from ignored repos
+        if (ignoredRepos.includes(this.options.payload.repo)) {
+            (0, utils_1.safeLog)('PR is from ignored repo, ignoring');
+            return;
+        }
+        const default_branch = (await this.octokit.repos.get({
+            owner: this.options.payload.owner,
+            repo: this.options.payload.repo,
+        })).data.default_branch;
+        // TODO @lramos15 possibly make this configurable
+        if (!pr.baseBranchName.startsWith(default_branch) || pr.baseBranchName.startsWith('release')) {
+            (0, utils_1.safeLog)('PR is on a non-main or release branch, ignoring');
+            return;
+        }
+        let isEndGame = false;
+        try {
+            isEndGame = (_a = (await (0, utils_1.isInsiderFrozen)())) !== null && _a !== void 0 ? _a : false;
+        }
+        catch (error) {
+            (0, utils_1.safeLog)(`Error determining if insider is frozen: ${error.message}`);
+        }
+        // This is an external PR which already received one review and is just awaiting a second
+        const data = await this.issue.getIssue();
+        if (!data)
+            return;
+        if (this._externalContributorPR) {
+            const externalTasks = [];
+            const currentMilestone = await this.issue.getCurrentRepoMilestone(isEndGame);
+            if (!data.milestone && currentMilestone) {
+                externalTasks.push(this.issue.setMilestone(currentMilestone));
+            }
+            externalTasks.push(this.postExternalPRMessage(pr));
+            await Promise.all(externalTasks);
+            return;
+        }
+        const teamMembers = new Set((await this.toolsAPI.getTeamMembers()).map((t) => t.id));
+        const author = data.author;
+        // Author must have write access to the repo or be a bot
+        if ((!teamMembers.has(author.name) && !author.isGitHubApp) || author.name.includes('dependabot')) {
+            (0, utils_1.safeLog)('Issue author not team member, ignoring');
+            return;
+        }
+        const tasks = [];
+        if (!data.assignee && !author.isGitHubApp) {
+            tasks.push(this.issue.addAssignee(author.name));
+        }
+        tasks.push((async () => {
+            const currentMilestone = await this.issue.getCurrentRepoMilestone(isEndGame);
+            if (!data.milestone && currentMilestone) {
+                await this.issue.setMilestone(currentMilestone);
+            }
+        })());
+        tasks.push((async () => {
+            var _a, _b;
+            const [hasExistingReview, existingRequests] = await Promise.all([
+                meetsReviewThreshold(this.octokit, teamMembers, this.options.payload.pr.number, this.options.payload.repo, this.options.payload.owner, this.issue),
+                this.octokit.pulls.listRequestedReviewers({
+                    owner: this.options.payload.owner,
+                    repo: this.options.payload.repo,
+                    pull_number: this.options.payload.pr.number,
+                }),
+            ]);
+            // Check to see if there is an existing review or review request. We don't check if the author is part of the review request as that isn't possible
+            const hasExisting = hasExistingReview || ((_b = (_a = existingRequests === null || existingRequests === void 0 ? void 0 : existingRequests.data) === null || _a === void 0 ? void 0 : _a.users) === null || _b === void 0 ? void 0 : _b.length);
+            if (hasExisting) {
+                (0, utils_1.safeLog)('had existing review requests, exiting');
+                process.exit(0);
+            }
+            const message = this.getSlackMessage(pr);
+            (0, utils_1.safeLog)(message);
+            await this.postMessage(message);
+        })());
+        // Trigger build for forked PRs by adding a comment
+        if (pr.fork) {
+            tasks.push((async () => {
+                await this.octokit.issues.createComment({
+                    owner: this.options.payload.owner,
+                    repo: this.options.payload.repo,
+                    issue_number: this.pullRequestNumber,
+                    body: 'This PR originates from a fork. If the changes appear safe, you can trigger the pipeline by commenting `/AzurePipelines run`.',
+                });
+            })());
+        }
+        await Promise.all(tasks);
+    }
 }
 exports.CodeReviewChat = CodeReviewChat;
 async function getTeamMemberReviews(octokit, teamMembers, prNumber, repo, owner, ghIssue, isExternalPR) {
@@ -375,8 +326,11 @@ async function getTeamMemberReviews(octokit, teamMembers, prNumber, repo, owner,
         owner,
         repo,
     });
+    const pr = await ghIssue.getIssue();
+    if (!pr)
+        return [];
     // Get author of PR
-    const author = (await ghIssue.getIssue()).author.name;
+    const author = pr.author.name;
     // Get timestamp of last commit
     const lastCommitTimestamp = (_c = (_b = (_a = (await octokit.pulls.listCommits({
         pull_number: prNumber,
@@ -419,54 +373,28 @@ async function getTeamMemberReviews(octokit, teamMembers, prNumber, repo, owner,
     return Array.from(latestReviews.values());
 }
 exports.getTeamMemberReviews = getTeamMemberReviews;
-async function meetsReviewThreshold(
-	octokit,
-	teamMembers,
-	prNumber,
-	repo,
-	owner,
-	ghIssue,
-) {
-	// Get author of PR
-	const author = (await ghIssue.getIssue()).author.name;
-	const teamMemberReviews = await getTeamMemberReviews(
-		octokit,
-		teamMembers,
-		prNumber,
-		repo,
-		owner,
-		ghIssue,
-	);
-	// While more expensive to convert from Array -> Set -> Array, we want to ensure the same name isn't double counted if a user has multiple reviews
-	const reviewerNames = Array.from(
-		new Set(
-			teamMemberReviews === null || teamMemberReviews === void 0
-				? void 0
-				: teamMemberReviews.map((r) => {
-						var _a, _b;
-						return (_b =
-							(_a = r.user) === null || _a === void 0
-								? void 0
-								: _a.login) !== null && _b !== void 0
-							? _b
-							: "Unknown";
-					}),
-		),
-	);
-	let meetsReviewThreshold = false;
-	// Team members require 1 review, external requires two
-	if (teamMembers.has(author)) {
-		meetsReviewThreshold = reviewerNames.length >= 1;
-	} else {
-		meetsReviewThreshold = reviewerNames.length >= 2;
-	}
-	// Some more logging to help diagnose issues
-	if (meetsReviewThreshold) {
-		(0, utils_1.safeLog)(
-			`Met review threshold: ${reviewerNames.join(", ")}`,
-		);
-	}
-	return meetsReviewThreshold;
+async function meetsReviewThreshold(octokit, teamMembers, prNumber, repo, owner, ghIssue) {
+    // Get author of PR
+    const pr = await ghIssue.getIssue();
+    if (!pr)
+        return false;
+    const author = pr.author.name;
+    const teamMemberReviews = await getTeamMemberReviews(octokit, teamMembers, prNumber, repo, owner, ghIssue);
+    // While more expensive to convert from Array -> Set -> Array, we want to ensure the same name isn't double counted if a user has multiple reviews
+    const reviewerNames = Array.from(new Set(teamMemberReviews === null || teamMemberReviews === void 0 ? void 0 : teamMemberReviews.map((r) => { var _a, _b; return (_b = (_a = r.user) === null || _a === void 0 ? void 0 : _a.login) !== null && _b !== void 0 ? _b : 'Unknown'; })));
+    let meetsReviewThreshold = false;
+    // Team members require 1 review, external requires two
+    if (teamMembers.has(author)) {
+        meetsReviewThreshold = reviewerNames.length >= 1;
+    }
+    else {
+        meetsReviewThreshold = reviewerNames.length >= 2;
+    }
+    // Some more logging to help diagnose issues
+    if (meetsReviewThreshold) {
+        (0, utils_1.safeLog)(`Met review threshold: ${reviewerNames.join(', ')}`);
+    }
+    return meetsReviewThreshold;
 }
 exports.meetsReviewThreshold = meetsReviewThreshold;
 //# sourceMappingURL=CodeReviewChat.js.map

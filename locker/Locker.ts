@@ -45,6 +45,7 @@ export class Locker {
 		})) {
 			page.map(async (issue) => {
 				const hydrated = await issue.getIssue();
+				if (!hydrated) return;
 
 				if (
 					!hydrated.locked &&

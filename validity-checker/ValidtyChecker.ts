@@ -34,6 +34,7 @@ export class ValidtyChecker {
 
 	async run() {
 		const issue = await this.github.getIssue();
+		if (!issue) return;
 
 		safeLog(`Checking issue validty for #${issue.number}...`);
 

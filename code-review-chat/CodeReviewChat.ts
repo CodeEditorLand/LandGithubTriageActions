@@ -105,10 +105,7 @@ export function createPRObject(pullRequestFromApi: any): PR {
 }
 
 class Chatter {
-	constructor(
-		protected slackToken: string,
-		protected notificationChannelID: string,
-	) {}
+	constructor(protected slackToken: string, protected notificationChannelID: string) {}
 
 	async getChat(): Promise<{ client: WebClient; channel: string }> {
 		const web = new WebClient(this.slackToken);
@@ -369,10 +366,16 @@ export class CodeReviewChat extends Chatter {
 			return;
 		}
 
-		const isEndGame = (await isInsiderFrozen()) ?? false;
+		let isEndGame = false;
+		try {
+			isEndGame = (await isInsiderFrozen()) ?? false;
+		} catch (error) {
+			safeLog(`Error determining if insider is frozen: ${(error as Error).message}`);
+		}
+
 		// This is an external PR which already received one review and is just awaiting a second
 		const data = await this.issue.getIssue();
-
+		if (!data) return;
 		if (this._externalContributorPR) {
 			const externalTasks = [];
 
@@ -460,6 +463,20 @@ export class CodeReviewChat extends Chatter {
 			})(),
 		);
 
+		// Trigger build for forked PRs by adding a comment
+		if (pr.fork) {
+			tasks.push(
+				(async () => {
+					await this.octokit.issues.createComment({
+						owner: this.options.payload.owner,
+						repo: this.options.payload.repo,
+						issue_number: this.pullRequestNumber,
+						body: 'This PR originates from a fork. If the changes appear safe, you can trigger the pipeline by commenting `/AzurePipelines run`.',
+					});
+				})(),
+			);
+		}
+
 		await Promise.all(tasks);
 	}
 }
@@ -478,8 +495,11 @@ export async function getTeamMemberReviews(
 		owner,
 		repo,
 	});
+
+	const pr = await ghIssue.getIssue();
+	if (!pr) return [];
 	// Get author of PR
-	const author = (await ghIssue.getIssue()).author.name;
+	const author = pr.author.name;
 	// Get timestamp of last commit
 	const lastCommitTimestamp = (
 		await octokit.pulls.listCommits({
@@ -553,8 +573,9 @@ export async function meetsReviewThreshold(
 	ghIssue: GitHubIssue | OctoKitIssue,
 ) {
 	// Get author of PR
-	const author = (await ghIssue.getIssue()).author.name;
-
+	const pr = await ghIssue.getIssue();
+	if (!pr) return false;
+	const author = pr.author.name;
 	const teamMemberReviews = await getTeamMemberReviews(
 		octokit,
 		teamMembers,

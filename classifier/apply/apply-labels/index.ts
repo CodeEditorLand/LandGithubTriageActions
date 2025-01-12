@@ -59,6 +59,7 @@ class ApplyLabels extends Action {
 			);
 
 			const issueData = await issue.getIssue();
+			if (!issueData) continue;
 
 			if (!debug && issueData.assignee) {
 				safeLog("skipping, already assigned to: ", issueData.assignee);

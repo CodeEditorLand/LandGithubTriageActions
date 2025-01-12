@@ -20,45 +20,29 @@ const owner = (0, utils_1.getRequiredInput)("owner");
 const repo = (0, utils_1.getRequiredInput)("repo");
 const blobContainer = (0, utils_1.getRequiredInput)("blobContainerName");
 class FetchIssues extends Action_1.Action {
-	constructor() {
-		super(...arguments);
-		this.id = "Clasifier/Apply/FetchIssues";
-	}
-	async onTriggered(github) {
-		const query = `repo:${owner}/${repo} created:>${from} updated:<${until} is:open type:issue`;
-		(0, utils_1.safeLog)(`Querying for issues: ${query}`);
-		const data = [];
-		for await (const page of github.query({ q: query })) {
-			for (const issue of page) {
-				const issueData = await issue.getIssue();
-				const cleansed = (0, utils_1.normalizeIssue)(issueData);
-				data.push({
-					number: issueData.number,
-					contents: `${cleansed.title}\n\n${cleansed.body}`,
-				});
-			}
-		}
-		(0, fs_1.writeFileSync)(
-			(0, path_1.join)(__dirname, "../issue_data.json"),
-			JSON.stringify(data),
-		);
-		await (0, blobStorage_1.downloadBlobFile)(
-			"area-model.pickle",
-			blobContainer,
-		);
-		await (0, blobStorage_1.downloadBlobFile)(
-			"area-model-config.json",
-			blobContainer,
-		);
-		await (0, blobStorage_1.downloadBlobFile)(
-			"assignee-model.pickle",
-			blobContainer,
-		);
-		await (0, blobStorage_1.downloadBlobFile)(
-			"assignee-model-config.json",
-			blobContainer,
-		);
-	}
+    constructor() {
+        super(...arguments);
+        this.id = 'Clasifier/Apply/FetchIssues';
+    }
+    async onTriggered(github) {
+        const query = `repo:${owner}/${repo} created:>${from} updated:<${until} is:open type:issue`;
+        (0, utils_1.safeLog)(`Querying for issues: ${query}`);
+        const data = [];
+        for await (const page of github.query({ q: query })) {
+            for (const issue of page) {
+                const issueData = await issue.getIssue();
+                if (!issueData)
+                    continue;
+                const cleansed = (0, utils_1.normalizeIssue)(issueData);
+                data.push({ number: issueData.number, contents: `${cleansed.title}\n\n${cleansed.body}` });
+            }
+        }
+        (0, fs_1.writeFileSync)((0, path_1.join)(__dirname, '../issue_data.json'), JSON.stringify(data));
+        await (0, blobStorage_1.downloadBlobFile)('area-model.pickle', blobContainer);
+        await (0, blobStorage_1.downloadBlobFile)('area-model-config.json', blobContainer);
+        await (0, blobStorage_1.downloadBlobFile)('assignee-model.pickle', blobContainer);
+        await (0, blobStorage_1.downloadBlobFile)('assignee-model-config.json', blobContainer);
+    }
 }
 new FetchIssues().run(); // eslint-disable-line
 //# sourceMappingURL=index.js.map

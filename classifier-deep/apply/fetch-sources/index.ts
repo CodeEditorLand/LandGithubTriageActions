@@ -51,6 +51,7 @@ class FetchIssues extends Action {
 		for await (const page of github.query({ q: query })) {
 			for (const issue of page) {
 				const issueData = await issue.getIssue();
+				if (!issueData) continue;
 
 				// Probably spam. Tagged for later review
 				if (issueData.author.name === "ghost") {
@@ -95,10 +96,9 @@ class FetchIssues extends Action {
 								const linkedIssueData = await github
 									.getIssueByNumber(+linkedIssue)
 									.getIssue();
+								if (!linkedIssueData) continue;
 
-								const normalized =
-									normalizeIssue(linkedIssueData);
-
+								const normalized = normalizeIssue(linkedIssueData);
 								additionalInfo = `\n\n${normalized.title}\n\n${normalized.body}`;
 
 								const linkedIssueAssignee =

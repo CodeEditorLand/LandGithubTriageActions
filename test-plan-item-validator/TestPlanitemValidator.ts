@@ -23,14 +23,10 @@ export class TestPlanItemValidator {
 
 	async run() {
 		const issue = await this.github.getIssue();
+		if (!issue) return;
 
-		const shouldAddErrors =
-			issue.labels.includes(this.label) ||
-			issue.labels.includes(this.invalidLabel);
-
-		const madeByTeamMember = await this.github.hasWriteAccess(
-			issue.author.name,
-		);
+		const shouldAddErrors = issue.labels.includes(this.label) || issue.labels.includes(this.invalidLabel);
+		const madeByTeamMember = await this.github.hasWriteAccess(issue.author.name);
 
 		if (!madeByTeamMember) {
 			safeLog("Issue not made by team member, skipping validation");

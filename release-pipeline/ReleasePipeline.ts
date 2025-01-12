@@ -23,11 +23,9 @@ export class ReleasePipeline {
 		for await (const page of this.github.query({ q: query })) {
 			for (const issue of page) {
 				const issueData = await issue.getIssue();
+				if (!issueData) continue;
 
-				if (
-					issueData.labels.includes(this.notYetReleasedLabel) &&
-					issueData.open === false
-				) {
+				if (issueData.labels.includes(this.notYetReleasedLabel) && issueData.open === false) {
 					await this.update(issue, latestRelease);
 
 					await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -79,12 +77,12 @@ export class ReleasePipeline {
 			await issue.removeLabel(this.insidersReleasedLabel);
 
 			await issue.addLabel(this.notYetReleasedLabel);
-		} else if (
-			(await issue.getIssue()).labels.includes(this.notYetReleasedLabel)
-		) {
-			await issue.removeLabel(this.notYetReleasedLabel);
-
-			await this.commentUnableToFindCommitMessage(issue);
+		} else {
+			const ghIssue = await issue.getIssue();
+			if (ghIssue && ghIssue.labels.includes(this.notYetReleasedLabel)) {
+				await issue.removeLabel(this.notYetReleasedLabel);
+				await this.commentUnableToFindCommitMessage(issue);
+			}
 		}
 	}
 }
@@ -98,7 +96,7 @@ export const enrollIssue = async (
 	if (closingHash) {
 		await issue.addLabel(notYetReleasedLabel);
 		// Get the milestone linked to the current release and set it if the issue doesn't have one
-		const releaseMilestone = (await issue.getIssue()).milestone
+		const releaseMilestone = (await issue.getIssue())?.milestone
 			? undefined
 			: await issue.getCurrentRepoMilestone();
 

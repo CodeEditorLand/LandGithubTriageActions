@@ -229,348 +229,258 @@ class OctoKit {
 }
 exports.OctoKit = OctoKit;
 class OctoKitIssue extends OctoKit {
-	constructor(token, params, issueData, options = { readonly: false }) {
-		super(token, params, options);
-		this.params = params;
-		this.issueData = issueData;
-		(0, utils_1.safeLog)("running bot on issue", issueData.number);
-	}
-	async addAssignee(assignee) {
-		(0, utils_1.safeLog)(
-			"Adding assignee " + assignee + " to " + this.issueData.number,
-		);
-		if (!this.options.readonly) {
-			await this.octokit.rest.issues.addAssignees({
-				...this.params,
-				issue_number: this.issueData.number,
-				assignees: [assignee],
-			});
-		}
-	}
-	async removeAssignee(assignee) {
-		(0, utils_1.safeLog)(
-			"Removing assignee " + assignee + " to " + this.issueData.number,
-		);
-		if (!this.options.readonly) {
-			await this.octokit.rest.issues.removeAssignees({
-				...this.params,
-				issue_number: this.issueData.number,
-				assignees: [assignee],
-			});
-		}
-	}
-	async closeIssue(reason) {
-		(0, utils_1.safeLog)("Closing issue " + this.issueData.number);
-		if (!this.options.readonly) {
-			const issue = await this.octokit.rest.issues.get({
-				...this.params,
-				issue_number: this.issueData.number,
-			});
-			// Don't close already closed issues even if it means changing the state
-			if (issue.data.state === "closed") {
-				return;
-			}
-			await this.octokit.rest.issues
-				.update({
-					...this.params,
-					issue_number: this.issueData.number,
-					state: "closed",
-					state_reason: reason,
-				})
-				.catch((e) => {
-					(0, utils_1.safeLog)("error closing issue:", e);
-				});
-		}
-	}
-	async lockIssue() {
-		(0, utils_1.safeLog)("Locking issue " + this.issueData.number);
-		if (!this.options.readonly)
-			await this.octokit.rest.issues.lock({
-				...this.params,
-				issue_number: this.issueData.number,
-			});
-	}
-	async unlockIssue() {
-		(0, utils_1.safeLog)("Unlocking issue " + this.issueData.number);
-		if (!this.options.readonly)
-			await this.octokit.rest.issues.unlock({
-				...this.params,
-				issue_number: this.issueData.number,
-			});
-	}
-	async getIssue() {
-		if (isIssue(this.issueData)) {
-			(0, utils_1.safeLog)(
-				"Got issue data from query result " + this.issueData.number,
-			);
-			return this.issueData;
-		}
-		(0, utils_1.safeLog)("Fetching issue " + this.issueData.number);
-		const issue = (
-			await this.octokit.rest.issues.get({
-				...this.params,
-				issue_number: this.issueData.number,
-				mediaType: { previews: ["squirrel-girl"] },
-			})
-		).data;
-		return (this.issueData = this.octokitIssueToIssue(issue));
-	}
-	async postComment(body) {
-		(0, utils_1.safeLog)(`Posting comment on ${this.issueData.number}`);
-		if (!this.options.readonly)
-			await this.octokit.rest.issues.createComment({
-				...this.params,
-				issue_number: this.issueData.number,
-				body,
-			});
-	}
-	async deleteComment(id) {
-		(0, utils_1.safeLog)(
-			`Deleting comment ${id} on ${this.issueData.number}`,
-		);
-		if (!this.options.readonly)
-			await this.octokit.rest.issues.deleteComment({
-				owner: this.params.owner,
-				repo: this.params.repo,
-				comment_id: id,
-			});
-	}
-	async setMilestone(milestoneId) {
-		(0, utils_1.safeLog)(
-			`Setting milestone for ${this.issueData.number} to ${milestoneId}`,
-		);
-		if (!this.options.readonly)
-			await this.octokit.rest.issues.update({
-				...this.params,
-				issue_number: this.issueData.number,
-				milestone: milestoneId,
-			});
-	}
-	async *getComments(last) {
-		(0, utils_1.safeLog)("Fetching comments for " + this.issueData.number);
-		const response = this.octokit.paginate.iterator(
-			this.octokit.rest.issues.listComments,
-			{
-				...this.params,
-				issue_number: this.issueData.number,
-				per_page: 100,
-				...(last
-					? { per_page: 1, page: (await this.getIssue()).numComments }
-					: {}),
-			},
-		);
-		for await (const page of response) {
-			numRequests++;
-			yield page.data.map((comment) => {
-				var _a, _b, _c, _d;
-				return {
-					author: {
-						name:
-							(_b =
-								(_a = comment.user) === null || _a === void 0
-									? void 0
-									: _a.login) !== null && _b !== void 0
-								? _b
-								: "",
-						isGitHubApp:
-							((_c = comment.user) === null || _c === void 0
-								? void 0
-								: _c.type) === "Bot",
-					},
-					body:
-						(_d = comment.body) !== null && _d !== void 0 ? _d : "",
-					id: comment.id,
-					timestamp: +new Date(comment.created_at),
-				};
-			});
-		}
-	}
-	async addLabel(name) {
-		(0, utils_1.safeLog)(
-			`Adding label ${name} to ${this.issueData.number}`,
-		);
-		if (!(await this.repoHasLabel(name))) {
-			throw Error(
-				`Action could not execute becuase label ${name} is not defined.`,
-			);
-		}
-		if (!this.options.readonly)
-			await this.octokit.rest.issues.addLabels({
-				...this.params,
-				issue_number: this.issueData.number,
-				labels: [name],
-			});
-	}
-	async getAssigner(assignee) {
-		var _a, _b;
-		const options = {
-			...this.params,
-			issue_number: this.issueData.number,
-		};
-		let assigner;
-		for await (const event of this.octokit.paginate.iterator(
-			this.octokit.rest.issues.listEventsForTimeline,
-			options,
-		)) {
-			numRequests++;
-			const timelineEvents = event.data;
-			for (const timelineEvent of timelineEvents) {
-				if (
-					timelineEvent.event === "assigned" &&
-					((_a = timelineEvent.assignee) === null || _a === void 0
-						? void 0
-						: _a.login) === assignee
-				) {
-					assigner =
-						(_b = timelineEvent.actor) === null || _b === void 0
-							? void 0
-							: _b.login;
-				}
-			}
-			if (assigner) {
-				break;
-			}
-		}
-		if (!assigner) {
-			throw Error(
-				"Expected to find " +
-					assignee +
-					" in issue timeline but did not.",
-			);
-		}
-		return assigner;
-	}
-	async removeLabel(name) {
-		(0, utils_1.safeLog)(
-			`Removing label ${name} from ${this.issueData.number}`,
-		);
-		try {
-			if (!this.options.readonly)
-				await this.octokit.rest.issues.removeLabel({
-					...this.params,
-					issue_number: this.issueData.number,
-					name,
-				});
-		} catch (err) {
-			const statusErorr = err;
-			if (statusErorr.status === 404) {
-				(0, utils_1.safeLog)(`Label ${name} not found on issue`);
-				return;
-			}
-			throw err;
-		}
-	}
-	async getClosingInfo(alreadyChecked = []) {
-		var _a, _b, _c, _d, _e, _f, _g, _h;
-		if (alreadyChecked.includes(this.issueData.number)) {
-			return undefined;
-		}
-		alreadyChecked.push(this.issueData.number);
-		if ((await this.getIssue()).open) {
-			return;
-		}
-		const closingHashComment =
-			/(?:\\|\/)closedWith (?:https:\/\/github\.com\/microsoft\/vscode\/commit\/)?([a-fA-F0-9]{7,40})/;
-		const options = {
-			...this.params,
-			issue_number: this.issueData.number,
-		};
-		let closingCommit;
-		const crossReferencing = [];
-		for await (const event of this.octokit.paginate.iterator(
-			this.octokit.rest.issues.listEventsForTimeline,
-			options,
-		)) {
-			numRequests++;
-			const timelineEvents = event.data;
-			for (const timelineEvent of timelineEvents) {
-				if (
-					(timelineEvent.event === "closed" ||
-						timelineEvent.event === "merged") &&
-					timelineEvent.created_at &&
-					timelineEvent.commit_id &&
-					((_a = timelineEvent.commit_url) === null || _a === void 0
-						? void 0
-						: _a
-								.toLowerCase()
-								.includes(
-									`/${this.params.owner}/${this.params.repo}/`.toLowerCase(),
-								))
-				) {
-					closingCommit = {
-						hash: timelineEvent.commit_id,
-						timestamp: +new Date(timelineEvent.created_at),
-					};
-				}
-				if (timelineEvent.event === "reopened") {
-					closingCommit = undefined;
-				}
-				if (
-					timelineEvent.created_at &&
-					timelineEvent.event === "commented" &&
-					!((_b = timelineEvent.body) === null || _b === void 0
-						? void 0
-						: _b.includes("UNABLE_TO_LOCATE_COMMIT_MESSAGE")) &&
-					closingHashComment.test(timelineEvent.body)
-				) {
-					closingCommit = {
-						hash: closingHashComment.exec(timelineEvent.body)[1],
-						timestamp: +new Date(timelineEvent.created_at),
-					};
-				}
-				if (
-					timelineEvent.event === "cross-referenced" &&
-					((_d =
-						(_c = timelineEvent.source) === null || _c === void 0
-							? void 0
-							: _c.issue) === null || _d === void 0
-						? void 0
-						: _d.number) &&
-					((_g =
-						(_f =
-							(_e = timelineEvent.source) === null ||
-							_e === void 0
-								? void 0
-								: _e.issue) === null || _f === void 0
-							? void 0
-							: _f.pull_request) === null || _g === void 0
-						? void 0
-						: _g.url.includes(
-								`/${this.params.owner}/${this.params.repo}/`.toLowerCase(),
-							))
-				) {
-					crossReferencing.push(timelineEvent.source.issue.number);
-				}
-			}
-		}
-		// If we dont have any closing info, try to get it from linked issues (PRs).
-		// If there's a linked issue that was closed at almost the same time, guess it was a PR that closed this.
-		if (!closingCommit) {
-			for (const id of crossReferencing.reverse()) {
-				const closed = await new OctoKitIssue(this.token, this.params, {
-					number: id,
-				}).getClosingInfo(alreadyChecked);
-				if (closed) {
-					if (
-						Math.abs(
-							closed.timestamp -
-								((_h = (await this.getIssue()).closedAt) !==
-									null && _h !== void 0
-									? _h
-									: 0),
-						) < 5000
-					) {
-						closingCommit = closed;
-						break;
-					}
-				}
-			}
-		}
-		(0, utils_1.safeLog)(
-			`Got ${JSON.stringify(closingCommit)} as closing commit of ${this.issueData.number}`,
-		);
-		return closingCommit;
-	}
+    constructor(token, params, issueData, options = { readonly: false }) {
+        super(token, params, options);
+        this.params = params;
+        this.issueData = issueData;
+        (0, utils_1.safeLog)('running bot on issue', issueData.number);
+    }
+    async addAssignee(assignee) {
+        (0, utils_1.safeLog)('Adding assignee ' + assignee + ' to ' + this.issueData.number);
+        if (!this.options.readonly) {
+            await this.octokit.rest.issues.addAssignees({
+                ...this.params,
+                issue_number: this.issueData.number,
+                assignees: [assignee],
+            });
+        }
+    }
+    async removeAssignee(assignee) {
+        (0, utils_1.safeLog)('Removing assignee ' + assignee + ' to ' + this.issueData.number);
+        if (!this.options.readonly) {
+            await this.octokit.rest.issues.removeAssignees({
+                ...this.params,
+                issue_number: this.issueData.number,
+                assignees: [assignee],
+            });
+        }
+    }
+    async closeIssue(reason) {
+        (0, utils_1.safeLog)('Closing issue ' + this.issueData.number);
+        if (!this.options.readonly) {
+            const issue = await this.octokit.rest.issues.get({
+                ...this.params,
+                issue_number: this.issueData.number,
+            });
+            // Don't close already closed issues even if it means changing the state
+            if (issue.data.state === 'closed') {
+                return;
+            }
+            await this.octokit.rest.issues
+                .update({
+                ...this.params,
+                issue_number: this.issueData.number,
+                state: 'closed',
+                state_reason: reason,
+            })
+                .catch((e) => {
+                (0, utils_1.safeLog)('error closing issue:', e);
+            });
+        }
+    }
+    async lockIssue() {
+        (0, utils_1.safeLog)('Locking issue ' + this.issueData.number);
+        if (!this.options.readonly)
+            await this.octokit.rest.issues.lock({ ...this.params, issue_number: this.issueData.number });
+    }
+    async unlockIssue() {
+        (0, utils_1.safeLog)('Unlocking issue ' + this.issueData.number);
+        if (!this.options.readonly)
+            await this.octokit.rest.issues.unlock({ ...this.params, issue_number: this.issueData.number });
+    }
+    async getIssue() {
+        if (isIssue(this.issueData)) {
+            (0, utils_1.safeLog)('Got issue data from query result ' + this.issueData.number);
+            return this.issueData;
+        }
+        (0, utils_1.safeLog)('Fetching issue ' + this.issueData.number);
+        try {
+            const issue = (await this.octokit.rest.issues.get({
+                ...this.params,
+                issue_number: this.issueData.number,
+                mediaType: { previews: ['squirrel-girl'] },
+            })).data;
+            return (this.issueData = this.octokitIssueToIssue(issue));
+        }
+        catch (err) {
+            const statusError = err;
+            if (statusError.status === 404) {
+                (0, utils_1.safeLog)('Issue not found');
+                return;
+            }
+            throw err;
+        }
+    }
+    async postComment(body) {
+        (0, utils_1.safeLog)(`Posting comment on ${this.issueData.number}`);
+        if (!this.options.readonly)
+            await this.octokit.rest.issues.createComment({
+                ...this.params,
+                issue_number: this.issueData.number,
+                body,
+            });
+    }
+    async deleteComment(id) {
+        (0, utils_1.safeLog)(`Deleting comment ${id} on ${this.issueData.number}`);
+        if (!this.options.readonly)
+            await this.octokit.rest.issues.deleteComment({
+                owner: this.params.owner,
+                repo: this.params.repo,
+                comment_id: id,
+            });
+    }
+    async setMilestone(milestoneId) {
+        (0, utils_1.safeLog)(`Setting milestone for ${this.issueData.number} to ${milestoneId}`);
+        if (!this.options.readonly)
+            await this.octokit.rest.issues.update({
+                ...this.params,
+                issue_number: this.issueData.number,
+                milestone: milestoneId,
+            });
+    }
+    async *getComments(last) {
+        var _a;
+        (0, utils_1.safeLog)('Fetching comments for ' + this.issueData.number);
+        const response = this.octokit.paginate.iterator(this.octokit.rest.issues.listComments, {
+            ...this.params,
+            issue_number: this.issueData.number,
+            per_page: 100,
+            ...(last ? { per_page: 1, page: (_a = (await this.getIssue())) === null || _a === void 0 ? void 0 : _a.numComments } : {}),
+        });
+        for await (const page of response) {
+            numRequests++;
+            yield page.data.map((comment) => {
+                var _a, _b, _c, _d;
+                return ({
+                    author: { name: (_b = (_a = comment.user) === null || _a === void 0 ? void 0 : _a.login) !== null && _b !== void 0 ? _b : '', isGitHubApp: ((_c = comment.user) === null || _c === void 0 ? void 0 : _c.type) === 'Bot' },
+                    body: (_d = comment.body) !== null && _d !== void 0 ? _d : '',
+                    id: comment.id,
+                    timestamp: +new Date(comment.created_at),
+                });
+            });
+        }
+    }
+    async addLabel(name) {
+        (0, utils_1.safeLog)(`Adding label ${name} to ${this.issueData.number}`);
+        if (!(await this.repoHasLabel(name))) {
+            throw Error(`Action could not execute becuase label ${name} is not defined.`);
+        }
+        if (!this.options.readonly)
+            await this.octokit.rest.issues.addLabels({
+                ...this.params,
+                issue_number: this.issueData.number,
+                labels: [name],
+            });
+    }
+    async getAssigner(assignee) {
+        var _a, _b;
+        const options = {
+            ...this.params,
+            issue_number: this.issueData.number,
+        };
+        let assigner;
+        for await (const event of this.octokit.paginate.iterator(this.octokit.rest.issues.listEventsForTimeline, options)) {
+            numRequests++;
+            const timelineEvents = event.data;
+            for (const timelineEvent of timelineEvents) {
+                if (timelineEvent.event === 'assigned' && ((_a = timelineEvent.assignee) === null || _a === void 0 ? void 0 : _a.login) === assignee) {
+                    assigner = (_b = timelineEvent.actor) === null || _b === void 0 ? void 0 : _b.login;
+                }
+            }
+            if (assigner) {
+                break;
+            }
+        }
+        if (!assigner) {
+            throw Error('Expected to find ' + assignee + ' in issue timeline but did not.');
+        }
+        return assigner;
+    }
+    async removeLabel(name) {
+        (0, utils_1.safeLog)(`Removing label ${name} from ${this.issueData.number}`);
+        try {
+            if (!this.options.readonly)
+                await this.octokit.rest.issues.removeLabel({
+                    ...this.params,
+                    issue_number: this.issueData.number,
+                    name,
+                });
+        }
+        catch (err) {
+            const statusErorr = err;
+            if (statusErorr.status === 404) {
+                (0, utils_1.safeLog)(`Label ${name} not found on issue`);
+                return;
+            }
+            throw err;
+        }
+    }
+    async getClosingInfo(alreadyChecked = []) {
+        var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k;
+        if (alreadyChecked.includes(this.issueData.number)) {
+            return undefined;
+        }
+        alreadyChecked.push(this.issueData.number);
+        if ((_a = (await this.getIssue())) === null || _a === void 0 ? void 0 : _a.open) {
+            return;
+        }
+        const closingHashComment = /(?:\\|\/)closedWith (?:https:\/\/github\.com\/microsoft\/vscode\/commit\/)?([a-fA-F0-9]{7,40})/;
+        const options = {
+            ...this.params,
+            issue_number: this.issueData.number,
+        };
+        let closingCommit;
+        const crossReferencing = [];
+        for await (const event of this.octokit.paginate.iterator(this.octokit.rest.issues.listEventsForTimeline, options)) {
+            numRequests++;
+            const timelineEvents = event.data;
+            for (const timelineEvent of timelineEvents) {
+                if ((timelineEvent.event === 'closed' || timelineEvent.event === 'merged') &&
+                    timelineEvent.created_at &&
+                    timelineEvent.commit_id &&
+                    ((_b = timelineEvent.commit_url) === null || _b === void 0 ? void 0 : _b.toLowerCase().includes(`/${this.params.owner}/${this.params.repo}/`.toLowerCase()))) {
+                    closingCommit = {
+                        hash: timelineEvent.commit_id,
+                        timestamp: +new Date(timelineEvent.created_at),
+                    };
+                }
+                if (timelineEvent.event === 'reopened') {
+                    closingCommit = undefined;
+                }
+                if (timelineEvent.created_at &&
+                    timelineEvent.event === 'commented' &&
+                    !((_c = timelineEvent.body) === null || _c === void 0 ? void 0 : _c.includes('UNABLE_TO_LOCATE_COMMIT_MESSAGE')) &&
+                    closingHashComment.test(timelineEvent.body)) {
+                    closingCommit = {
+                        hash: closingHashComment.exec(timelineEvent.body)[1],
+                        timestamp: +new Date(timelineEvent.created_at),
+                    };
+                }
+                if (timelineEvent.event === 'cross-referenced' &&
+                    ((_e = (_d = timelineEvent.source) === null || _d === void 0 ? void 0 : _d.issue) === null || _e === void 0 ? void 0 : _e.number) &&
+                    ((_h = (_g = (_f = timelineEvent.source) === null || _f === void 0 ? void 0 : _f.issue) === null || _g === void 0 ? void 0 : _g.pull_request) === null || _h === void 0 ? void 0 : _h.url.includes(`/${this.params.owner}/${this.params.repo}/`.toLowerCase()))) {
+                    crossReferencing.push(timelineEvent.source.issue.number);
+                }
+            }
+        }
+        // If we dont have any closing info, try to get it from linked issues (PRs).
+        // If there's a linked issue that was closed at almost the same time, guess it was a PR that closed this.
+        if (!closingCommit) {
+            for (const id of crossReferencing.reverse()) {
+                const closed = await new OctoKitIssue(this.token, this.params, {
+                    number: id,
+                }).getClosingInfo(alreadyChecked);
+                if (closed) {
+                    if (Math.abs(closed.timestamp - ((_k = (_j = (await this.getIssue())) === null || _j === void 0 ? void 0 : _j.closedAt) !== null && _k !== void 0 ? _k : 0)) < 5000) {
+                        closingCommit = closed;
+                        break;
+                    }
+                }
+            }
+        }
+        (0, utils_1.safeLog)(`Got ${JSON.stringify(closingCommit)} as closing commit of ${this.issueData.number}`);
+        return closingCommit;
+    }
 }
 exports.OctoKitIssue = OctoKitIssue;
 function isIssue(object) {
