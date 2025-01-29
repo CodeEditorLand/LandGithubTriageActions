@@ -16,6 +16,13 @@ class IssueTriageAction extends Action {
 			const githubIssue = await issue.getIssue();
 			if (!githubIssue) return;
 
+			const vscodeToolsAPI = new VSCodeToolsAPIManager();
+			const teamMembers = new Set((await vscodeToolsAPI.getTeamMembers()).map((t) => t.id));
+			if (teamMembers.has(githubIssue.author.name)) {
+				safeLog('Author is a team member, skipping triaging', githubIssue.author.name);
+				return;
+			}
+
 			// check to see that issue is not already assigned and that it does not have the triage-needed label
 			if (githubIssue.assignees.length > 0 || githubIssue.labels.length > 0) {
 				return;
@@ -29,9 +36,7 @@ class IssueTriageAction extends Action {
 				return;
 			}
 
-			const vscodeToolsAPI = new VSCodeToolsAPIManager();
 			const triagers = await vscodeToolsAPI.getTriagerGitHubIds();
-
 			if (triagers.length === 0) {
 				safeLog('No available triagers found');
 				return;
